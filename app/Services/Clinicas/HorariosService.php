@@ -20,9 +20,12 @@ use App\Repositories\Clinicas\ConsultaRepository;
 use App\Services\Clinicas\Consulta\ConsultaProcedimentoService;
 use App\Services\Clinicas\Paciente\ProntuarioService;
 use App\Services\Clinicas\CompromissoService;
+use App\Services\Gerenciamento\DominioService;
 use App\Helpers\Functions;
 use App\Repositories\Clinicas\ConsultaStatusRepository;
 use App\Repositories\Clinicas\ConvenioRepository;
+use App\Services\CacheService;
+use App\Repositories\Clinicas\StatusRefreshRepository;
 
 /**
  * Description of Activities
@@ -56,6 +59,10 @@ class HorariosService extends BaseService {
      */
     public function listHorarios($idDominio, $doutorId, $dataInicio, $horaInicio = null, $dataFim = null, $horaFim = null, $minTime = null, $maxTime = null, $percentualOcupacao = false, $exibeConsultas = false, $dadosFiltro = null) {
 
+        $DominioService = new DominioService;
+        $rowDominio = $DominioService->getById($idDominio);
+        $rowDominio = $rowDominio['data'];
+
         $qntDias = 0;
 
         $ConsultaRepository = new ConsultaRepository;
@@ -71,6 +78,20 @@ class HorariosService extends BaseService {
         $timeInicio = strtotime($dataInicio . ' ' . $horaInicio);
         $timeFim = strtotime($dataFim . ' ' . $horaFim);
 
+        //        Cache
+        $StatusRefreshRepository = new StatusRefreshRepository();
+        $rowUltimoStatusRefresh = $StatusRefreshRepository->getStatusDoutor($idDominio, $doutorId);
+
+        $CacheService = new CacheService;
+        $keyCache = $idDominio . $doutorId . $dataAg . request()->server('REQUEST_URI');
+        $verifyCache = $CacheService->verifyCache($keyCache);
+        if ($verifyCache and isset($verifyCache['time']) and $rowUltimoStatusRefresh
+                and $verifyCache['time'] == $rowUltimoStatusRefresh->agenda_time) {
+//            echo 'cache: ' . $rowUltimoStatusRefresh->agenda_time;
+            return $verifyCache['content'];
+        }
+
+
         $CompromissoService = new CompromissoService;
         $qrCompromissos = $CompromissoService->getAll($idDominio, $doutorId, ['data' => $dataInicio, 'dataFim' => $dataFim], 1);
 
@@ -78,6 +99,7 @@ class HorariosService extends BaseService {
         $FERIADOS = $this->feriadoRepository->getByPeriodo($idDominio, $dataInicio, $dataFim, 2);
 
         if ($percentualOcupacao) {
+
             $DefinicaoMarcacaoDoutor = new DefinicaoMarcacaoConsultaRepository;
             $rowDefinicoesMarcDoutor = $DefinicaoMarcacaoDoutor->getByDoutoresId($idDominio, $doutorId);
         }
@@ -86,8 +108,8 @@ class HorariosService extends BaseService {
             $CONSULTAS = $this->consultaService->getAllArrayData($idDominio, $doutorId, $dataInicio, $dataFim);
         }
 
-
-//      
+//dd($CONSULTAS);
+//     
 
         $RETORNO = null;
         $contResult1 = 0;
@@ -288,6 +310,8 @@ class HorariosService extends BaseService {
                         if (!$verificaDisponibilidade) {
 //                        continue;
                             $RETORNO[$contResult1]['horariosList'][$contResult]['disponivel'] = false;
+                            $RETORNO[$contResult1]['horariosList'][$contResult]['disponivelVideo'] = false;
+                            $RETORNO[$contResult1]['horariosList'][$contResult]['disponivelMinisite'] = false;
                             $RETORNO[$contResult1]['horariosList'][$contResult]['descricao'] = 'Bloqueado';
                         }
 
@@ -368,6 +392,7 @@ class HorariosService extends BaseService {
 
                         //listando consultas
                         if ($arrayConsultasHR != null) {
+                            $qntEncaixes = 0;
                             $arrayConsultasHR = array_values($arrayConsultasHR);
                             $tempArray = array_unique(array_column($arrayConsultasHR, 'id'));
                             $arrayConsultasHR = array_intersect_key($arrayConsultasHR, $tempArray);
@@ -378,7 +403,7 @@ class HorariosService extends BaseService {
                                 $qrProcedimentos = $this->consultaProcedimentoService->getByConsultaId($idDominio, $rowConsulta->id);
                                 $dadosProcedimento = $qrProcedimentos;
                                 $arrayProcConv = [];
-                               if (!empty($dadosProcedimento)) {
+                                if (!empty($dadosProcedimento)) {
                                     foreach ($dadosProcedimento as $rowProc) {
                                         $arrayProcConv[$rowProc['convenioId']] = [
                                             'id' => $rowProc['convenioId'],
@@ -439,6 +464,7 @@ class HorariosService extends BaseService {
                                 }
 
                                 $consultaPaga = (!empty($rowConsulta->idRecebimento)) ? true : false;
+//                                dd($rowConsulta);
 
                                 $dadosConsulta = array(
                                     'id' => $rowConsulta->id,
@@ -470,14 +496,42 @@ class HorariosService extends BaseService {
                                     ],
                                     'procedimentos' => $dadosProcedimento,
                                     'convenio' => (isset($arrayProcConv[0])) ? $arrayProcConv[0] : [
-                                            'id' => $rowConsulta->convenios_id,
-                                            'nome' => Functions::correcaoUTF8Decode($rowConsulta->nomeConvenio),
+                                'id' => $rowConsulta->convenios_id,
+                                'nome' => Functions::correcaoUTF8Decode($rowConsulta->nomeConvenio),
                                     ],
                                     'encaixe' => ($rowConsulta->encaixe == 1) ? true : false,
                                     'pago' => $consultaPaga,
 //                                    'encaixeObservacao' =>$rowConsulta->encaixe_observacao,
 //                                    'encaixeAutorizado_por' =>$rowConsulta->encaixe_autorizado_por,
                                 );
+
+                                $qntEncaixes += ($rowConsulta->encaixe == 1) ? 1 : 0;
+
+                                $dadosConsulta['desconto'] = null;
+                                $dadosConsulta['acrescimo'] = null;
+                                if (!empty($rowConsulta->tipo_desconto) and
+                                        (
+                                        (!empty($rowConsulta->percentual_desconto) and $rowConsulta->percentual_desconto > 0)
+                                        or (!empty($rowConsulta->desconto_reais) and $rowConsulta->desconto_reais > 0)
+                                        )) {
+
+                                    $dadosConsulta['desconto']['tipo'] = $rowConsulta->tipo_desconto;
+                                    $dadosConsulta['desconto']['motivo'] = $rowConsulta->motivo_desconto;
+                                    $dadosConsulta['desconto']['valor'] = ($rowConsulta->tipo_desconto == 1) ? number_format($rowConsulta->percentual_desconto, 2, '.', '') : number_format($rowConsulta->desconto_reais, 2, '.', '');
+                                }
+                                if (!empty($rowConsulta->acrescimo_tipo)
+                                        and (
+                                        (!empty($rowConsulta->acrescimo_percentual) and $rowConsulta->acrescimo_percentual > 0 )
+                                        or (!empty($rowConsulta->acrescimo_valor) and $rowConsulta->acrescimo_valor > 0)
+                                        )
+                                ) {
+                                    $dadosConsulta['acrescimo']['tipo'] = $rowConsulta->acrescimo_tipo;
+                                    $dadosConsulta['acrescimo']['motivo'] = $rowConsulta->acrescimo_motivo;
+                                    $dadosConsulta['acrescimo']['valor'] = ($rowConsulta->acrescimo_tipo == 1) ? number_format($rowConsulta->acrescimo_percentual, 2, '.', '') : number_format($rowConsulta->acrescimo_valor, 2, '.', '');
+                                }
+
+
+
 
                                 //prontuarios
                                 if (isset($dadosFiltro['showProntuarios']) and $dadosFiltro['showProntuarios'] == true) {
@@ -489,8 +543,19 @@ class HorariosService extends BaseService {
                                 }
 
 
-
                                 $RETORNO[$contResult1]['horariosList'][$contResult]['consultas'][] = $dadosConsulta;
+                            }
+
+
+                            if ($rowDominio->alteracao_docbizz == 1) {
+//                                    var_Dump($dadosConsulta);
+                                if ($qntEncaixes == count($RETORNO[$contResult1]['horariosList'][$contResult]['consultas'])) {
+                                    $RETORNO[$contResult1]['horariosList'][$contResult]['consultas'][0]['encaixe'] = false;
+                                }
+//                                  if (auth('clinicas')->check()) {
+//                                        var_dump(auth('clinicas')->user());
+//                                  }
+//                              
                             }
 
                             //ordenando o array por encaixe
@@ -558,7 +623,11 @@ class HorariosService extends BaseService {
             $dataAg = date('Y-m-d', strtotime($dataAg . " +1 days"));
             $contResult1++;
         };
-
+        $dadosCache = [
+            'time' => ($rowUltimoStatusRefresh) ? $rowUltimoStatusRefresh->agenda_time : '',
+            'content' => $RETORNO
+        ];
+        $CacheService->createCache($keyCache, $dadosCache, 960);
 //        dd($RETORNO);
         return $RETORNO;
     }

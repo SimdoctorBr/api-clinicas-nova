@@ -41,6 +41,7 @@ use App\Services\Clinicas\Financeiro\GatewayPagamentos\CobrancaPagSeguroService;
 use App\Repositories\Clinicas\Asaas\AsaasConfigRepository;
 use App\Services\Clinicas\Financeiro\GatewayPagamentos\Asaas\CobrancaAsaasService;
 Use App\Services\Clinicas\Financeiro\GatewayPagamentos\Asaas\PacientesAsaasPagamentosService;
+use App\Services\Clinicas\EspecialidadeService;
 
 /**
  * Description of Activities
@@ -95,7 +96,7 @@ class ConsultaService extends BaseService {
             'doutor' => [
                 'id' => $rowConsulta->doutores_id,
                 'nomeDoutor' => $rowConsulta->nomeDoutor,
-//                'nomeConselhoProfissional' => $rowConsulta->nomeConselhoProfissional,
+                'urlFoto' => (!empty($rowConsulta->nomeFotoDoutor)) ? env('APP_URL_CLINICAS') . '/' . $nomeDominio . '/arquivos/fotos_doutor/' . $rowConsulta->nomeFotoDoutor : null,
 //                'conselhoProfissionalNumero' => $rowConsulta->conselho_profissional_numero,
 //                'conselhoUfId' => $rowConsulta->conselho_uf_id,
 //                'conselhoUfSigla' => $rowConsulta->siglaUfConselho,
@@ -109,7 +110,7 @@ class ConsultaService extends BaseService {
             ,
             'mensagem' => $rowConsulta->mensagem,
             'pacientesSemCadastroId' => $rowConsulta->pacientes_sem_cadastro_id,
-            'confirmacao' => $rowConsulta->confirmacao,
+            'confirmacao' => (empty($rowConsulta->confirmacao)) ? 'nao' : $rowConsulta->confirmacao,
 //            'emailProximidadeEnviado' => $rowConsulta->email_de_proximidade,
 //            'emailProximidadeEnviado2' => $rowConsulta->email_de_proximidade2,
 //            'smsProximidadeEnviado' => $rowConsulta->sms_de_proximidade,
@@ -131,6 +132,22 @@ class ConsultaService extends BaseService {
             'encaixeAutorizadoPor' => $rowConsulta->encaixe_observacao,
         );
 
+        //Especialidades
+        $retorno['doutor']['especialidades'] = null;
+        if (isset($rowConsulta->nomeEspecialidade) and!empty($rowConsulta->nomeEspecialidade)) {
+            $retorno['doutor']['especialidades'][] = array('nome' => utf8_decode($rowConsulta->nomeEspecialidade));
+        } elseif (isset($rowConsulta->outra_especialidade) and!empty($rowConsulta->outra_especialidade)) {
+            $retorno['doutor']['especialidades'][] = array('nome' => $rowConsulta->outra_especialidade);
+        }
+
+        $EspecialidadeService = new EspecialidadeService;
+        $qrEspecialidades = $EspecialidadeService->getByDoutorId($rowConsulta->identificador, $rowConsulta->doutores_id);
+        if ($qrEspecialidades['success']) {
+            $retorno['doutor']['especialidades'] = $qrEspecialidades['data'];
+        }
+        ////////
+
+
         if ($rowUltimaConsulta) {
             $retorno['paciente']['ultimaConsulta']['data'] = $rowUltimaConsulta->data_consulta;
             $retorno['paciente']['ultimaConsulta']['hora'] = $rowUltimaConsulta->hora_consulta;
@@ -148,7 +165,14 @@ class ConsultaService extends BaseService {
                 $rowStatusConsulta = $ConsultaStatusRepository->getById($rowConsulta->identificador, $statusDados[2]);
 
                 $retorno['desmarcadoPor'] = ($rowStatusConsulta->desmarcado_por == 1) ? 'paciente' : 'doutor';
-                $retorno['razaoDesmarcacao'] = (!empty($rowStatusConsulta->razao_desmarcacao)) ? $rowStatusConsulta->razao_desmarcacao : null;
+                $retorno['razaoDesmarcacao'] = (!empty($rowStatusConsulta->razao_desmarcacao)) ? utf8_decode($rowStatusConsulta->razao_desmarcacao) : null;
+
+//                dd($rowStatusCOnsulta);
+            } else
+            if ($statusDados[0] == 'faltou') {
+                $ConsultaStatusRepository = new ConsultaStatusRepository;
+                $rowStatusConsulta = $ConsultaStatusRepository->getById($rowConsulta->identificador, $statusDados[2]);
+                $retorno['motivoFalta'] = (!empty($rowStatusConsulta->obs_falta)) ? utf8_decode($rowStatusConsulta->obs_falta) : null;
 
 //                dd($rowStatusCOnsulta);
             }
@@ -179,7 +203,7 @@ class ConsultaService extends BaseService {
 
         if (isset($rowConsulta->idPacAssasPag) and!empty($rowConsulta->idPacAssasPag)) {
             $PacientesAsaasPagamentosService = new PacientesAsaasPagamentosService;
-            $statusAsaas =  $PacientesAsaasPagamentosService->statusCobrancaPorId($rowConsulta->statusCobrancaAssas);
+            $statusAsaas = $PacientesAsaasPagamentosService->statusCobrancaPorId($rowConsulta->statusCobrancaAssas);
             $retorno['linkCobranca'] = [
                 'gateway' => 'Asaas',
                 'linkCobranca' => $rowConsulta->linkPagAssas,
@@ -216,6 +240,28 @@ class ConsultaService extends BaseService {
             $retorno['pago'] = true;
         }
 
+        $retorno['desconto'] = null;
+        $retorno['acrescimo'] = null;
+        if (!empty($rowConsulta->tipo_desconto) and
+                (
+                (!empty($rowConsulta->percentual_desconto) and $rowConsulta->percentual_desconto > 0)
+                or (!empty($rowConsulta->desconto_reais) and $rowConsulta->desconto_reais > 0)
+                )) {
+
+            $retorno['desconto']['tipo'] = $rowConsulta->tipo_desconto;
+            $retorno['desconto']['motivo'] = $rowConsulta->motivo_desconto;
+            $retorno['desconto']['valor'] = ($rowConsulta->tipo_desconto == 1) ? number_format($rowConsulta->percentual_desconto, 2, '.', '') : number_format($rowConsulta->desconto_reais, 2, '.', '');
+        }
+        if (!empty($rowConsulta->acrescimo_tipo)
+                and (
+                (!empty($rowConsulta->acrescimo_percentual) and $rowConsulta->acrescimo_percentual > 0 )
+                or (!empty($rowConsulta->acrescimo_valor) and $rowConsulta->acrescimo_valor > 0)
+                )
+        ) {
+            $retorno['acrescimo']['tipo'] = $rowConsulta->acrescimo_tipo;
+            $retorno['acrescimo']['motivo'] = $rowConsulta->acrescimo_motivo;
+            $retorno['acrescimo']['valor'] = ($rowConsulta->acrescimo_tipo == 1) ? number_format($rowConsulta->acrescimo_percentual, 2, '.', '') : number_format($rowConsulta->acrescimo_valor, 2, '.', '');
+        }
 
         //pag_seguro_status
         //pag_seg_transaction_id
@@ -269,7 +315,7 @@ class ConsultaService extends BaseService {
     }
 
     private function getLinkVideo($CodVideo, $nomeDominio) {
-        return env('APP_URL_CLINICAS') . '/' . $nomeDominio . '/videoconf?c=' . $CodVideo;
+        return env('APP_URL_CLINICAS') . $nomeDominio . '/videoconf?c=' . $CodVideo;
     }
 
     public function getAll($idDominio, $request, $dadosQuery = null) {
@@ -520,7 +566,7 @@ class ConsultaService extends BaseService {
 
     public function store($idDominio, $dadosInput, $dadosPac = null) {
 
-
+        $dadosFiltroConsulta = null;
         $pacienteId = (isset($dadosInput['pacienteId']) and!empty($dadosInput['pacienteId'])) ? $dadosInput['pacienteId'] : null;
         $doutorId = $dadosInput['doutorId'];
         $data = $dadosInput['data'];
@@ -546,11 +592,11 @@ class ConsultaService extends BaseService {
             $rowConfigAsaas = $AsaasConfigRepository->getConfig($idDominio);
             if (!$rowConfigAsaas) {
                 return $this->returnError(null, 'Este perfil não possui o Asaas configurado.');
-            } elseif (!isset($dadosInput['formaPagAssas']) or empty($dadosInput['formaPagAssas'])) {
-                return $this->returnError(null, 'Forma de pagamento não informada');
-            } elseif ($dadosInput['formaPagAssas'] != 'pix' and $dadosInput['formaPagAssas'] != 'cartao') {
+//            } elseif (!isset($dadosInput['formaPagAsaas']) or empty($dadosInput['formaPagAsaas'])) {
+//                return $this->returnError(null, 'Forma de pagamento não informada');
+            } elseif (isset($dadosInput['formaPagAsaas']) and!empty($dadosInput['formaPagAsaas']) and $dadosInput['formaPagAsaas'] != 'pix' and $dadosInput['formaPagAsaas'] != 'cartao') {
                 return $this->returnError(null, 'Forma de pagamento  inválida.');
-            } elseif ($dadosInput['formaPagAssas'] != 'pix' and $dadosInput['formaPagAssas'] != 'cartao') {
+            } elseif (isset($dadosInput['formaPagAsaas']) and!empty($dadosInput['formaPagAsaas']) and $dadosInput['formaPagAsaas'] != 'pix' and $dadosInput['formaPagAsaas'] != 'cartao') {
                 return $this->returnError(null, 'Forma de pagamento  inválida.');
             } elseif (!isset($dadosInput['paciente']['email']) or empty($dadosInput['paciente']['email'])) {
                 return $this->returnError(null, 'Infome o e-mail do paciente');
@@ -562,7 +608,6 @@ class ConsultaService extends BaseService {
                 return $this->returnError(null, 'CPF do paciente inválido.');
             }
         }
-
 
 
 
@@ -587,6 +632,9 @@ class ConsultaService extends BaseService {
 
         $rowDoutor = $qrDoutor;
 
+        $ProcedimentosRepository = new ProcedimentosRepository;
+        $qrProcVideoPadrao = $ProcedimentosRepository->getAllProcedimentosVinculados($idDominio, null, null, $rowDoutor->proc_doutor_id_video);
+
         $Convenios = new ConvenioRepository;
         $rowConvenio = $Convenios->getConveniosPacientes($idDominio, $pacienteId, $doutorId);
 
@@ -596,13 +644,11 @@ class ConsultaService extends BaseService {
 
 
         //encaixe
-
         if (isset($dadosInput['encaixe']) and!empty($dadosInput['encaixe'])
                 and $dadosInput['encaixe'] != 'true' and $dadosInput['encaixe'] != 'false') {
             return $this->returnError('', "O encaixe deve ser 'true' ou 'false'");
         }
-
-
+        $dadosFiltroConsulta['encaixe'] = (isset($dadosInput['encaixe']) and!empty($dadosInput['encaixe'])) ? $dadosInput['encaixe'] : false;
 
         /////Verifica  horários
         if (!empty($dadosInput['horarioFim']) and ( strtotime($horarioFim) < strtotime($horario))) {
@@ -610,7 +656,7 @@ class ConsultaService extends BaseService {
         }
 
         $horaTermino = (!empty($horarioFim)) ? $horarioFim : $horario;
-        $qrHorarios = $HorariosService->listHorarios($idDominio, $doutorId, $data, $horario, $data, $horaTermino);
+        $qrHorarios = $HorariosService->listHorarios($idDominio, $doutorId, $data, $horario, $data, $horaTermino, null, null, false, false, $dadosFiltroConsulta);
 
         if (!isset($qrHorarios[0]['horariosList'])) {
             return $this->returnError('', 'Horário indisponível');
@@ -631,11 +677,22 @@ class ConsultaService extends BaseService {
 
         $verficaHorario = false;
         $erroHorafim = null;
-        foreach ($qrHorarios[0]['horariosList'] as $rowHorario) {
 
-            if ($horario == $rowHorario['inicio'] and $rowHorario['disponivel'] == true) {
-                $verficaHorario = true;
-                break;
+        foreach ($qrHorarios[0]['horariosList'] as $rowHorario) {
+            if (isset($dadosInput['tipoAtendimento']) and $dadosInput['tipoAtendimento'] == 'video') {
+
+
+                if ($horario == $rowHorario['inicio'] and $rowHorario['disponivelVideo'] == true) {
+
+                    $verficaHorario = true;
+                    break;
+                }
+            } else {
+
+                if ($horario == $rowHorario['inicio'] and $rowHorario['disponivel'] == true) {
+                    $verficaHorario = true;
+                    break;
+                }
             }
 
             //Verificando os horáios entre o incio e termino se estão disponiveis
@@ -646,6 +703,7 @@ class ConsultaService extends BaseService {
                 }
             }
         }
+
 
         if (!$verficaHorario) {
             return $this->returnError('', 'Horário indisponível');
@@ -760,13 +818,26 @@ class ConsultaService extends BaseService {
                 $linkVideo = $this->getLinkVideo($codVideo, $rowDominio->dominio);
 
                 unset($dadosUpdate);
-            } else {
 
+                ///Verifica proceidmento padrão para videoconsulta
+                if ($rowDoutor->proc_doutor_id_video != null and $dadosInput['tipoAtendimento'] == 'video') {
+                    $ProcedimentosRepository = new ProcedimentosRepository;
+                    $rowProc = $ProcedimentosRepository->getAllProcedimentosVinculados($rowDoutor->identificador, null, null, $rowDoutor->proc_doutor_id_video);
+                    $rowProc = $rowProc[0];
+                    $precoConsulta = $rowProc->valor_proc;
+                    $dadosProcedimentos[] = array(
+                        'id' => $rowProc->procedimentos_id,
+                        'convenioId' => $rowProc->proc_convenios_id,
+                        'qnt' => 1,
+                        'valor' => $rowProc->valor_proc,
+                    );
+                }
+            } else {
 
                 if (isset($dadosInput['procedimentos'])) {
                     $dadosProcedimentos = $dadosInput['procedimentos'];
                 } else {
-
+                    ///Verifica proceidmento padrão para consulta presencial
                     if ($rowDoutor->procPadraoIdProcedimento != null) {
                         $precoConsulta = $rowDoutor->procPadraoValor;
                         $dadosProcedimentos[] = array(
@@ -777,14 +848,12 @@ class ConsultaService extends BaseService {
                         );
                     }
                 }
-
-                if (count($dadosProcedimentos) > 0) {
-
-                    $resultProc = $ConsultaProcedimentoService->calculoProcedimentosConsultas($idDominio, $idConsulta, $doutorId, $dadosProcedimentos, $rowDominio, $rowDoutor);
-                    $precoConsulta = $resultProc['valorTotalProc'];
-                }
             }
 
+            if (count($dadosProcedimentos) > 0) {
+                $resultProc = $ConsultaProcedimentoService->calculoProcedimentosConsultas($idDominio, $idConsulta, $doutorId, $dadosProcedimentos, $rowDominio, $rowDoutor);
+                $precoConsulta = $resultProc['valorTotalProc'];
+            }
 
             //Assaas
             if (isset($dadosInput['linkAsaas']) and $dadosInput['linkAsaas'] == true and $precoConsulta > 0
@@ -792,7 +861,7 @@ class ConsultaService extends BaseService {
                 $descricaoAsaasCobranca = 'Agendamento com o dr(a) ' . $rowDoutor->nome . ' no dia ' . Functions::dateDbToBr($data) . ' as ' . $horario . 'h :';
                 $CobrancaAsaasService = new CobrancaAsaasService;
                 $CobrancaAsaasService->setAmbienteAsaas($rowDominio->ambiente_assas);
-                $CobrancaAsaasService->setFormaPagamento($dadosInput['formaPagAssas']);
+                $CobrancaAsaasService->setFormaPagamento($dadosInput['formaPagAsaas']);
                 $CobrancaAsaasService->setIdCustomer($rowPaciente['idCustomerAsaas']);
                 $CobrancaAsaasService->setPacienteCelular($rowPaciente['celular']);
                 $CobrancaAsaasService->setPacienteCpf($dadosInput['paciente']['cpf']);
@@ -804,6 +873,7 @@ class ConsultaService extends BaseService {
                 $rowCons = $this->consultaRepository->getById($idDominio, $idConsulta);
 
                 $cobrancaAsaas = $CobrancaAsaasService->createCobrancaConsulta($idDominio, $idConsulta, $rowConfigAsaas, $rowCons);
+
                 if ($cobrancaAsaas['success']) {
                     $linkPagamento = $cobrancaAsaas['data']['linkPagamento'];
                 } else {

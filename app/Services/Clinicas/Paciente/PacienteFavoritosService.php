@@ -42,6 +42,8 @@ class PacienteFavoritosService extends BaseService {
         if ($qr) {
             $nomeDominio = null;
             $retorno = null;
+            
+         
             foreach ($qr as $row) {
 
                 if (!isset($nomeDominio[$row->identificador])) {
@@ -49,7 +51,8 @@ class PacienteFavoritosService extends BaseService {
                     $nomeDominio[$row->identificador] = $rowDominio->dominio;
                 }
 
-                $retF['idFavorito'] = $row->doutores_id;
+        
+                $retF['idFavorito'] = $row->idFavorito;
                 $retF['doutorId'] = $row->doutores_id;
                 $retF = array_merge( $retF,$DoutoresService->fieldsResponse($row, $nomeDominio[$row->identificador]));
                 unset($retF['id']);

@@ -59,4 +59,15 @@ class StatusRefreshRepository extends BaseRepository {
         return $retorno;
     }
 
+     public function getStatusDoutor($idDominio, $doutorId) {
+
+
+        $retorno['success'] = false;
+        $qrVerifica = $this->connClinicas()->select("SELECT * FROM  status_refresh WHERE identificador  = $idDominio AND doutores_id = '$doutorId'");
+        if (count($qrVerifica) > 0) {
+            return $qrVerifica[0];
+        } else {
+            return false;
+        }
+    }
 }

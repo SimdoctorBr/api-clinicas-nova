@@ -12,10 +12,16 @@ class DiasAtendimentoRepository extends BaseRepository {
 
 
         $order = " ORDER BY B.idDia ASC";
+
+        $sql = '';
         if (!empty($diaSemanaId)) {
-            $sql = "AND A.dias_da_semana_id = '$diaSemanaId' ";
+            $sql = " AND A.dias_da_semana_id = '$diaSemanaId' ";
             $order = null;
         }
+        if (!empty($definicoesHorariosId)) {
+            $sql .= " AND A.definicoes_horarios_id = $definicoesHorariosId";
+        }
+
 
 
         $qr = $this->connClinicas()->select("SELECT A.*, B.nome as nomeDia,B.dia_em_php FROM dias_atendimento as A

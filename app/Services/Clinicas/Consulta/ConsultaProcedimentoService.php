@@ -96,6 +96,7 @@ class ConsultaProcedimentoService extends BaseService {
                     'procedimentoId' => $rowProc->procedimentos_id,
                     'procConvId' => $rowProc->procedimentos_id . '_' . $rowProc->convenios_id,
                     'nome' => Functions::utf8Fix($rowProc->nome_proc),
+                    'duracao' =>$rowProc->duracao,
                     'convenioId' => $rowProc->convenios_id,
                     'convenioNome' => Functions::correcaoUTF8Decode($rowProc->nome_convenio),
                     'valor' => $rowProc->valor_proc,
@@ -150,6 +151,11 @@ class ConsultaProcedimentoService extends BaseService {
             $DoutorRepository = new DoutorRepository;
             $rowDoutor = $DoutorRepository->getById($idDominio, $idDoutor);
         }
+
+        $DADOS_RETORNO = [
+            'idsProcConsultas' => null,
+            'valorTotalProc' => 0,
+        ];
 
         $qrConvenios = $ConvenioRepository->getAll($idDominio);
         $DADOS_CONVENIO = null;
@@ -393,7 +399,7 @@ class ConsultaProcedimentoService extends BaseService {
 //                $dadosConsultaProcInsert['proc_acrescimo'] = $procAcrescimo;
 
 
-            $this->store($idDominio, $dadosConsultaProcInsert);
+            $DADOS_RETORNO['idsProcConsultas'][] = $this->store($idDominio, $dadosConsultaProcInsert);
 
 //                
 //                if (!empty($idsRecebimentosProc)) {
@@ -409,9 +415,11 @@ class ConsultaProcedimentoService extends BaseService {
 //                if ($proc_pag_parcial[$chave] == 1 or $chk_consulta_paga == 1) {
 //                    $idsProcParcial[] = $idConsultaProcedimento;
 //                }
-
-            return ['valorTotalProc' => $totalProc];
+            $DADOS_RETORNO['valorTotalProc'] += $totalProc;
+          
         }
+        
+          return $DADOS_RETORNO;
     }
 
 }

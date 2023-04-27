@@ -15,6 +15,7 @@ use App\Repositories\Clinicas\GrupoAtendimentoRepository;
 use App\Repositories\Clinicas\IdiomaClinicaRepository;
 use App\Repositories\Clinicas\DoutorFormacaoRepository;
 use App\Repositories\Clinicas\ConvenioRepository;
+use App\Repositories\Clinicas\ProcedimentosRepository;
 
 class DoutoresService extends BaseService {
 
@@ -46,6 +47,7 @@ class DoutoresService extends BaseService {
         $retorno['sexo'] = $row->sexo;
         $retorno['dataCad'] = $row->dataCad;
         $retorno['possuiVideoconsulta'] = ($row->possui_videoconf == 1) ? true : false;
+        $retorno['duracaoVideoConsulta'] = (!empty($row->duracao_videocons)) ? $row->duracao_videocons : null;
         $retorno['precoConsulta'] = ($row->possui_videoconf == 1) ? str_replace(',', '.', str_replace('.', '', $row->precoConsulta)) : null;
 
         if (isset($row->totalConsultasAtendidas)) {
@@ -66,7 +68,7 @@ class DoutoresService extends BaseService {
 
         $retorno['especialidades'] = null;
         if (isset($row->nomeEspecialidade) and!empty($row->nomeEspecialidade)) {
-            $retorno['especialidades'][] = array('nome' => $row->nomeEspecialidade);
+            $retorno['especialidades'][] = array('nome' => utf8_decode($row->nomeEspecialidade));
         } elseif (isset($row->outra_especialidade) and!empty($row->outra_especialidade)) {
             $retorno['especialidades'][] = array('nome' => $row->outra_especialidade);
         }
@@ -110,11 +112,13 @@ class DoutoresService extends BaseService {
         }
 
 
-        $retorno['sobre'] = $row->sobre;
+        $retorno['sobre'] = html_entity_decode($row->sobre);
+        $retorno['linkVideoProfissional'] = $row->link_video;
         $retorno['pontuacao'] = $row->pontuacao;
         $retorno['perfilId'] = $row->identificador;
 
-        $retorno['favoritoPaciente'] = (isset($row->favoritoPaciente) and $row->favoritoPaciente > 0) ? true : false;
+        $retorno['favoritoPaciente'] = (isset($row->favoritoPaciente) and!empty($row->favoritoPaciente)) ? true : false;
+        $retorno['favoritoId'] = (isset($row->favoritoPaciente) and!empty($row->favoritoPaciente)) ? $row->favoritoPaciente : null;
 
         $retorno['conselho'] = [
             'nome' => (!empty($row->nomeConselhoProfissional)) ? $row->nomeConselhoProfissional : null,
@@ -131,10 +135,28 @@ class DoutoresService extends BaseService {
                 'idProcedimentoDoutor' => $row->proc_doutor_id_presencial,
                 'idProcedimento' => $row->procPadraoIdProcedimento,
                 'nomeProcedimento' => $row->procPadraoNome,
+                'duracao' => $row->procDuracao,
                 'convenio' => ['id' => $row->procPadraoIdConvenio,
                     'nome' => $row->procPadraoNomeConvenio,
                 ],
                 'valor' => $row->procPadraoValor,
+            ];
+        }
+        $retorno['procedimentoPadraoVideo'] = null;
+        if (isset($row->proc_doutor_id_video) and!empty($row->proc_doutor_id_video)) {
+            $ProcedimentosRepository = new ProcedimentosRepository();
+            $rowProc = $ProcedimentosRepository->getAllProcedimentosVinculados($row->identificador, null, null, $row->proc_doutor_id_video);
+            $rowProc =$rowProc[0];
+         
+            $retorno['procedimentoPadraoVideo'] = [
+                'idProcedimentoDoutor' => $row->proc_doutor_id_video,
+                'idProcedimento' => $rowProc->procedimentos_id,
+                'nomeProcedimento' => $rowProc->nomeProcedimento,
+                'duracao' => $rowProc->duracao,
+                'convenio' => ['id' => $rowProc->proc_convenios_id,
+                    'nome' => $rowProc->nomeConvenioProc,
+                ],
+                'valor' => $rowProc->valor_proc,
             ];
         }
 

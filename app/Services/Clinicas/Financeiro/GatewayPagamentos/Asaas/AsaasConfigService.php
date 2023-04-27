@@ -14,10 +14,12 @@ use App\Repositories\Gerenciamento\DominioRepository;
 use App\Repositories\Clinicas\Asaas\AsaasConfigRepository;
 use App\Services\AsaasAPI\Api\AsaasApiClientes;
 use App\Helpers\Functions;
+use App\Repositories\Clinicas\Paciente\PacienteRepository;
+
 /**
  * Description of Activities
  *
- * @author ander
+ * @author ander 
  */
 class AsaasConfigService extends BaseService {
 
@@ -64,17 +66,18 @@ class AsaasConfigService extends BaseService {
         }
     }
 
-    private function insertClienteAssasSimdoctor($idDominio, $idPaciente, $dadosPaciente, $ambienteAsaas, $rowConfigAssas) {
+    private function insertClienteAssasSimdoctor($idDominio, $idPaciente, $dadosPaciente, $ambienteAsaas, $rowConfigAssas = null) {
 
-        $Paciente = new Pacientes();
+
         $retorno = null;
 
+        $AsaasConfigRepository = new AsaasConfigRepository;
         if (empty($rowConfigAssas)) {
-            $rowConfigAssas = $this->getConfig($idDominio);
+            $rowConfigAssas = $AsaasConfigRepository->getConfig($idDominio);
         }
-        $AssasApiClientes = new AssasApiClientes($ambienteAsaas, $rowConfigAssas->apiKey);
+        $AssasApiClientes = new AsaasApiClientes($ambienteAsaas, $rowConfigAssas->apiKey);
         $AssasApiClientes->setName($dadosPaciente['nome']);
-        $AssasApiClientes->setCpfCnpj(limpaCpfCnpj($dadosPaciente['cpf']));
+        $AssasApiClientes->setCpfCnpj(str_replace('/', '', str_replace('-', '', str_replace('.', '', $dadosPaciente['cpf']))));
         $AssasApiClientes->setEmail($dadosPaciente['email']);
         $AssasApiClientes->setExternalReference('sim' . $idPaciente);
         $AssasApiClientes->setNotificationDisabled(false);
@@ -84,7 +87,8 @@ class AsaasConfigService extends BaseService {
             return $this->returnError(null, 'Ocorreu um erro interno, por favor tente mais tarde.<br> Cod. [0]');
         } else {
             if (isset($insertPaciente->id)) {
-                $this->vincularPacienteAssas($idDominio, $idPaciente, $insertPaciente->id);
+                $PacienteRepository = new PacienteRepository;
+                $PacienteRepository->vincularPacienteAssas($idDominio, $idPaciente, $insertPaciente->id);
             }
         }
         $retorno['response'] = $insertPaciente;
@@ -119,15 +123,16 @@ class AsaasConfigService extends BaseService {
         } else {
             $dadosPac['nome'] = $nomePaciente;
             $dadosPac['cpf'] = $cpfPaciente;
-            $cliAsaas = $this->insertClienteAssasSimdoctor($idDominio, $idPaciente, $dadosPac, $rowConfigAsaas);
+            $dadosPac['email'] = $emailPaciente;
+            $cliAsaas = $this->insertClienteAssasSimdoctor($idDominio, $idPaciente, $dadosPac, $ambienteAsaas);
             if (!$cliAsaas['success']) {
                 $this->returnError($cliAsaas, 'Ocorreu um erro interno, por favor tente mais tarde.<br> Cod. [1]');
             } else {
                 $idCustomer = $cliAsaas['data']['customerId'];
             }
         }
-        
-      return   $this->returnSuccess(['idCustomer' => $idCustomer]);
+
+        return $this->returnSuccess(['idCustomer' => $idCustomer]);
     }
 
 }

@@ -24,7 +24,7 @@ class PlanoBeneficioController extends Controller {
         $PlanoBeneficioService = new PlanoBeneficioService;
 
         $result = $PlanoBeneficioService->getAll($idDominio);
-        return $this->returnResponse($result);
+        return $result;
     }
 
     public function store(Request $request) {

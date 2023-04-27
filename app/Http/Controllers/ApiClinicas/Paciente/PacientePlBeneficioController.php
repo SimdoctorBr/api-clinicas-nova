@@ -192,13 +192,13 @@ class PacientePlBeneficioController extends BaseController {
 
     public function cancelarAlteracaoPlano(Request $request, $pacienteId) {
 
+        dd($request);  
         $getDominio = $this->getIdDominio($request, 'input', true);
         if ($getDominio['success']) {
             $idDominio = $getDominio['perfisId'];
         } else {
             return response()->json($getDominio);
         }
-
         $PacientePlanoBeneficioService = new PacientePlanoBeneficioService;
         $result = $PacientePlanoBeneficioService->cancelarAlteracaoPlano($idDominio, $pacienteId);
         return $result;

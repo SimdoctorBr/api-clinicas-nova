@@ -66,8 +66,9 @@ class UploadService extends BaseService {
                 imagepng($novaImagem, $imgDestino);
                 break;
             case 1: $srcImg = imagecreatefromgif($imgOrigem);
-                imagecopyresampled($novaImagem, $imgDestino, 0, 0, 0, 0, $novaLargura, $novaAltura, $imgLarg, $imgAlt);
-                imagegif($novaImagem, $imagem_dir_thumb);
+           
+                imagecopyresampled($novaImagem, $srcImg, 0, 0, 0, 0, $novaLargura, $novaAltura, $imgLarg, $imgAlt);
+                imagegif($novaImagem, $imgDestino);
                 break;
             case 6: $srcImg = imagecreatefromwbmp($imgOrigem);
                 imagecopyresampled($novaImagem, $srcImg, 0, 0, 0, 0, $novaLargura, $novaAltura, $imgLarg, $imgAlt);

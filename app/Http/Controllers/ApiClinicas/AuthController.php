@@ -148,7 +148,7 @@ class AuthController extends BaseController {
         return $this->respondWithToken($token, $authTokenDocbiz);
     }
 
-    public function loginPorPerfil(Request $request) { 
+    public function loginPorPerfil(Request $request) {
 
         $origemLogin = $_SERVER['HTTP_USER_AGENT'];
         $this->validate($request, [
@@ -308,6 +308,8 @@ class AuthController extends BaseController {
                 'nome' => $rowPac->nome_cript,
                 'sobrenome' => $rowPac->sobrenome_cript,
                 'email' => $rowPac->email_cript,
+                'telefone' => $rowPac->telefone_cript,
+                'celular' => $rowPac->celular_cript,
                 'patient' => true
             ];
         }
@@ -416,19 +418,31 @@ class AuthController extends BaseController {
                     'sobrenome' => 'required|string|min:3|max:255',
                     'email' => 'required|email',
                     'senha' => 'required|min:8|max:16',
-                    'perfil_id' => 'required|numeric',
+                    'perfilId' => 'required|numeric',
+                    'telefone' => 'nullable|numeric',
+                    'celular' => 'nullable|numeric',
+                    'cpf ' => 'nullable|numeric|digits:11',
                         ], [
         ]);
 
         $user = new Paciente;
 
-        $verificaExiste = $user->isExistsLogin($request->input('perfil_id'), trim($request->input('email')));
+        $verificaExiste = $user->isExistsLogin($request->input('perfilId'), trim($request->input('email')));
         if ($verificaExiste) {
             return response()->json([
                         'success' => false,
                         'data' => '',
                         'message' => 'Este e-mail já está cadastrado',
             ]);
+        }
+        
+           if ($request->has('cpf') and !empty($request->input('cpf')) and !Functions::validateCPF($request->input('cpf'))) {
+               
+            return response()->json([
+                        'success' => false,
+                        'data' => '',
+                        'message' => 'CPF inválido',
+            ]); 
         }
 
 
@@ -439,7 +453,11 @@ class AuthController extends BaseController {
             $dadosPaciente['sobrenome'] = trim($request->input('sobrenome'));
             $dadosPaciente['email'] = trim($request->input('email'));
             $dadosPaciente['senha'] = trim($request->input('senha'));
-            $dadosPaciente['identificador'] = trim($request->input('perfil_id'));
+            $dadosPaciente['telefone'] = trim($request->input('telefone'));
+            $dadosPaciente['celular'] = trim($request->input('celular'));
+            $dadosPaciente['identificador'] = trim($request->input('perfilId'));
+            $dadosPaciente['cpf'] = ($request->has('cpf') and!empty($request->input('cpf'))) ?
+                    Functions::cpfToNumber(trim($request->input('cpf'))) : '';
             $dadosPaciente['envia_email'] = true;
 
             $idPaciente = $user->storeLogin($dadosPaciente);
@@ -447,7 +465,7 @@ class AuthController extends BaseController {
             return response()->json([
                         'success' => true,
                         'data' => ['id' => $idPaciente],
-                        'message' => 'Paciente cadastrado com sucesso@',
+                        'message' => 'Paciente cadastrado com sucesso',
                             ], 200);
         } catch (\Exception $e) {
 

@@ -125,10 +125,7 @@ class DoutoresController extends BaseController {
         } else {
             return response()->json($getDominio);
         }
-
-
         $result = $this->doutoresService->update($idDominio, $pacienteId, $arquivoId, $request->input('title'));
-
         return $result;
     }
 
@@ -227,6 +224,28 @@ class DoutoresController extends BaseController {
 //        } else {
 
         $result = $this->doutoresService->getConveniosDoutores($idDominio, $doutorId, $dadosFiltro);
+//        }
+
+
+
+        return $result;
+    }
+
+    public function getById(Request $request, $doutorId) {
+
+        $getDominio = $this->getIdDominio($request, 'input', true);
+        if ($getDominio['success']) {
+            $idDominio = $getDominio['perfisId'];
+        } else {
+            return response()->json($getDominio);
+        }
+
+
+//        if ($validation->fails()) {
+//            return $this->sendErrorValidator($validation->errors()->all());
+//        } else {
+
+        $result = $this->doutoresService->getById($idDominio, $doutorId);
 //        }
 
 

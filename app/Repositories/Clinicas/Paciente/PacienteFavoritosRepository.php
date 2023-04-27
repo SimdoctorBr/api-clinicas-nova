@@ -22,7 +22,7 @@ class PacienteFavoritosRepository extends BaseRepository {
 
         $camposSql = "A.*,A.id as idFavorito, B.id,B.sobre,B.sexo,B.especialidades_id,B.identificador,B.preco_consulta as precoConsulta,B.website,B.mensagem_antes_marcar,B.pronome_id,B.cor,B.cor_letra,B.conselho_profissional_id,
             B.conselho_uf_id,B.cbo_s_id,B.nome_foto,B.data_cad as dataCad,B.administrador_id_cad,B.possui_repasse,B.tipo_repasse,B.valor_repasse,B.possui_videoconf,B.permite_agenda_website,B.doutor_parceiro,B.nome_responsavel,
-            B.status_doutor,B.somente_videoconf, B.plano_aluguel_sala_id,B.tags_tratamentos,B.pontuacao,B.identificador,
+            B.status_doutor,B.somente_videoconf, B.plano_aluguel_sala_id,B.tags_tratamentos,B.pontuacao,B.identificador,B.link_video,B.proc_doutor_id_video,
             AES_DECRYPT(B.nome_cript, '$this->ENC_CODE') as nome,
                                 AES_DECRYPT(B.email_cript, '$this->ENC_CODE') as email,
                                 AES_DECRYPT(B.telefone_cript, '$this->ENC_CODE') as telefone,
@@ -39,7 +39,8 @@ class PacienteFavoritosRepository extends BaseRepository {
                                 AES_DECRYPT(B.agencia2_cript, '$this->ENC_CODE') as agencia2,
                                      C.abreviacao, C.nome as nomePronome,C.artigo,E.codigo as codigoConselhoProfisssional,
                                                 F.ds_uf_nome as nomeUFConselhoProfisional, F.ds_uf_sigla as siglaUFConselhoProfisional, G.codigo as codigoCBO, G.nome as nomeCBO,
-                                                   AES_DECRYPT(conselho_profissional_numero_cript, '$this->ENC_CODE') as conselho_profissional_numero
+                                                   AES_DECRYPT(conselho_profissional_numero_cript, '$this->ENC_CODE') as conselho_profissional_numero,proc_doutor_id_presencial,I.procedimento_nome as procPadraoNome,
+    I.idPRocedimento as procPadraoIdProcedimento,I.duracao as procDuracao, J.nome as procPadraoNomeConvenio,J.id as procPadraoIdConvenio,  L.valor AS procPadraoValor
                 ";
         $from = "FROM pacientes_doutores_favoritos as A 
                 INNER JOIN doutores as B
@@ -53,6 +54,18 @@ class PacienteFavoritosRepository extends BaseRepository {
             ON F.cd_uf = B.conselho_uf_id
             LEFT JOIN tiss_cbo_s as G
             ON G.id =  B.cbo_s_id
+            
+
+
+  LEFT JOIN procedimentos_doutores_assoc as H
+            ON (H.id =  B.proc_doutor_id_presencial AND 	 H.`status`=1)
+             LEFT JOIN procedimentos as I
+            ON (I.idProcedimento =  H.procedimentos_id)
+               LEFT JOIN convenios as J
+            ON (J.id =  H.proc_convenios_id)
+              LEFT JOIN procedimentos_convenios_assoc as L
+            ON (L.convenios_id =  H.proc_convenios_id AND L.procedimentos_id = H.procedimentos_id
+				AND L.`status` = 1)
                 WHERE $sql AND pacientes_id = $idPaciente";
 
       

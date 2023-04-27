@@ -30,7 +30,7 @@ class EspecialidadeService extends BaseService {
     private function fieldsResponse($row) {
 
 //        $retorno['id'] = $row->id;
-        $retorno['nome'] = utf8_decode($row->nome);
+        $retorno['nome'] = html_entity_decode(utf8_decode($row->nome));
         return $retorno;
     }
 
@@ -49,8 +49,7 @@ class EspecialidadeService extends BaseService {
                 if ($idEspecialidadeAnt != $row->nome) {
                     $i++;
                 }
-                $retorno[$i]['nome'] = utf8_decode($row->nome);
-
+                $retorno[$i]['nome'] = html_entity_decode(utf8_decode($row->nome));
 
                 if (isset($dadosFiltro['exibeListaDoutores']) and $dadosFiltro['exibeListaDoutores'] == true) {
 

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Laravel\Lumen\Auth\Authorizable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Support\Facades\DB;
+use App\Repositories\Clinicas\Paciente\PacienteRepository;
 
 class Paciente extends Model implements AuthenticatableContract, AuthorizableContract, JWTSubject {
 
@@ -83,17 +84,24 @@ class Paciente extends Model implements AuthenticatableContract, AuthorizableCon
 
         $dataCadastro = time();
 
+        $PacienteRepository = new PacienteRepository;
+        $ultimaMAtricula = $PacienteRepository->getUltimaMatricula($dadosLogin['identificador']);
+
         $qr = DB::connection('clinicas')->table('pacientes')->insert([
             'nome_cript' => DB::RAW("AES_ENCRYPT( '{$dadosLogin['nome']}','" . env('APP_ENC_CODE') . "')"),
             'sobrenome_cript' => DB::RAW("AES_ENCRYPT( '{$dadosLogin['sobrenome']}','" . env('APP_ENC_CODE') . "')"),
             'email_cript' => DB::RAW("AES_ENCRYPT( '{$dadosLogin['email']}','" . env('APP_ENC_CODE') . "')"),
+            'celular_cript' => DB::RAW("AES_ENCRYPT( '{$dadosLogin['celular']}','" . env('APP_ENC_CODE') . "')"),
+            'telefone_cript' => DB::RAW("AES_ENCRYPT( '{$dadosLogin['telefone']}','" . env('APP_ENC_CODE') . "')"),
+            'cpf_cript' => DB::RAW("AES_ENCRYPT( '{$dadosLogin['cpf']}','" . env('APP_ENC_CODE') . "')"),
             'senha' => $dadosLogin['senha'],
             'identificador' => $dadosLogin['identificador'],
-            'data_cadastro' => $dataCadastro
+            'data_cadastro' => $dataCadastro,
+            'matricula' => $ultimaMAtricula,
         ]);
-            
-        $idInsert =  DB::connection('clinicas')->getPdo()->lastInsertId();
-            
+
+        $idInsert = DB::connection('clinicas')->getPdo()->lastInsertId();
+
         return $idInsert;
     }
 

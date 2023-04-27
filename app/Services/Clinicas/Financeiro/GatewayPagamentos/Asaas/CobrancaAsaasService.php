@@ -120,11 +120,12 @@ class CobrancaAsaasService extends BaseService {
 
             if (!$rowConfigAsaas) {
                 return $this->returnError(null, 'Este perfil não possui o Asaas configurado.');
-            } elseif (empty($formaPag)) {
-                return $this->returnError(null, 'Forma de pagamento não informada');
-            } elseif ($formaPag != 'pix' and $formaPag != 'cartao') {
+//            } elseif (empty($formaPag)) {
+//                return $this->returnError(null, 'Forma de pagamento não informada');
+            } 
+            elseif (!empty($formaPag) and $formaPag != 'pix' and $formaPag != 'cartao') {
                 return $this->returnError(null, 'Forma de pagamento  inválida.');
-            } elseif (!in_array($formaPag, $this->arrayFormapag)) {
+            } elseif (!empty($formaPag) and !in_array($formaPag, $this->arrayFormapag)) {
                 return $this->returnError(null, 'Forma de pagamento  inválida.');
             } elseif (empty($emailPaciente)) {
                 return $this->returnError(null, 'Infome o e-mail do paciente');

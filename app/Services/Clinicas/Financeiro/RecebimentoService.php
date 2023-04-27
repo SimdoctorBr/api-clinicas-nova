@@ -298,9 +298,6 @@ class RecebimentoService extends BaseService {
 
     public function store($idDominio, $dadosInput) {
 
-
-
-
         $FornecedorRepository = new FornecedorRepository;
 
         $validate = validator($dadosInput,
@@ -376,12 +373,13 @@ class RecebimentoService extends BaseService {
 
         //Consultas
         if (!empty($consultasId)) {
+
+
             $origemPagamento = 'consulta';
             $dadosInsert['consulta_id'] = $consultasId;
             $dadosInsert['recebido_de'] = 1;
             $ConsultaRepository = new ConsultaRepository;
             $rowConsulta = $ConsultaRepository->getById($idDominio, $consultasId);
-
             if (!$rowConsulta) {
                 return $this->returnError(null, 'Consultas não encontrada');
             }
@@ -389,20 +387,83 @@ class RecebimentoService extends BaseService {
                 return $this->returnError(null, 'Esta consulta já está paga');
             }
 
+
+            $ConsultaProcedimentoService = new ConsultaProcedimentoService;
+
             $ConsultaProcedimentoRepository = new ConsultaProcedimentoRepository;
             $qrProcedimentos = $ConsultaProcedimentoRepository->getByConsultaId($idDominio, $consultasId);
+            if ($qrProcedimentos) {
+                $idsProcLancadosAnterior = array_map(function ($item) {
+                    return $item->id;
+                }, $qrProcedimentos);
 
-            $idsConsultaProcedimentos = (array_map(function ($item) {
-                        return $item->id;
-                    }, $qrProcedimentos));
-            $totalValorPRoc = array_sum(array_map(function ($item) {
-                        return $item->valor_proc;
-                    }, $qrProcedimentos));
+//                $totalValorPRoc = array_sum(array_map(function ($item) {
+//                            return $item->valor_proc;
+//                        }, $qrProcedimentos));
+            }
 
-            if ($totalValorPRoc != $valorBruto) {
-                return $this->returnError(null, 'O valor bruto informado é diferente do total de procedimentos da consulta');
+            if (isset($dadosInput['procedimentos']) and count($dadosInput['procedimentos']) > 0) {
+
+                //verifica procedimetnos já lançados
+                $idsProcRequest = array_filter(array_map(function ($item) {
+                            if (isset($item['idConsultaProcedimento'])) {
+                                return $item['idConsultaProcedimento'];
+                            } else {
+                                return null;
+                            }
+                        }, $dadosInput['procedimentos']));
+
+                if (isset($dadosInput['idConsultaProcedimentoExcluido'])) {
+                    $idsProcRequest = array_merge($idsProcRequest, $dadosInput['idConsultaProcedimentoExcluido']);
+                }
+
+
+                if (count($idsProcLancadosAnterior) > 0) {
+
+//                    var_dump($idsProcLancadosAnterior);
+//                    var_dump($idsProcRequest);
+//                    var_dump(array_intersect($idsProcRequest, $idsProcLancadosAnterior));
+//                   
+
+                    if (count(array_intersect($idsProcRequest, $idsProcLancadosAnterior)) < count($idsProcLancadosAnterior)) {
+                        return $this->returnError(null, 'Existem procedimentos já lançados que não foram enviados. ');
+                    }
+                }
+// dd($idsProcLancadosAnterior);
+                //Exclusao de procedimentos
+                if (isset($dadosInput['idConsultaProcedimentoExcluido']) and count(array_filter($dadosInput['idConsultaProcedimentoExcluido'])) > 0) {
+                    foreach ($dadosInput['idConsultaProcedimentoExcluido'] as $idProcDelete) {
+                        $ConsultaProcedimentoService->excluir($idDominio, $idProcDelete, $consultasId);
+                    }
+                }
+
+
+//                   var_dump(array_intersect($idsProcLancadosAnterior,$idsProcRequest));
+//                   var_dump(array_intersect($idsProcLancadosAnterior,$dadosInput['idConsultaProcedimentoExcluido']));
+//                dd(array_intersect($idsProcLancadosAnterior, $idsProcRequest));
+//                if ($totalValorPRoc > 0) {
+//                    return $this->returnError(null, 'Existem procedimentos já lançados que não foram enviados. ');
+//                }
+                $totalValorPRoc = array_sum(array_map(function ($item) {
+                            return $item['valor']*$item['qnt'];
+                        }, $dadosInput['procedimentos']));
+
+               
+                if ($totalValorPRoc != $valorBruto) {
+                    return $this->returnError(null, 'O valor bruto informado é diferente do total de procedimentos da consulta');
+                }
+            } else {
+                $idsConsultaProcedimentos = (array_map(function ($item) {
+                            return $item->id;
+                        }, $qrProcedimentos));
+
+                if ($totalValorPRoc != $valorBruto) {
+                    return $this->returnError(null, 'O valor bruto informado é diferente do total de procedimentos da consulta');
+                }
             }
         }
+
+
 
         //Conta
         $rowFornecedorConta = $FornecedorRepository->getFornecedorPadrao($idDominio);
@@ -465,7 +526,10 @@ class RecebimentoService extends BaseService {
             $valorTroco = $verificaPagRecebido['valorTroco'];
         }
 
-
+        if (isset($dadosInput['procedimentos']) and count($dadosInput['procedimentos']) > 0 and (!empty($consultasId) )) {
+            $dadosProcInseridos = $ConsultaProcedimentoService->calculoProcedimentosConsultas($idDominio, $consultasId, $rowConsulta->doutores_id, $dadosInput['procedimentos']);
+            $idsConsultaProcedimentos = $dadosProcInseridos['idsProcConsultas'];
+        }
 
 
 
@@ -517,6 +581,7 @@ class RecebimentoService extends BaseService {
 
             if ($arrayProcPeriodoRepeticao[$chave] == 1) {
                 $idRecebimento = $this->recebimentoRepository->store($idDominio, $RECEBIMENTOS_OUTROS);
+
                 $idsRecebimentosProc[] = $idRecebimento;
             } else {
 
@@ -660,7 +725,6 @@ class RecebimentoService extends BaseService {
                         'Paciente : ' . $rowConsulta->nomePaciente . ' ' . $rowConsulta->sobrenomePaciente . ' com o(a) doutor(a) ' . $rowConsulta->nomeDoutor . '.';
                 $LogAtividadesService->store($idDominio, 3, utf8_encode($msgLog), $rowConsulta->id, 3);
             }
-
             return $this->returnSuccess(['idsRecebimentos' => $idsRecebimentosProc]);
         } else {
             return $this->returnError(null, 'Ocorreu um erro ao realizar o pagamento');

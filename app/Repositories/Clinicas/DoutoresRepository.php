@@ -97,12 +97,21 @@ class DoutoresRepository extends BaseRepository {
     public function sqlFilterValorConsulta($idDominio, $valorConsulta, $valorConsultaMax = null, $tipoAtendimento = null, $alias = "A", $aliasProcedimentosConveniosAssoc = "L") {
         if (isset($tipoAtendimento) and $tipoAtendimento == 'video') {
 
-            if (isset($valorConsultaMax) and!empty($valorConsultaMax)) {
-                return " AND  (CAST( REPLACE($alias.preco_consulta,',','.') AS DECIMAL(11,2)) >= '{$valorConsulta}' AND
-              CAST( REPLACE($alias.preco_consulta,',','.') AS DECIMAL(11,2)) <= '{$valorConsultaMax}')";
+            $sqlFilter = '';
+            if (isset($valorConsultaMax) and !empty($valorConsultaMax)) {
+                $sqlFilter = " AND Bb.`valor`>='{$valorConsulta}' AND Bb.`valor`<='{$valorConsultaMax}'";
             } else {
-                return " AND  (CAST( REPLACE($alias.preco_consulta,',','.') AS DECIMAL(11,2)) >= '{$valorConsulta}')";
+                $sqlFilter = " AND Bb.`valor`>='{$valorConsulta}'";
             }
+
+            return "
+ AND  ( SELECT COUNT(*) FROM   procedimentos_doutores_assoc AS Aa
+            LEFT JOIN procedimentos_convenios_assoc as Bb
+            ON (Bb.convenios_id = Aa.proc_convenios_id AND Bb.procedimentos_id = Aa.procedimentos_id
+				AND Bb.`status` = 1)         
+         WHERE Aa.identificador = A.identificador AND Aa.id = $alias.proc_doutor_id_video AND Aa.status=1
+         $sqlFilter
+              ) >0";
         } else {
 
             if (isset($valorConsultaMax) and!empty($valorConsultaMax)) {
@@ -162,6 +171,9 @@ class DoutoresRepository extends BaseRepository {
 //            }
         }
 
+        if (isset($dadosFiltro['doutorId']) and!empty($dadosFiltro['doutorId'])) {
+            $sqlFiltro .= "AND  A.id = " . $dadosFiltro['doutorId'];
+        }
         if (isset($dadosFiltro['sexo']) and!empty($dadosFiltro['sexo'])) {
             $sqlFiltro .= $this->sqlFilterSexo($dadosFiltro['sexo']);
         }
@@ -191,7 +203,7 @@ class DoutoresRepository extends BaseRepository {
         }
 
         if (isset($dadosFiltro['favoritoPacienteId']) and!empty($dadosFiltro['favoritoPacienteId'])) {
-            $sqlFiltroCampos .= ", (SELECT COUNT(*) FROM pacientes_doutores_favoritos WHERE
+            $sqlFiltroCampos .= ", (SELECT id FROM pacientes_doutores_favoritos WHERE
                                                identificador = A.identificador AND doutores_id = A.id AND pacientes_id = " . $dadosFiltro['favoritoPacienteId'] . " 
                             ) as favoritoPaciente
                             ";
@@ -219,8 +231,8 @@ class DoutoresRepository extends BaseRepository {
         } else {
             $camposSQL = "A.id,A.sobre,A.sexo,A.especialidades_id,A.outra_especialidade  ,A.identificador,A.preco_consulta as precoConsulta,A.website,A.mensagem_antes_marcar,A.pronome_id,A.cor,A.cor_letra,A.conselho_profissional_id,
             A.conselho_uf_id,A.cbo_s_id,A.nome_foto,A.data_cad as dataCad,A.administrador_id_cad,A.possui_repasse,A.tipo_repasse,A.valor_repasse,A.possui_videoconf,A.permite_agenda_website,A.doutor_parceiro,A.nome_responsavel,
-            A.status_doutor,A.somente_videoconf, A.plano_aluguel_sala_id,A.tags_tratamentos,A.pontuacao,
-            AES_DECRYPT(nome_cript, '$this->ENC_CODE') as nome,
+            A.status_doutor,A.somente_videoconf, A.plano_aluguel_sala_id,A.tags_tratamentos,A.pontuacao,A.link_video,
+            AES_DECRYPT(nome_cript, '$this->ENC_CODE') as nome,A.proc_doutor_id_video,
                                 AES_DECRYPT(email_cript, '$this->ENC_CODE') as email,
                                 AES_DECRYPT(telefone_cript, '$this->ENC_CODE') as telefone,
                                 AES_DECRYPT(celular1_cript, '$this->ENC_CODE') as celular1,
@@ -234,10 +246,11 @@ class DoutoresRepository extends BaseRepository {
                                 AES_DECRYPT(banco2_cript, '$this->ENC_CODE') as banco2,
                                 AES_DECRYPT(conta2_cript, '$this->ENC_CODE') as conta2,
                                 AES_DECRYPT(agencia2_cript, '$this->ENC_CODE') as agencia2,
+                                    A.duracao_videocons,
                                 B.abreviacao, B.nome as nomePronome,B.artigo, D.nome as nomeConselhoProfissional, D.codigo as codigoConselhoProfisssional,
                                                 E.ds_uf_nome as nomeUFConselhoProfisional, E.ds_uf_sigla as siglaUFConselhoProfisional, F.codigo as codigoCBO, F.nome as nomeCBO,
                                                    AES_DECRYPT(conselho_profissional_numero_cript, '$this->ENC_CODE') as conselho_profissional_numero,G.nome as nomePlanoSala, proc_doutor_id_presencial,I.procedimento_nome as procPadraoNome,
-    I.idPRocedimento as procPadraoIdProcedimento, J.nome as procPadraoNomeConvenio,J.id as procPadraoIdConvenio,  L.valor AS procPadraoValor, M.nome as nomeEspecialidade  $sqlFiltroCampos";
+    I.idPRocedimento as procPadraoIdProcedimento,I.duracao as procDuracao, J.nome as procPadraoNomeConvenio,J.id as procPadraoIdConvenio,  L.valor AS procPadraoValor, M.nome as nomeEspecialidade  $sqlFiltroCampos";
         }
         $from = " 
             FROM doutores AS A 
@@ -293,8 +306,9 @@ class DoutoresRepository extends BaseRepository {
 
         $qr = $this->connClinicas()->select("SELECT A.id,A.sobre,A.sexo,A.especialidades_id,A.outra_especialidade,A.identificador,A.preco_consulta as precoConsulta,A.website,A.mensagem_antes_marcar,A.pronome_id,A.cor,A.cor_letra,A.conselho_profissional_id,
             A.conselho_uf_id,A.cbo_s_id,A.nome_foto,A.data_cad as dataCad,A.administrador_id_cad,A.possui_repasse,A.tipo_repasse,A.valor_repasse,A.possui_videoconf,A.permite_agenda_website,A.doutor_parceiro,A.nome_responsavel,
-            A.status_doutor,A.somente_videoconf, A.plano_aluguel_sala_id,A.tags_tratamentos,A.pontuacao,
+            A.status_doutor,A.somente_videoconf, A.plano_aluguel_sala_id,A.tags_tratamentos,A.pontuacao,A.link_video,
             AES_DECRYPT(nome_cript, '$this->ENC_CODE') as nome,
+                    A.duracao_videocons,
                                 AES_DECRYPT(email_cript, '$this->ENC_CODE') as email,
                                 AES_DECRYPT(telefone_cript, '$this->ENC_CODE') as telefone,
                                 AES_DECRYPT(celular1_cript, '$this->ENC_CODE') as celular1,
@@ -304,7 +318,7 @@ class DoutoresRepository extends BaseRepository {
                                 AES_DECRYPT(cns_cript, '$this->ENC_CODE') as cns, B.abreviacao, B.nome as nomePronome,B.artigo, D.nome as nomeConselhoProfissional, D.codigo as codigoConselhoProfisssional,
                                 E.ds_uf_nome as nomeUFConselhoProfisional, E.ds_uf_sigla as siglaUFConselhoProfisional, F.codigo as codigoCBO, F.nome as nomeCBO,
                                    AES_DECRYPT(conselho_profissional_numero_cript, '$this->ENC_CODE') as conselho_profissional_numero, I.procedimento_nome as procPadraoNome,
-    I.idPRocedimento as procPadraoIdProcedimento, J.nome as procPadraoNomeConvenio,J.id as procPadraoIdConvenio,  L.valor AS procPadraoValor,proc_doutor_id_presencial, M.nome as nomeEspecialidade
+    I.idPRocedimento as procPadraoIdProcedimento,I.duracao as procDuracao, J.nome as procPadraoNomeConvenio,J.id as procPadraoIdConvenio,  L.valor AS procPadraoValor,proc_doutor_id_presencial, M.nome as nomeEspecialidade,A.proc_doutor_id_video
                                     
                                     FROM doutores as A 
                                 LEFT JOIN pronomes_tratamento as B
@@ -351,7 +365,6 @@ class DoutoresRepository extends BaseRepository {
         $retorno = null;
         $qrPresencial = $this->connClinicas()->select("SELECT MIN(CAST( L.valor AS DECIMAL(10,2))) AS valorMinimoPresencial, MAX(CAST( L.valor AS DECIMAL(10,2)))  AS valorMaximoPresencial
             FROM doutores AS A 
-
               LEFT JOIN procedimentos_doutores_assoc as H
             ON (H.id =  A.proc_doutor_id_presencial AND 	 H.`status`=1)
              LEFT JOIN procedimentos as I
@@ -366,11 +379,24 @@ class DoutoresRepository extends BaseRepository {
         $retorno['valorMinimoPresencial'] = $qrPresencial[0]->valorMinimoPresencial;
         $retorno['valorMaximoPresencial'] = $qrPresencial[0]->valorMaximoPresencial;
 
-        $qrVideo = $this->connClinicas()->select("SELECT 
-                MIN(CAST( preco_consulta AS DECIMAL(10,2))) AS valorMinimoVideo,MAX(CAST( preco_consulta AS DECIMAL(10,2))) AS valorMaximoVideo
+        $qrVideo = $this->connClinicas()->select("SELECT MIN(CAST( L.valor AS DECIMAL(10,2))) AS valorMinimoVideo, MAX(CAST( L.valor AS DECIMAL(10,2)))  AS valorMaximoVideo
             FROM doutores AS A 
-            WHERE  $sql AND A.status_doutor = 1  AND possui_videoconf=1  ");
-//        
+              LEFT JOIN procedimentos_doutores_assoc as H
+            ON (H.id =  A.proc_doutor_id_video AND H.`status`=1)
+             LEFT JOIN procedimentos as I
+            ON (I.idProcedimento =  H.procedimentos_id)
+               LEFT JOIN convenios as J
+            ON (J.id =  H.proc_convenios_id)
+              LEFT JOIN procedimentos_convenios_assoc as L
+            ON (L.convenios_id =  H.proc_convenios_id AND L.procedimentos_id = H.procedimentos_id
+				AND L.`status` = 1)
+            WHERE  $sql AND A.status_doutor = 1   AND possui_videoconf=1 ");
+
+//        $qrVideo = $this->connClinicas()->select("SELECT 
+//                MIN(CAST( preco_consulta AS DECIMAL(10,2))) AS valorMinimoVideo,MAX(CAST( preco_consulta AS DECIMAL(10,2))) AS valorMaximoVideo
+//            FROM doutores AS A 
+//            WHERE  $sql AND A.status_doutor = 1  AND possui_videoconf=1  ");
+////        
         $retorno['valorMinimoVideo'] = $qrVideo[0]->valorMinimoVideo;
         $retorno['valorMaximoVideo'] = $qrVideo[0]->valorMaximoVideo;
 

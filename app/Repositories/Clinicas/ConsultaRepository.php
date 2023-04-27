@@ -108,8 +108,8 @@ class ConsultaRepository extends BaseRepository {
             $sqlFiltroStatus = $this->sqlFilterStatus($dadosFiltro['statusConsulta']);
         }
 
-        $camposAssas= null;
-        $joinAssas= null;
+        $camposAssas = null;
+        $joinAssas = null;
         if (isset($dadosFiltro['asaasHabilitado']) and $dadosFiltro['asaasHabilitado'] == 1) {
 
             $camposAssas = '    ,S.id AS idPacAssasPag,S.link_pagamento AS linkPagAssas,S.link_comprovante AS linkComprovanteAssas,S.valor AS valorAssas, S.status_cobranca AS statusCobrancaAssas,
@@ -170,7 +170,9 @@ class ConsultaRepository extends BaseRepository {
                                       AES_DECRYPT(E.email_cript, '$this->ENC_CODE') as  emailPaciente, 
                                      H.numero_carteira, H.validade_carteira, 
                                      /* I.nome as nomePlanoSaude, I.registro_ans, */
-                                    AES_DECRYPT(J.nome_cript, '$this->ENC_CODE')  as nomeDoutor, L.nome as nomeConselhoProfissional, J.conselho_uf_id,  AES_DECRYPT(J.conselho_profissional_numero_cript, '$this->ENC_CODE') as conselho_profissional_numero, J.preco_consulta,
+                                    AES_DECRYPT(J.nome_cript, '$this->ENC_CODE')  as nomeDoutor,
+                                       J.nome_foto as nomeFotoDoutor,     
+                                        L.nome as nomeConselhoProfissional, J.conselho_uf_id,  AES_DECRYPT(J.conselho_profissional_numero_cript, '$this->ENC_CODE') as conselho_profissional_numero, J.preco_consulta,
                                     J.id as idDoutor, J.cpf as cpfDoutor, J.cnpj as cnpjDoutor,
                                     M.codigo as codigoCbo,M.nome as nomecodigoCbo,
                                     L.codigo as siglaConselhoProfissional,
@@ -227,7 +229,7 @@ class ConsultaRepository extends BaseRepository {
                                     ON R.consultas_id = A.id
                                     $joinAssas
                                     WHERE  $sql $sqlFiltro  $sqlFiltroStatus"
-                . " /*GROUP BY A.id*/"
+                       . "GROUP BY A.id "
                 . " $orderBy ";
 
 //        if (auth('clinicas')->user()->id = 4055) {
@@ -257,6 +259,14 @@ class ConsultaRepository extends BaseRepository {
         }
 
 
+        $camposAssas = '    ,S.id AS idPacAssasPag,S.link_pagamento AS linkPagAssas,S.link_comprovante AS linkComprovanteAssas,S.valor AS valorAssas, S.status_cobranca AS statusCobrancaAssas,
+    S.data_vencimento AS dtVencimentoAssas, S.data_pagamento AS dtPagamentoAssas,S.valor AS valorAssas, T.pl_percentual as plPercentDesconto,
+    S.valor_bruto as valorBrutoAssas, T.pl_nome as nomePlBeneficio, T.possui_pendencia as possuiPendencia';
+        $joinAssas = 'LEFT JOIN paciente_assas_pagamentos AS S
+                            ON (S.consultas_id = A.id AND S.status_cobranca != 0 AND S.status_cobranca != 5)
+                            LEFT JOIN pl_beneficios_cons_orc AS T
+                            ON (T.tipo =1 AND T.id_tipo = A.id)';
+
         $qrConsulta = $this->connClinicas()->select("SELECT A.*,  D.descricao_cid10, D.codigo_cid10, D.tipo AS tipo_cid10, 
             
                                     AES_DECRYPT(E.nome_cript, '$this->ENC_CODE') as  nomePaciente, 
@@ -273,7 +283,9 @@ class ConsultaRepository extends BaseRepository {
                                       AES_DECRYPT(E.email_cript, '$this->ENC_CODE') as  emailPaciente, 
                                      H.numero_carteira, H.validade_carteira, 
                                      /* I.nome as nomePlanoSaude, I.registro_ans, */
-                                    AES_DECRYPT(J.nome_cript, '$this->ENC_CODE')  as nomeDoutor, L.nome as nomeConselhoProfissional, J.conselho_uf_id,  AES_DECRYPT(J.conselho_profissional_numero_cript, '$this->ENC_CODE') as conselho_profissional_numero, J.preco_consulta,
+                                    AES_DECRYPT(J.nome_cript, '$this->ENC_CODE')  as nomeDoutor,
+                                         J.nome_foto as nomeFotoDoutor,
+                                        L.nome as nomeConselhoProfissional, J.conselho_uf_id,  AES_DECRYPT(J.conselho_profissional_numero_cript, '$this->ENC_CODE') as conselho_profissional_numero, J.preco_consulta,
                                     J.id as idDoutor, J.cpf as cpfDoutor, J.cnpj as cnpjDoutor,
                                     M.codigo as codigoCbo,M.nome as nomecodigoCbo,
                                     L.codigo as siglaConselhoProfissional,
@@ -298,6 +310,9 @@ class ConsultaRepository extends BaseRepository {
                                       (SELECT CONCAT(status,'_',(hora), '_', id) FROM consultas_status WHERE consulta_id = A.id ORDER BY id DESC LIMIT 1) AS statusConsulta,
                                        R.id AS consAtendAbertoId,R.data_cad AS consAtendAbertoDtCad,
                                        (SELECT idRecebimento FROM financeiro_recebimento  WHERE consulta_id = A.id AND status = 1 LIMIT 1) as  idRecebimento
+                                         ,S.id AS idPacAssasPag,S.link_pagamento AS linkPagAssas,S.link_comprovante AS linkComprovanteAssas,S.valor AS valorAssas, S.status_cobranca AS statusCobrancaAssas,
+                                            S.data_vencimento AS dtVencimentoAssas, S.data_pagamento AS dtPagamentoAssas,S.valor AS valorAssas, T.pl_percentual as plPercentDesconto,
+                                            S.valor_bruto as valorBrutoAssas, T.pl_nome as nomePlBeneficio, T.possui_pendencia as possuiPendencia
                                       
                                     
                                     FROM consultas AS A
@@ -327,6 +342,10 @@ class ConsultaRepository extends BaseRepository {
                                     ON (Q.id = E.fator_rh_id)
                                           LEFT JOIN consultas_atend_abertos AS R
                                     ON R.consultas_id = A.id
+                                    LEFT JOIN paciente_assas_pagamentos AS S
+                            ON (S.consultas_id = A.id AND S.status_cobranca != 0 AND S.status_cobranca != 5)
+                            LEFT JOIN pl_beneficios_cons_orc AS T
+                            ON (T.tipo =1 AND T.id_tipo = A.id)
                                     WHERE $sql AND A.id = $idConsulta
                      
                      ");

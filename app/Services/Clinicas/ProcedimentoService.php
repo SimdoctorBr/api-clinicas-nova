@@ -14,6 +14,7 @@ use App\Repositories\Clinicas\ProcedimentosRepository;
 use App\Helpers\Functions;
 use App\Repositories\Gerenciamento\DominioRepository;
 use App\Repositories\Clinicas\ConvenioRepository;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Description of Activities
@@ -40,7 +41,7 @@ class ProcedimentoService extends BaseService {
                     'consultaId' => $row->consultas_id,
                     'procedimentoId' => $row->procedimentos_id,
                     'nomeProcedimento' => Functions::utf8Fix($row->nome_proc),
-//                    'codigo' => $row->codigo_proc,
+                    'codigo' => $row->codigo_proc,
                     'qnt' => $row->qnt,
                     'valor' => $row->valor_proc,
                     'repasse' => [
@@ -59,7 +60,8 @@ class ProcedimentoService extends BaseService {
                     ],
                     'procedimentoCategoria' => [
                         'id' => $row->procedimentos_cat_id,
-                        'nome' => Functions::utf8Fix($row->procedimentos_cat_nome)
+                        'nome' => Functions::utf8Fix($row->procedimentos_cat_nome),
+                        'codigoProcConvenio' => $row->codigoProcConvenio,
                     ],
                     'dataCad' => $row->data_cad,
                     'impostoRendaConvenio' => $row->imposto_renda_convenio,
@@ -83,6 +85,16 @@ class ProcedimentoService extends BaseService {
 
     public function getByDoutor($idDominio, $doutorId, $request) {
 
+
+        $keyCache = $idDominio . request()->server('REQUEST_URI');
+        $keyCache = hash('sha256', $keyCache);
+
+        if (Cache::has($keyCache)) {        
+            $retorno = Cache::get($keyCache);
+            return $this->returnSuccess($retorno);
+        }
+
+
         $DominioRepository = new DominioRepository;
         $rowDominio = $DominioRepository->getById($idDominio);
 
@@ -90,10 +102,12 @@ class ProcedimentoService extends BaseService {
         $dadosFiltro = null;
 
         if ($rowDominio->alteracao_docbizz == 1 and auth('clinicas')->check()) {
+
             $dadosFiltro['exibeDocBizz'] = 1;
+            if ($request->has('recepcao') and $request->query('recepcao') == true) {
+                $dadosFiltro['exibeDocBizz'] = null;
+            }
         }
-
-
         if ($request->has('search') and!empty($request->query('search'))) {
             $dadosFiltro['search'] = $request->query('search');
         }
@@ -120,7 +134,7 @@ class ProcedimentoService extends BaseService {
                     'procedimentoId' => $row->procedimentos_id,
                     'procConvId' => $row->procedimentos_id . '_' . $row->proc_convenios_id,
                     'nomeProcedimento' => Functions::utf8Fix($row->nomeProcedimento),
-                    'codigo' => $row->codigoProc,
+                    'codigo' => $row->codigo_proc,
                     'descricaoProcedimento' => Functions::utf8Fix($row->procedimento_descricao),
                     'duracao' => $row->duracao,
                     'retorno' => $row->retorno,
@@ -142,6 +156,7 @@ class ProcedimentoService extends BaseService {
                     'convenio' => [
                         'id' => $row->proc_convenios_id,
                         'nome' => Functions::correcaoUTF8Decode($row->nomeConvenioProc),
+                        'codigoProcConvenio' => $row->codigoProcConvenio,
                     ],
                     'possui_parceiro' => $row->possui_parceiro,
                     'parceiro' => (!empty($row->doutor_parceiro_id)) ? [
@@ -152,8 +167,7 @@ class ProcedimentoService extends BaseService {
             }
             $qr['results'] = $retorno;
 
-//               var_dump($qr);
-//            dd($qr);
+            Cache::add($keyCache, $qr, 120);
             return $this->returnSuccess($qr);
         } else {
             return $this->returnError(null, ["Sem procedimentos para este profissional"]);

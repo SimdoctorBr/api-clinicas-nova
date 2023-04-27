@@ -22,6 +22,7 @@ use App\Repositories\Clinicas\Paciente\PacienteAtestadoRepository;
 use App\Repositories\Clinicas\Paciente\PacientePrescricaoRepository;
 use App\Repositories\Clinicas\Consulta\ConsultaPedidoExameRepository;
 use App\Services\Clinicas\PacienteService;
+use App\Services\Clinicas\LogAtividadesService;
 
 //use App\Repositories\Clinicas\Paciente\PacienteExameRepository;
 //use App\Repositories\Clinicas\Paciente\PacienteLaudoRepository;
@@ -104,9 +105,10 @@ class ProntuarioService extends BaseService {
                     $rowPront = $qrProntuario[0];
                     $dadosPront = $rowPront;
                 } else {
-                    $statusConsulta = explode('_', $rowConsulta->statusConsulta);
-                    if ((isset($statusConsulta[0]) and $statusConsulta[0] != 'jaFoiAtendido') or empty($rowConsulta->statusConsulta)) {
-                        continue;
+                    if ($rowDominio->alteracao_docbizz != 1) {
+                        if ((isset($statusConsulta[0]) and $statusConsulta[0] != 'jaFoiAtendido') or empty($rowConsulta->statusConsulta)) {
+                            continue;
+                        }
                     }
                 }
 //                dd($rowPront);
@@ -135,9 +137,9 @@ class ProntuarioService extends BaseService {
                     'observacoes' => (isset($observacoes['data']) and count($observacoes['data']) > 0) ? $observacoes['data'] : null
                 ];
             }
-            
-            
-               if ($rowDominio->alteracao_docbizz == 1) {
+
+
+            if ($rowDominio->alteracao_docbizz == 1) {
                 foreach ($DADOS_RETORNO as $dataCons => $rowC) {
                     if (count($rowC['prontuarios']) > 1) {
                         $pronts = array_values(array_filter(array_map(function ($item) {

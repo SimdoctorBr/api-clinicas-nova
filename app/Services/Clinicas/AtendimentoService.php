@@ -596,7 +596,7 @@ class AtendimentoService extends BaseService {
         $dadosStatus['administrador_id'] = auth('clinicas')->user()->id;
         $dadosStatus['nome_administrador'] = auth('clinicas')->user()->nome;
 
-        if ($dadosInput['finalizar']) {
+//        if ($dadosInput['finalizar']) {
             $ConsultaStatusRepository = new ConsultaStatusRepository;
             $ConsultaStatusRepository->alteraStatus($idDominio, $consultaId, $dadosStatus);
 
@@ -604,13 +604,13 @@ class AtendimentoService extends BaseService {
                 $ConsultaAtendAbertosRepository = new ConsultaAtendAbertosRepository();
                 $ConsultaAtendAbertosRepository->deleteByConsultaId($idDominio, $consultaId);
             }
-        } else {
-            if ($rowDominio->alteracao_docbizz == 1) {
-                $ConsultaAtendAbertosRepository = new ConsultaAtendAbertosRepository();
-
-                $ConsultaAtendAbertosRepository->insertByConsultaId($idDominio, $consultaId);
-            }
-        }
+//        } else {
+//            if ($rowDominio->alteracao_docbizz == 1) {
+//                $ConsultaAtendAbertosRepository = new ConsultaAtendAbertosRepository();
+//
+//                $ConsultaAtendAbertosRepository->insertByConsultaId($idDominio, $consultaId);
+//            }
+//        }
 
         $StatusRefreshRepository->insertAgenda($idDominio, $rowConsulta->doutores_id);
 

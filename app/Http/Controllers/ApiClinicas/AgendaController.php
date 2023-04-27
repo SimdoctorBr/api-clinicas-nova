@@ -158,6 +158,36 @@ class AgendaController extends Controller {
         return $this->returnResponse($result);
     }
 
+    public function calendarioDiasDisponibilidade(Request $request, $doutorId) {
+
+        $getDominio = $this->getIdDominio($request, 'input', true);
+        if ($getDominio['success']) {
+            $idDominio = $getDominio['perfisId'];
+        } else {
+            return response()->json($getDominio);
+        }
+
+
+        $validate = validator($request->query(),
+                [
+                    'mes' => 'required|numeric',
+                    'ano' => 'required|numeric',
+                ],
+                [
+                    'mes.required' => 'Informe o mês.',
+                    'ano.required' => 'Informe o ano.',
+        ]);
+
+        if ($validate->fails()) {
+            return $this->sendErrorValidator($validate->errors()->all(), $validate->errors());
+        } else {
+            $HorariosService = new HorariosService;
+            $result = $HorariosService->calendarioDiasDisponibilidade($idDominio, $doutorId, $request->query('mes'), $request->query('ano'));
+
+            return $this->returnResponse($result);
+        }
+    }
+
     public function bloqueioRapidoAgenda(Request $request, $doutorId) {
         $getDominio = $this->getIdDominio($request, 'input', true);
         if ($getDominio['success']) {

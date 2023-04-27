@@ -1,0 +1,777 @@
+[2023-03-23 17:56:30] local.ERROR: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'A.id = $idProcDoutAssoc 
+                                            AND A.statu' at line 15 (SQL: SELECT  A.*, AES_DECRYPT(B.nome_cript, '19fa61d75522a4669b44e39c1d2e1726c530232130d407f89afee0964997f7a73e83be698b288febcf88e3e03c4f0757ea8964e59b63d93708b138cc42a66eb3') AS nomeDoutor,C.codigo_proc, C.procedimento_nome AS nomeProcedimento, C.procedimento_descricao, C.idProcedimento, C.retorno,
+                                                 (CONVERT(CAST(CONVERT( D.proc_cat_nome USING latin1) AS BINARY) USING UTF8)) as proc_cat_nome, E.valor AS valor_proc, F.nome AS nomeConvenioProc,
+                                                IF(A.tipo_repasse = 1, (E.valor - (A.valor_percentual/100)), IF(A.tipo_repasse = 2, A.valor_real, '')) AS valorRepasse,C.procedimento_categoria_id,
+                                                C.duracao,E.cod_procedimento as codigoProcConvenio FROM procedimentos_doutores_assoc AS A
+                                            INNER JOIN doutores AS B 
+                                            ON A.doutores_id = B.id
+                                            INNER JOIN procedimentos AS C 
+                                            ON C.idProcedimento = A.procedimentos_id
+                                            LEFT JOIN procedimentos_categorias AS D 
+                                            ON D.idProcedimentoCat = C.procedimento_categoria_id
+                                            INNER JOIN procedimentos_convenios_assoc AS E 
+                                            ON (E.identificador = A.identificador AND E.procedimentos_id = A.procedimentos_id AND E.convenios_id = A.proc_convenios_id)
+                                            LEFT JOIN convenios AS F 
+                                            ON ((F.identificador = A.identificador AND F.id = A.proc_convenios_id) OR (F.identificador IS NULL AND F.id = A.proc_convenios_id))
+                                            WHERE A.identificador = 3580 A.id = $idProcDoutAssoc 
+                                            AND A.status = 1 AND C.`status` = 1 	
+                                            GROUP BY A.procedimentos_id
+                                            ORDER BY C.procedimento_nome) {"exception":"[object] (Illuminate\\Database\\QueryException(code: 42000): SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'A.id = $idProcDoutAssoc 
+                                            AND A.statu' at line 15 (SQL: SELECT  A.*, AES_DECRYPT(B.nome_cript, '19fa61d75522a4669b44e39c1d2e1726c530232130d407f89afee0964997f7a73e83be698b288febcf88e3e03c4f0757ea8964e59b63d93708b138cc42a66eb3') AS nomeDoutor,C.codigo_proc, C.procedimento_nome AS nomeProcedimento, C.procedimento_descricao, C.idProcedimento, C.retorno,
+                                                 (CONVERT(CAST(CONVERT( D.proc_cat_nome USING latin1) AS BINARY) USING UTF8)) as proc_cat_nome, E.valor AS valor_proc, F.nome AS nomeConvenioProc,
+                                                IF(A.tipo_repasse = 1, (E.valor - (A.valor_percentual/100)), IF(A.tipo_repasse = 2, A.valor_real, '')) AS valorRepasse,C.procedimento_categoria_id,
+                                                C.duracao,E.cod_procedimento as codigoProcConvenio FROM procedimentos_doutores_assoc AS A
+                                            INNER JOIN doutores AS B 
+                                            ON A.doutores_id = B.id
+                                            INNER JOIN procedimentos AS C 
+                                            ON C.idProcedimento = A.procedimentos_id
+                                            LEFT JOIN procedimentos_categorias AS D 
+                                            ON D.idProcedimentoCat = C.procedimento_categoria_id
+                                            INNER JOIN procedimentos_convenios_assoc AS E 
+                                            ON (E.identificador = A.identificador AND E.procedimentos_id = A.procedimentos_id AND E.convenios_id = A.proc_convenios_id)
+                                            LEFT JOIN convenios AS F 
+                                            ON ((F.identificador = A.identificador AND F.id = A.proc_convenios_id) OR (F.identificador IS NULL AND F.id = A.proc_convenios_id))
+                                            WHERE A.identificador = 3580 A.id = $idProcDoutAssoc 
+                                            AND A.status = 1 AND C.`status` = 1 \t
+                                            GROUP BY A.procedimentos_id
+                                            ORDER BY C.procedimento_nome) at /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php:678)
+[stacktrace]
+#0 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(638): Illuminate\\Database\\Connection->runQueryCallback('SELECT  A.*, AE...', Array, Object(Closure))
+#1 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(346): Illuminate\\Database\\Connection->run('SELECT  A.*, AE...', Array, Object(Closure))
+#2 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Repositories/Clinicas/ProcedimentosRepository.php(160): Illuminate\\Database\\Connection->select('SELECT  A.*, AE...')
+#3 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Services/Clinicas/ConsultaService.php(612): App\\Repositories\\Clinicas\\ProcedimentosRepository->getAllProcedimentosVinculados('3580', NULL, NULL, 71261)
+#4 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Controllers/ApiClinicas/ConsultaController.php(123): App\\Services\\Clinicas\\ConsultaService->store('3580', Array, Array)
+#5 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(36): App\\Http\\Controllers\\ApiClinicas\\ConsultaController->store(Object(Laravel\\Lumen\\Http\\Request))
+#6 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/Util.php(40): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#7 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#8 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(37): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Laravel\\Lumen\\Application), Array, Object(Closure))
+#9 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/Container.php(611): Illuminate\\Container\\BoundMethod::call(Object(Laravel\\Lumen\\Application), Array, Array, NULL)
+#10 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(386): Illuminate\\Container\\Container->call(Array, Array)
+#11 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(352): Laravel\\Lumen\\Application->callControllerCallable(Array, Array)
+#12 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(326): Laravel\\Lumen\\Application->callLumenController(Object(App\\Http\\Controllers\\ApiClinicas\\ConsultaController), 'store', Array)
+#13 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(279): Laravel\\Lumen\\Application->callControllerAction(Array)
+#14 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(259): Laravel\\Lumen\\Application->callActionOnArrayBasedRoute(Array)
+#15 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(48): Laravel\\Lumen\\Application->Laravel\\Lumen\\Concerns\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#16 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Middleware/Authenticate.php(62): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#17 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(167): App\\Http\\Middleware\\Authenticate->handle(Object(Laravel\\Lumen\\Http\\Request), Object(Closure), 'interno_api')
+#18 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(30): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#19 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(103): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#20 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(423): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#21 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(260): Laravel\\Lumen\\Application->sendThroughPipeline(Array, Object(Closure))
+#22 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(166): Laravel\\Lumen\\Application->handleFoundRoute(Array)
+#23 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(48): Laravel\\Lumen\\Application->Laravel\\Lumen\\Concerns\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#24 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Middleware/CorsMiddleware.php(34): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#25 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(167): App\\Http\\Middleware\\CorsMiddleware->handle(Object(Laravel\\Lumen\\Http\\Request), Object(Closure))
+#26 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(30): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#27 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(103): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#28 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(423): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#29 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(172): Laravel\\Lumen\\Application->sendThroughPipeline(Array, Object(Closure))
+#30 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(109): Laravel\\Lumen\\Application->dispatch(NULL)
+#31 /home/simdoctorcombr/public_html/api.clinicanova-dev/public/index.php(29): Laravel\\Lumen\\Application->run()
+#32 {main}
+
+[previous exception] [object] (PDOException(code: 42000): SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'A.id = $idProcDoutAssoc 
+                                            AND A.statu' at line 15 at /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php:338)
+[stacktrace]
+#0 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(338): PDO->prepare('SELECT  A.*, AE...')
+#1 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(671): Illuminate\\Database\\Connection->Illuminate\\Database\\{closure}('SELECT  A.*, AE...', Array)
+#2 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(638): Illuminate\\Database\\Connection->runQueryCallback('SELECT  A.*, AE...', Array, Object(Closure))
+#3 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(346): Illuminate\\Database\\Connection->run('SELECT  A.*, AE...', Array, Object(Closure))
+#4 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Repositories/Clinicas/ProcedimentosRepository.php(160): Illuminate\\Database\\Connection->select('SELECT  A.*, AE...')
+#5 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Services/Clinicas/ConsultaService.php(612): App\\Repositories\\Clinicas\\ProcedimentosRepository->getAllProcedimentosVinculados('3580', NULL, NULL, 71261)
+#6 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Controllers/ApiClinicas/ConsultaController.php(123): App\\Services\\Clinicas\\ConsultaService->store('3580', Array, Array)
+#7 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(36): App\\Http\\Controllers\\ApiClinicas\\ConsultaController->store(Object(Laravel\\Lumen\\Http\\Request))
+#8 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/Util.php(40): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#9 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#10 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(37): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Laravel\\Lumen\\Application), Array, Object(Closure))
+#11 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/Container.php(611): Illuminate\\Container\\BoundMethod::call(Object(Laravel\\Lumen\\Application), Array, Array, NULL)
+#12 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(386): Illuminate\\Container\\Container->call(Array, Array)
+#13 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(352): Laravel\\Lumen\\Application->callControllerCallable(Array, Array)
+#14 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(326): Laravel\\Lumen\\Application->callLumenController(Object(App\\Http\\Controllers\\ApiClinicas\\ConsultaController), 'store', Array)
+#15 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(279): Laravel\\Lumen\\Application->callControllerAction(Array)
+#16 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(259): Laravel\\Lumen\\Application->callActionOnArrayBasedRoute(Array)
+#17 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(48): Laravel\\Lumen\\Application->Laravel\\Lumen\\Concerns\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#18 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Middleware/Authenticate.php(62): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#19 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(167): App\\Http\\Middleware\\Authenticate->handle(Object(Laravel\\Lumen\\Http\\Request), Object(Closure), 'interno_api')
+#20 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(30): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#21 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(103): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#22 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(423): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#23 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(260): Laravel\\Lumen\\Application->sendThroughPipeline(Array, Object(Closure))
+#24 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(166): Laravel\\Lumen\\Application->handleFoundRoute(Array)
+#25 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(48): Laravel\\Lumen\\Application->Laravel\\Lumen\\Concerns\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#26 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Middleware/CorsMiddleware.php(34): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#27 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(167): App\\Http\\Middleware\\CorsMiddleware->handle(Object(Laravel\\Lumen\\Http\\Request), Object(Closure))
+#28 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(30): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#29 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(103): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#30 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(423): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#31 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(172): Laravel\\Lumen\\Application->sendThroughPipeline(Array, Object(Closure))
+#32 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(109): Laravel\\Lumen\\Application->dispatch(NULL)
+#33 /home/simdoctorcombr/public_html/api.clinicanova-dev/public/index.php(29): Laravel\\Lumen\\Application->run()
+#34 {main}
+"} 
+[2023-03-23 17:57:40] local.ERROR: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'A.id = $idProcDoutAssoc 
+                                            AND A.statu' at line 15 (SQL: SELECT  A.*, AES_DECRYPT(B.nome_cript, '19fa61d75522a4669b44e39c1d2e1726c530232130d407f89afee0964997f7a73e83be698b288febcf88e3e03c4f0757ea8964e59b63d93708b138cc42a66eb3') AS nomeDoutor,C.codigo_proc, C.procedimento_nome AS nomeProcedimento, C.procedimento_descricao, C.idProcedimento, C.retorno,
+                                                 (CONVERT(CAST(CONVERT( D.proc_cat_nome USING latin1) AS BINARY) USING UTF8)) as proc_cat_nome, E.valor AS valor_proc, F.nome AS nomeConvenioProc,
+                                                IF(A.tipo_repasse = 1, (E.valor - (A.valor_percentual/100)), IF(A.tipo_repasse = 2, A.valor_real, '')) AS valorRepasse,C.procedimento_categoria_id,
+                                                C.duracao,E.cod_procedimento as codigoProcConvenio FROM procedimentos_doutores_assoc AS A
+                                            INNER JOIN doutores AS B 
+                                            ON A.doutores_id = B.id
+                                            INNER JOIN procedimentos AS C 
+                                            ON C.idProcedimento = A.procedimentos_id
+                                            LEFT JOIN procedimentos_categorias AS D 
+                                            ON D.idProcedimentoCat = C.procedimento_categoria_id
+                                            INNER JOIN procedimentos_convenios_assoc AS E 
+                                            ON (E.identificador = A.identificador AND E.procedimentos_id = A.procedimentos_id AND E.convenios_id = A.proc_convenios_id)
+                                            LEFT JOIN convenios AS F 
+                                            ON ((F.identificador = A.identificador AND F.id = A.proc_convenios_id) OR (F.identificador IS NULL AND F.id = A.proc_convenios_id))
+                                            WHERE A.identificador = 3580AND  A.id = $idProcDoutAssoc 
+                                            AND A.status = 1 AND C.`status` = 1 	
+                                            GROUP BY A.procedimentos_id
+                                            ORDER BY C.procedimento_nome) {"exception":"[object] (Illuminate\\Database\\QueryException(code: 42000): SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'A.id = $idProcDoutAssoc 
+                                            AND A.statu' at line 15 (SQL: SELECT  A.*, AES_DECRYPT(B.nome_cript, '19fa61d75522a4669b44e39c1d2e1726c530232130d407f89afee0964997f7a73e83be698b288febcf88e3e03c4f0757ea8964e59b63d93708b138cc42a66eb3') AS nomeDoutor,C.codigo_proc, C.procedimento_nome AS nomeProcedimento, C.procedimento_descricao, C.idProcedimento, C.retorno,
+                                                 (CONVERT(CAST(CONVERT( D.proc_cat_nome USING latin1) AS BINARY) USING UTF8)) as proc_cat_nome, E.valor AS valor_proc, F.nome AS nomeConvenioProc,
+                                                IF(A.tipo_repasse = 1, (E.valor - (A.valor_percentual/100)), IF(A.tipo_repasse = 2, A.valor_real, '')) AS valorRepasse,C.procedimento_categoria_id,
+                                                C.duracao,E.cod_procedimento as codigoProcConvenio FROM procedimentos_doutores_assoc AS A
+                                            INNER JOIN doutores AS B 
+                                            ON A.doutores_id = B.id
+                                            INNER JOIN procedimentos AS C 
+                                            ON C.idProcedimento = A.procedimentos_id
+                                            LEFT JOIN procedimentos_categorias AS D 
+                                            ON D.idProcedimentoCat = C.procedimento_categoria_id
+                                            INNER JOIN procedimentos_convenios_assoc AS E 
+                                            ON (E.identificador = A.identificador AND E.procedimentos_id = A.procedimentos_id AND E.convenios_id = A.proc_convenios_id)
+                                            LEFT JOIN convenios AS F 
+                                            ON ((F.identificador = A.identificador AND F.id = A.proc_convenios_id) OR (F.identificador IS NULL AND F.id = A.proc_convenios_id))
+                                            WHERE A.identificador = 3580AND  A.id = $idProcDoutAssoc 
+                                            AND A.status = 1 AND C.`status` = 1 \t
+                                            GROUP BY A.procedimentos_id
+                                            ORDER BY C.procedimento_nome) at /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php:678)
+[stacktrace]
+#0 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(638): Illuminate\\Database\\Connection->runQueryCallback('SELECT  A.*, AE...', Array, Object(Closure))
+#1 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(346): Illuminate\\Database\\Connection->run('SELECT  A.*, AE...', Array, Object(Closure))
+#2 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Repositories/Clinicas/ProcedimentosRepository.php(160): Illuminate\\Database\\Connection->select('SELECT  A.*, AE...')
+#3 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Services/Clinicas/ConsultaService.php(612): App\\Repositories\\Clinicas\\ProcedimentosRepository->getAllProcedimentosVinculados('3580', NULL, NULL, 71261)
+#4 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Controllers/ApiClinicas/ConsultaController.php(123): App\\Services\\Clinicas\\ConsultaService->store('3580', Array, Array)
+#5 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(36): App\\Http\\Controllers\\ApiClinicas\\ConsultaController->store(Object(Laravel\\Lumen\\Http\\Request))
+#6 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/Util.php(40): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#7 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#8 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(37): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Laravel\\Lumen\\Application), Array, Object(Closure))
+#9 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/Container.php(611): Illuminate\\Container\\BoundMethod::call(Object(Laravel\\Lumen\\Application), Array, Array, NULL)
+#10 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(386): Illuminate\\Container\\Container->call(Array, Array)
+#11 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(352): Laravel\\Lumen\\Application->callControllerCallable(Array, Array)
+#12 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(326): Laravel\\Lumen\\Application->callLumenController(Object(App\\Http\\Controllers\\ApiClinicas\\ConsultaController), 'store', Array)
+#13 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(279): Laravel\\Lumen\\Application->callControllerAction(Array)
+#14 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(259): Laravel\\Lumen\\Application->callActionOnArrayBasedRoute(Array)
+#15 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(48): Laravel\\Lumen\\Application->Laravel\\Lumen\\Concerns\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#16 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Middleware/Authenticate.php(62): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#17 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(167): App\\Http\\Middleware\\Authenticate->handle(Object(Laravel\\Lumen\\Http\\Request), Object(Closure), 'interno_api')
+#18 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(30): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#19 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(103): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#20 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(423): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#21 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(260): Laravel\\Lumen\\Application->sendThroughPipeline(Array, Object(Closure))
+#22 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(166): Laravel\\Lumen\\Application->handleFoundRoute(Array)
+#23 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(48): Laravel\\Lumen\\Application->Laravel\\Lumen\\Concerns\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#24 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Middleware/CorsMiddleware.php(34): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#25 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(167): App\\Http\\Middleware\\CorsMiddleware->handle(Object(Laravel\\Lumen\\Http\\Request), Object(Closure))
+#26 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(30): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#27 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(103): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#28 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(423): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#29 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(172): Laravel\\Lumen\\Application->sendThroughPipeline(Array, Object(Closure))
+#30 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(109): Laravel\\Lumen\\Application->dispatch(NULL)
+#31 /home/simdoctorcombr/public_html/api.clinicanova-dev/public/index.php(29): Laravel\\Lumen\\Application->run()
+#32 {main}
+
+[previous exception] [object] (PDOException(code: 42000): SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'A.id = $idProcDoutAssoc 
+                                            AND A.statu' at line 15 at /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php:338)
+[stacktrace]
+#0 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(338): PDO->prepare('SELECT  A.*, AE...')
+#1 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(671): Illuminate\\Database\\Connection->Illuminate\\Database\\{closure}('SELECT  A.*, AE...', Array)
+#2 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(638): Illuminate\\Database\\Connection->runQueryCallback('SELECT  A.*, AE...', Array, Object(Closure))
+#3 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(346): Illuminate\\Database\\Connection->run('SELECT  A.*, AE...', Array, Object(Closure))
+#4 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Repositories/Clinicas/ProcedimentosRepository.php(160): Illuminate\\Database\\Connection->select('SELECT  A.*, AE...')
+#5 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Services/Clinicas/ConsultaService.php(612): App\\Repositories\\Clinicas\\ProcedimentosRepository->getAllProcedimentosVinculados('3580', NULL, NULL, 71261)
+#6 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Controllers/ApiClinicas/ConsultaController.php(123): App\\Services\\Clinicas\\ConsultaService->store('3580', Array, Array)
+#7 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(36): App\\Http\\Controllers\\ApiClinicas\\ConsultaController->store(Object(Laravel\\Lumen\\Http\\Request))
+#8 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/Util.php(40): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#9 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#10 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(37): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Laravel\\Lumen\\Application), Array, Object(Closure))
+#11 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/Container.php(611): Illuminate\\Container\\BoundMethod::call(Object(Laravel\\Lumen\\Application), Array, Array, NULL)
+#12 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(386): Illuminate\\Container\\Container->call(Array, Array)
+#13 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(352): Laravel\\Lumen\\Application->callControllerCallable(Array, Array)
+#14 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(326): Laravel\\Lumen\\Application->callLumenController(Object(App\\Http\\Controllers\\ApiClinicas\\ConsultaController), 'store', Array)
+#15 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(279): Laravel\\Lumen\\Application->callControllerAction(Array)
+#16 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(259): Laravel\\Lumen\\Application->callActionOnArrayBasedRoute(Array)
+#17 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(48): Laravel\\Lumen\\Application->Laravel\\Lumen\\Concerns\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#18 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Middleware/Authenticate.php(62): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#19 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(167): App\\Http\\Middleware\\Authenticate->handle(Object(Laravel\\Lumen\\Http\\Request), Object(Closure), 'interno_api')
+#20 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(30): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#21 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(103): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#22 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(423): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#23 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(260): Laravel\\Lumen\\Application->sendThroughPipeline(Array, Object(Closure))
+#24 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(166): Laravel\\Lumen\\Application->handleFoundRoute(Array)
+#25 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(48): Laravel\\Lumen\\Application->Laravel\\Lumen\\Concerns\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#26 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Middleware/CorsMiddleware.php(34): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#27 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(167): App\\Http\\Middleware\\CorsMiddleware->handle(Object(Laravel\\Lumen\\Http\\Request), Object(Closure))
+#28 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(30): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#29 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(103): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#30 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(423): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#31 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(172): Laravel\\Lumen\\Application->sendThroughPipeline(Array, Object(Closure))
+#32 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(109): Laravel\\Lumen\\Application->dispatch(NULL)
+#33 /home/simdoctorcombr/public_html/api.clinicanova-dev/public/index.php(29): Laravel\\Lumen\\Application->run()
+#34 {main}
+"} 
+[2023-03-23 17:57:41] local.ERROR: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'A.id = $idProcDoutAssoc 
+                                            AND A.statu' at line 15 (SQL: SELECT  A.*, AES_DECRYPT(B.nome_cript, '19fa61d75522a4669b44e39c1d2e1726c530232130d407f89afee0964997f7a73e83be698b288febcf88e3e03c4f0757ea8964e59b63d93708b138cc42a66eb3') AS nomeDoutor,C.codigo_proc, C.procedimento_nome AS nomeProcedimento, C.procedimento_descricao, C.idProcedimento, C.retorno,
+                                                 (CONVERT(CAST(CONVERT( D.proc_cat_nome USING latin1) AS BINARY) USING UTF8)) as proc_cat_nome, E.valor AS valor_proc, F.nome AS nomeConvenioProc,
+                                                IF(A.tipo_repasse = 1, (E.valor - (A.valor_percentual/100)), IF(A.tipo_repasse = 2, A.valor_real, '')) AS valorRepasse,C.procedimento_categoria_id,
+                                                C.duracao,E.cod_procedimento as codigoProcConvenio FROM procedimentos_doutores_assoc AS A
+                                            INNER JOIN doutores AS B 
+                                            ON A.doutores_id = B.id
+                                            INNER JOIN procedimentos AS C 
+                                            ON C.idProcedimento = A.procedimentos_id
+                                            LEFT JOIN procedimentos_categorias AS D 
+                                            ON D.idProcedimentoCat = C.procedimento_categoria_id
+                                            INNER JOIN procedimentos_convenios_assoc AS E 
+                                            ON (E.identificador = A.identificador AND E.procedimentos_id = A.procedimentos_id AND E.convenios_id = A.proc_convenios_id)
+                                            LEFT JOIN convenios AS F 
+                                            ON ((F.identificador = A.identificador AND F.id = A.proc_convenios_id) OR (F.identificador IS NULL AND F.id = A.proc_convenios_id))
+                                            WHERE A.identificador = 3580AND  A.id = $idProcDoutAssoc 
+                                            AND A.status = 1 AND C.`status` = 1 	
+                                            GROUP BY A.procedimentos_id
+                                            ORDER BY C.procedimento_nome) {"exception":"[object] (Illuminate\\Database\\QueryException(code: 42000): SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'A.id = $idProcDoutAssoc 
+                                            AND A.statu' at line 15 (SQL: SELECT  A.*, AES_DECRYPT(B.nome_cript, '19fa61d75522a4669b44e39c1d2e1726c530232130d407f89afee0964997f7a73e83be698b288febcf88e3e03c4f0757ea8964e59b63d93708b138cc42a66eb3') AS nomeDoutor,C.codigo_proc, C.procedimento_nome AS nomeProcedimento, C.procedimento_descricao, C.idProcedimento, C.retorno,
+                                                 (CONVERT(CAST(CONVERT( D.proc_cat_nome USING latin1) AS BINARY) USING UTF8)) as proc_cat_nome, E.valor AS valor_proc, F.nome AS nomeConvenioProc,
+                                                IF(A.tipo_repasse = 1, (E.valor - (A.valor_percentual/100)), IF(A.tipo_repasse = 2, A.valor_real, '')) AS valorRepasse,C.procedimento_categoria_id,
+                                                C.duracao,E.cod_procedimento as codigoProcConvenio FROM procedimentos_doutores_assoc AS A
+                                            INNER JOIN doutores AS B 
+                                            ON A.doutores_id = B.id
+                                            INNER JOIN procedimentos AS C 
+                                            ON C.idProcedimento = A.procedimentos_id
+                                            LEFT JOIN procedimentos_categorias AS D 
+                                            ON D.idProcedimentoCat = C.procedimento_categoria_id
+                                            INNER JOIN procedimentos_convenios_assoc AS E 
+                                            ON (E.identificador = A.identificador AND E.procedimentos_id = A.procedimentos_id AND E.convenios_id = A.proc_convenios_id)
+                                            LEFT JOIN convenios AS F 
+                                            ON ((F.identificador = A.identificador AND F.id = A.proc_convenios_id) OR (F.identificador IS NULL AND F.id = A.proc_convenios_id))
+                                            WHERE A.identificador = 3580AND  A.id = $idProcDoutAssoc 
+                                            AND A.status = 1 AND C.`status` = 1 \t
+                                            GROUP BY A.procedimentos_id
+                                            ORDER BY C.procedimento_nome) at /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php:678)
+[stacktrace]
+#0 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(638): Illuminate\\Database\\Connection->runQueryCallback('SELECT  A.*, AE...', Array, Object(Closure))
+#1 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(346): Illuminate\\Database\\Connection->run('SELECT  A.*, AE...', Array, Object(Closure))
+#2 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Repositories/Clinicas/ProcedimentosRepository.php(160): Illuminate\\Database\\Connection->select('SELECT  A.*, AE...')
+#3 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Services/Clinicas/ConsultaService.php(612): App\\Repositories\\Clinicas\\ProcedimentosRepository->getAllProcedimentosVinculados('3580', NULL, NULL, 71261)
+#4 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Controllers/ApiClinicas/ConsultaController.php(123): App\\Services\\Clinicas\\ConsultaService->store('3580', Array, Array)
+#5 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(36): App\\Http\\Controllers\\ApiClinicas\\ConsultaController->store(Object(Laravel\\Lumen\\Http\\Request))
+#6 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/Util.php(40): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#7 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#8 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(37): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Laravel\\Lumen\\Application), Array, Object(Closure))
+#9 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/Container.php(611): Illuminate\\Container\\BoundMethod::call(Object(Laravel\\Lumen\\Application), Array, Array, NULL)
+#10 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(386): Illuminate\\Container\\Container->call(Array, Array)
+#11 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(352): Laravel\\Lumen\\Application->callControllerCallable(Array, Array)
+#12 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(326): Laravel\\Lumen\\Application->callLumenController(Object(App\\Http\\Controllers\\ApiClinicas\\ConsultaController), 'store', Array)
+#13 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(279): Laravel\\Lumen\\Application->callControllerAction(Array)
+#14 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(259): Laravel\\Lumen\\Application->callActionOnArrayBasedRoute(Array)
+#15 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(48): Laravel\\Lumen\\Application->Laravel\\Lumen\\Concerns\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#16 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Middleware/Authenticate.php(62): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#17 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(167): App\\Http\\Middleware\\Authenticate->handle(Object(Laravel\\Lumen\\Http\\Request), Object(Closure), 'interno_api')
+#18 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(30): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#19 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(103): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#20 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(423): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#21 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(260): Laravel\\Lumen\\Application->sendThroughPipeline(Array, Object(Closure))
+#22 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(166): Laravel\\Lumen\\Application->handleFoundRoute(Array)
+#23 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(48): Laravel\\Lumen\\Application->Laravel\\Lumen\\Concerns\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#24 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Middleware/CorsMiddleware.php(34): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#25 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(167): App\\Http\\Middleware\\CorsMiddleware->handle(Object(Laravel\\Lumen\\Http\\Request), Object(Closure))
+#26 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(30): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#27 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(103): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#28 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(423): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#29 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(172): Laravel\\Lumen\\Application->sendThroughPipeline(Array, Object(Closure))
+#30 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(109): Laravel\\Lumen\\Application->dispatch(NULL)
+#31 /home/simdoctorcombr/public_html/api.clinicanova-dev/public/index.php(29): Laravel\\Lumen\\Application->run()
+#32 {main}
+
+[previous exception] [object] (PDOException(code: 42000): SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'A.id = $idProcDoutAssoc 
+                                            AND A.statu' at line 15 at /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php:338)
+[stacktrace]
+#0 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(338): PDO->prepare('SELECT  A.*, AE...')
+#1 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(671): Illuminate\\Database\\Connection->Illuminate\\Database\\{closure}('SELECT  A.*, AE...', Array)
+#2 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(638): Illuminate\\Database\\Connection->runQueryCallback('SELECT  A.*, AE...', Array, Object(Closure))
+#3 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(346): Illuminate\\Database\\Connection->run('SELECT  A.*, AE...', Array, Object(Closure))
+#4 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Repositories/Clinicas/ProcedimentosRepository.php(160): Illuminate\\Database\\Connection->select('SELECT  A.*, AE...')
+#5 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Services/Clinicas/ConsultaService.php(612): App\\Repositories\\Clinicas\\ProcedimentosRepository->getAllProcedimentosVinculados('3580', NULL, NULL, 71261)
+#6 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Controllers/ApiClinicas/ConsultaController.php(123): App\\Services\\Clinicas\\ConsultaService->store('3580', Array, Array)
+#7 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(36): App\\Http\\Controllers\\ApiClinicas\\ConsultaController->store(Object(Laravel\\Lumen\\Http\\Request))
+#8 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/Util.php(40): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#9 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#10 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(37): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Laravel\\Lumen\\Application), Array, Object(Closure))
+#11 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/Container.php(611): Illuminate\\Container\\BoundMethod::call(Object(Laravel\\Lumen\\Application), Array, Array, NULL)
+#12 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(386): Illuminate\\Container\\Container->call(Array, Array)
+#13 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(352): Laravel\\Lumen\\Application->callControllerCallable(Array, Array)
+#14 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(326): Laravel\\Lumen\\Application->callLumenController(Object(App\\Http\\Controllers\\ApiClinicas\\ConsultaController), 'store', Array)
+#15 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(279): Laravel\\Lumen\\Application->callControllerAction(Array)
+#16 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(259): Laravel\\Lumen\\Application->callActionOnArrayBasedRoute(Array)
+#17 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(48): Laravel\\Lumen\\Application->Laravel\\Lumen\\Concerns\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#18 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Middleware/Authenticate.php(62): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#19 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(167): App\\Http\\Middleware\\Authenticate->handle(Object(Laravel\\Lumen\\Http\\Request), Object(Closure), 'interno_api')
+#20 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(30): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#21 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(103): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#22 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(423): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#23 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(260): Laravel\\Lumen\\Application->sendThroughPipeline(Array, Object(Closure))
+#24 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(166): Laravel\\Lumen\\Application->handleFoundRoute(Array)
+#25 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(48): Laravel\\Lumen\\Application->Laravel\\Lumen\\Concerns\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#26 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Middleware/CorsMiddleware.php(34): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#27 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(167): App\\Http\\Middleware\\CorsMiddleware->handle(Object(Laravel\\Lumen\\Http\\Request), Object(Closure))
+#28 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(30): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#29 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(103): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#30 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(423): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#31 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(172): Laravel\\Lumen\\Application->sendThroughPipeline(Array, Object(Closure))
+#32 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(109): Laravel\\Lumen\\Application->dispatch(NULL)
+#33 /home/simdoctorcombr/public_html/api.clinicanova-dev/public/index.php(29): Laravel\\Lumen\\Application->run()
+#34 {main}
+"} 
+[2023-03-23 17:57:54] local.ERROR: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'A.id = $idProcDoutAssoc 
+                                            AND A.statu' at line 15 (SQL: SELECT  A.*, AES_DECRYPT(B.nome_cript, '19fa61d75522a4669b44e39c1d2e1726c530232130d407f89afee0964997f7a73e83be698b288febcf88e3e03c4f0757ea8964e59b63d93708b138cc42a66eb3') AS nomeDoutor,C.codigo_proc, C.procedimento_nome AS nomeProcedimento, C.procedimento_descricao, C.idProcedimento, C.retorno,
+                                                 (CONVERT(CAST(CONVERT( D.proc_cat_nome USING latin1) AS BINARY) USING UTF8)) as proc_cat_nome, E.valor AS valor_proc, F.nome AS nomeConvenioProc,
+                                                IF(A.tipo_repasse = 1, (E.valor - (A.valor_percentual/100)), IF(A.tipo_repasse = 2, A.valor_real, '')) AS valorRepasse,C.procedimento_categoria_id,
+                                                C.duracao,E.cod_procedimento as codigoProcConvenio FROM procedimentos_doutores_assoc AS A
+                                            INNER JOIN doutores AS B 
+                                            ON A.doutores_id = B.id
+                                            INNER JOIN procedimentos AS C 
+                                            ON C.idProcedimento = A.procedimentos_id
+                                            LEFT JOIN procedimentos_categorias AS D 
+                                            ON D.idProcedimentoCat = C.procedimento_categoria_id
+                                            INNER JOIN procedimentos_convenios_assoc AS E 
+                                            ON (E.identificador = A.identificador AND E.procedimentos_id = A.procedimentos_id AND E.convenios_id = A.proc_convenios_id)
+                                            LEFT JOIN convenios AS F 
+                                            ON ((F.identificador = A.identificador AND F.id = A.proc_convenios_id) OR (F.identificador IS NULL AND F.id = A.proc_convenios_id))
+                                            WHERE A.identificador = 3580AND  A.id = $idProcDoutAssoc 
+                                            AND A.status = 1 AND C.`status` = 1 	
+                                            GROUP BY A.procedimentos_id
+                                            ORDER BY C.procedimento_nome) {"exception":"[object] (Illuminate\\Database\\QueryException(code: 42000): SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'A.id = $idProcDoutAssoc 
+                                            AND A.statu' at line 15 (SQL: SELECT  A.*, AES_DECRYPT(B.nome_cript, '19fa61d75522a4669b44e39c1d2e1726c530232130d407f89afee0964997f7a73e83be698b288febcf88e3e03c4f0757ea8964e59b63d93708b138cc42a66eb3') AS nomeDoutor,C.codigo_proc, C.procedimento_nome AS nomeProcedimento, C.procedimento_descricao, C.idProcedimento, C.retorno,
+                                                 (CONVERT(CAST(CONVERT( D.proc_cat_nome USING latin1) AS BINARY) USING UTF8)) as proc_cat_nome, E.valor AS valor_proc, F.nome AS nomeConvenioProc,
+                                                IF(A.tipo_repasse = 1, (E.valor - (A.valor_percentual/100)), IF(A.tipo_repasse = 2, A.valor_real, '')) AS valorRepasse,C.procedimento_categoria_id,
+                                                C.duracao,E.cod_procedimento as codigoProcConvenio FROM procedimentos_doutores_assoc AS A
+                                            INNER JOIN doutores AS B 
+                                            ON A.doutores_id = B.id
+                                            INNER JOIN procedimentos AS C 
+                                            ON C.idProcedimento = A.procedimentos_id
+                                            LEFT JOIN procedimentos_categorias AS D 
+                                            ON D.idProcedimentoCat = C.procedimento_categoria_id
+                                            INNER JOIN procedimentos_convenios_assoc AS E 
+                                            ON (E.identificador = A.identificador AND E.procedimentos_id = A.procedimentos_id AND E.convenios_id = A.proc_convenios_id)
+                                            LEFT JOIN convenios AS F 
+                                            ON ((F.identificador = A.identificador AND F.id = A.proc_convenios_id) OR (F.identificador IS NULL AND F.id = A.proc_convenios_id))
+                                            WHERE A.identificador = 3580AND  A.id = $idProcDoutAssoc 
+                                            AND A.status = 1 AND C.`status` = 1 \t
+                                            GROUP BY A.procedimentos_id
+                                            ORDER BY C.procedimento_nome) at /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php:678)
+[stacktrace]
+#0 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(638): Illuminate\\Database\\Connection->runQueryCallback('SELECT  A.*, AE...', Array, Object(Closure))
+#1 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(346): Illuminate\\Database\\Connection->run('SELECT  A.*, AE...', Array, Object(Closure))
+#2 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Repositories/Clinicas/ProcedimentosRepository.php(160): Illuminate\\Database\\Connection->select('SELECT  A.*, AE...')
+#3 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Services/Clinicas/ConsultaService.php(612): App\\Repositories\\Clinicas\\ProcedimentosRepository->getAllProcedimentosVinculados('3580', NULL, NULL, 71261)
+#4 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Controllers/ApiClinicas/ConsultaController.php(123): App\\Services\\Clinicas\\ConsultaService->store('3580', Array, Array)
+#5 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(36): App\\Http\\Controllers\\ApiClinicas\\ConsultaController->store(Object(Laravel\\Lumen\\Http\\Request))
+#6 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/Util.php(40): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#7 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#8 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(37): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Laravel\\Lumen\\Application), Array, Object(Closure))
+#9 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/Container.php(611): Illuminate\\Container\\BoundMethod::call(Object(Laravel\\Lumen\\Application), Array, Array, NULL)
+#10 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(386): Illuminate\\Container\\Container->call(Array, Array)
+#11 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(352): Laravel\\Lumen\\Application->callControllerCallable(Array, Array)
+#12 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(326): Laravel\\Lumen\\Application->callLumenController(Object(App\\Http\\Controllers\\ApiClinicas\\ConsultaController), 'store', Array)
+#13 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(279): Laravel\\Lumen\\Application->callControllerAction(Array)
+#14 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(259): Laravel\\Lumen\\Application->callActionOnArrayBasedRoute(Array)
+#15 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(48): Laravel\\Lumen\\Application->Laravel\\Lumen\\Concerns\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#16 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Middleware/Authenticate.php(62): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#17 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(167): App\\Http\\Middleware\\Authenticate->handle(Object(Laravel\\Lumen\\Http\\Request), Object(Closure), 'interno_api')
+#18 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(30): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#19 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(103): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#20 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(423): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#21 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(260): Laravel\\Lumen\\Application->sendThroughPipeline(Array, Object(Closure))
+#22 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(166): Laravel\\Lumen\\Application->handleFoundRoute(Array)
+#23 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(48): Laravel\\Lumen\\Application->Laravel\\Lumen\\Concerns\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#24 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Middleware/CorsMiddleware.php(34): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#25 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(167): App\\Http\\Middleware\\CorsMiddleware->handle(Object(Laravel\\Lumen\\Http\\Request), Object(Closure))
+#26 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(30): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#27 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(103): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#28 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(423): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#29 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(172): Laravel\\Lumen\\Application->sendThroughPipeline(Array, Object(Closure))
+#30 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(109): Laravel\\Lumen\\Application->dispatch(NULL)
+#31 /home/simdoctorcombr/public_html/api.clinicanova-dev/public/index.php(29): Laravel\\Lumen\\Application->run()
+#32 {main}
+
+[previous exception] [object] (PDOException(code: 42000): SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'A.id = $idProcDoutAssoc 
+                                            AND A.statu' at line 15 at /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php:338)
+[stacktrace]
+#0 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(338): PDO->prepare('SELECT  A.*, AE...')
+#1 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(671): Illuminate\\Database\\Connection->Illuminate\\Database\\{closure}('SELECT  A.*, AE...', Array)
+#2 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(638): Illuminate\\Database\\Connection->runQueryCallback('SELECT  A.*, AE...', Array, Object(Closure))
+#3 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(346): Illuminate\\Database\\Connection->run('SELECT  A.*, AE...', Array, Object(Closure))
+#4 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Repositories/Clinicas/ProcedimentosRepository.php(160): Illuminate\\Database\\Connection->select('SELECT  A.*, AE...')
+#5 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Services/Clinicas/ConsultaService.php(612): App\\Repositories\\Clinicas\\ProcedimentosRepository->getAllProcedimentosVinculados('3580', NULL, NULL, 71261)
+#6 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Controllers/ApiClinicas/ConsultaController.php(123): App\\Services\\Clinicas\\ConsultaService->store('3580', Array, Array)
+#7 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(36): App\\Http\\Controllers\\ApiClinicas\\ConsultaController->store(Object(Laravel\\Lumen\\Http\\Request))
+#8 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/Util.php(40): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#9 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#10 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(37): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Laravel\\Lumen\\Application), Array, Object(Closure))
+#11 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/Container.php(611): Illuminate\\Container\\BoundMethod::call(Object(Laravel\\Lumen\\Application), Array, Array, NULL)
+#12 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(386): Illuminate\\Container\\Container->call(Array, Array)
+#13 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(352): Laravel\\Lumen\\Application->callControllerCallable(Array, Array)
+#14 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(326): Laravel\\Lumen\\Application->callLumenController(Object(App\\Http\\Controllers\\ApiClinicas\\ConsultaController), 'store', Array)
+#15 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(279): Laravel\\Lumen\\Application->callControllerAction(Array)
+#16 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(259): Laravel\\Lumen\\Application->callActionOnArrayBasedRoute(Array)
+#17 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(48): Laravel\\Lumen\\Application->Laravel\\Lumen\\Concerns\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#18 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Middleware/Authenticate.php(62): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#19 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(167): App\\Http\\Middleware\\Authenticate->handle(Object(Laravel\\Lumen\\Http\\Request), Object(Closure), 'interno_api')
+#20 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(30): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#21 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(103): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#22 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(423): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#23 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(260): Laravel\\Lumen\\Application->sendThroughPipeline(Array, Object(Closure))
+#24 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(166): Laravel\\Lumen\\Application->handleFoundRoute(Array)
+#25 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(48): Laravel\\Lumen\\Application->Laravel\\Lumen\\Concerns\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#26 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Middleware/CorsMiddleware.php(34): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#27 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(167): App\\Http\\Middleware\\CorsMiddleware->handle(Object(Laravel\\Lumen\\Http\\Request), Object(Closure))
+#28 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(30): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#29 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(103): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#30 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(423): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#31 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(172): Laravel\\Lumen\\Application->sendThroughPipeline(Array, Object(Closure))
+#32 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(109): Laravel\\Lumen\\Application->dispatch(NULL)
+#33 /home/simdoctorcombr/public_html/api.clinicanova-dev/public/index.php(29): Laravel\\Lumen\\Application->run()
+#34 {main}
+"} 
+[2023-03-23 18:02:54] local.ERROR: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'A.id = $idProcDoutAssoc 
+                                            AND A.statu' at line 15 (SQL: SELECT  A.*, AES_DECRYPT(B.nome_cript, '19fa61d75522a4669b44e39c1d2e1726c530232130d407f89afee0964997f7a73e83be698b288febcf88e3e03c4f0757ea8964e59b63d93708b138cc42a66eb3') AS nomeDoutor,C.codigo_proc, C.procedimento_nome AS nomeProcedimento, C.procedimento_descricao, C.idProcedimento, C.retorno,
+                                                 (CONVERT(CAST(CONVERT( D.proc_cat_nome USING latin1) AS BINARY) USING UTF8)) as proc_cat_nome, E.valor AS valor_proc, F.nome AS nomeConvenioProc,
+                                                IF(A.tipo_repasse = 1, (E.valor - (A.valor_percentual/100)), IF(A.tipo_repasse = 2, A.valor_real, '')) AS valorRepasse,C.procedimento_categoria_id,
+                                                C.duracao,E.cod_procedimento as codigoProcConvenio FROM procedimentos_doutores_assoc AS A
+                                            INNER JOIN doutores AS B 
+                                            ON A.doutores_id = B.id
+                                            INNER JOIN procedimentos AS C 
+                                            ON C.idProcedimento = A.procedimentos_id
+                                            LEFT JOIN procedimentos_categorias AS D 
+                                            ON D.idProcedimentoCat = C.procedimento_categoria_id
+                                            INNER JOIN procedimentos_convenios_assoc AS E 
+                                            ON (E.identificador = A.identificador AND E.procedimentos_id = A.procedimentos_id AND E.convenios_id = A.proc_convenios_id)
+                                            LEFT JOIN convenios AS F 
+                                            ON ((F.identificador = A.identificador AND F.id = A.proc_convenios_id) OR (F.identificador IS NULL AND F.id = A.proc_convenios_id))
+                                            WHERE A.identificador = 3580AND  A.id = $idProcDoutAssoc 
+                                            AND A.status = 1 AND C.`status` = 1 	
+                                            GROUP BY A.procedimentos_id
+                                            ORDER BY C.procedimento_nome) {"exception":"[object] (Illuminate\\Database\\QueryException(code: 42000): SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'A.id = $idProcDoutAssoc 
+                                            AND A.statu' at line 15 (SQL: SELECT  A.*, AES_DECRYPT(B.nome_cript, '19fa61d75522a4669b44e39c1d2e1726c530232130d407f89afee0964997f7a73e83be698b288febcf88e3e03c4f0757ea8964e59b63d93708b138cc42a66eb3') AS nomeDoutor,C.codigo_proc, C.procedimento_nome AS nomeProcedimento, C.procedimento_descricao, C.idProcedimento, C.retorno,
+                                                 (CONVERT(CAST(CONVERT( D.proc_cat_nome USING latin1) AS BINARY) USING UTF8)) as proc_cat_nome, E.valor AS valor_proc, F.nome AS nomeConvenioProc,
+                                                IF(A.tipo_repasse = 1, (E.valor - (A.valor_percentual/100)), IF(A.tipo_repasse = 2, A.valor_real, '')) AS valorRepasse,C.procedimento_categoria_id,
+                                                C.duracao,E.cod_procedimento as codigoProcConvenio FROM procedimentos_doutores_assoc AS A
+                                            INNER JOIN doutores AS B 
+                                            ON A.doutores_id = B.id
+                                            INNER JOIN procedimentos AS C 
+                                            ON C.idProcedimento = A.procedimentos_id
+                                            LEFT JOIN procedimentos_categorias AS D 
+                                            ON D.idProcedimentoCat = C.procedimento_categoria_id
+                                            INNER JOIN procedimentos_convenios_assoc AS E 
+                                            ON (E.identificador = A.identificador AND E.procedimentos_id = A.procedimentos_id AND E.convenios_id = A.proc_convenios_id)
+                                            LEFT JOIN convenios AS F 
+                                            ON ((F.identificador = A.identificador AND F.id = A.proc_convenios_id) OR (F.identificador IS NULL AND F.id = A.proc_convenios_id))
+                                            WHERE A.identificador = 3580AND  A.id = $idProcDoutAssoc 
+                                            AND A.status = 1 AND C.`status` = 1 \t
+                                            GROUP BY A.procedimentos_id
+                                            ORDER BY C.procedimento_nome) at /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php:678)
+[stacktrace]
+#0 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(638): Illuminate\\Database\\Connection->runQueryCallback('SELECT  A.*, AE...', Array, Object(Closure))
+#1 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(346): Illuminate\\Database\\Connection->run('SELECT  A.*, AE...', Array, Object(Closure))
+#2 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Repositories/Clinicas/ProcedimentosRepository.php(160): Illuminate\\Database\\Connection->select('SELECT  A.*, AE...')
+#3 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Services/Clinicas/ConsultaService.php(612): App\\Repositories\\Clinicas\\ProcedimentosRepository->getAllProcedimentosVinculados('3580', NULL, NULL, 71261)
+#4 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Controllers/ApiClinicas/ConsultaController.php(123): App\\Services\\Clinicas\\ConsultaService->store('3580', Array, Array)
+#5 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(36): App\\Http\\Controllers\\ApiClinicas\\ConsultaController->store(Object(Laravel\\Lumen\\Http\\Request))
+#6 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/Util.php(40): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#7 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#8 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(37): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Laravel\\Lumen\\Application), Array, Object(Closure))
+#9 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/Container.php(611): Illuminate\\Container\\BoundMethod::call(Object(Laravel\\Lumen\\Application), Array, Array, NULL)
+#10 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(386): Illuminate\\Container\\Container->call(Array, Array)
+#11 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(352): Laravel\\Lumen\\Application->callControllerCallable(Array, Array)
+#12 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(326): Laravel\\Lumen\\Application->callLumenController(Object(App\\Http\\Controllers\\ApiClinicas\\ConsultaController), 'store', Array)
+#13 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(279): Laravel\\Lumen\\Application->callControllerAction(Array)
+#14 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(259): Laravel\\Lumen\\Application->callActionOnArrayBasedRoute(Array)
+#15 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(48): Laravel\\Lumen\\Application->Laravel\\Lumen\\Concerns\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#16 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Middleware/Authenticate.php(62): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#17 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(167): App\\Http\\Middleware\\Authenticate->handle(Object(Laravel\\Lumen\\Http\\Request), Object(Closure), 'interno_api')
+#18 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(30): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#19 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(103): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#20 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(423): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#21 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(260): Laravel\\Lumen\\Application->sendThroughPipeline(Array, Object(Closure))
+#22 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(166): Laravel\\Lumen\\Application->handleFoundRoute(Array)
+#23 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(48): Laravel\\Lumen\\Application->Laravel\\Lumen\\Concerns\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#24 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Middleware/CorsMiddleware.php(34): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#25 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(167): App\\Http\\Middleware\\CorsMiddleware->handle(Object(Laravel\\Lumen\\Http\\Request), Object(Closure))
+#26 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(30): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#27 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(103): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#28 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(423): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#29 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(172): Laravel\\Lumen\\Application->sendThroughPipeline(Array, Object(Closure))
+#30 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(109): Laravel\\Lumen\\Application->dispatch(NULL)
+#31 /home/simdoctorcombr/public_html/api.clinicanova-dev/public/index.php(29): Laravel\\Lumen\\Application->run()
+#32 {main}
+
+[previous exception] [object] (PDOException(code: 42000): SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'A.id = $idProcDoutAssoc 
+                                            AND A.statu' at line 15 at /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php:338)
+[stacktrace]
+#0 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(338): PDO->prepare('SELECT  A.*, AE...')
+#1 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(671): Illuminate\\Database\\Connection->Illuminate\\Database\\{closure}('SELECT  A.*, AE...', Array)
+#2 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(638): Illuminate\\Database\\Connection->runQueryCallback('SELECT  A.*, AE...', Array, Object(Closure))
+#3 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(346): Illuminate\\Database\\Connection->run('SELECT  A.*, AE...', Array, Object(Closure))
+#4 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Repositories/Clinicas/ProcedimentosRepository.php(160): Illuminate\\Database\\Connection->select('SELECT  A.*, AE...')
+#5 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Services/Clinicas/ConsultaService.php(612): App\\Repositories\\Clinicas\\ProcedimentosRepository->getAllProcedimentosVinculados('3580', NULL, NULL, 71261)
+#6 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Controllers/ApiClinicas/ConsultaController.php(123): App\\Services\\Clinicas\\ConsultaService->store('3580', Array, Array)
+#7 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(36): App\\Http\\Controllers\\ApiClinicas\\ConsultaController->store(Object(Laravel\\Lumen\\Http\\Request))
+#8 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/Util.php(40): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#9 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#10 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(37): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Laravel\\Lumen\\Application), Array, Object(Closure))
+#11 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/Container.php(611): Illuminate\\Container\\BoundMethod::call(Object(Laravel\\Lumen\\Application), Array, Array, NULL)
+#12 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(386): Illuminate\\Container\\Container->call(Array, Array)
+#13 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(352): Laravel\\Lumen\\Application->callControllerCallable(Array, Array)
+#14 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(326): Laravel\\Lumen\\Application->callLumenController(Object(App\\Http\\Controllers\\ApiClinicas\\ConsultaController), 'store', Array)
+#15 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(279): Laravel\\Lumen\\Application->callControllerAction(Array)
+#16 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(259): Laravel\\Lumen\\Application->callActionOnArrayBasedRoute(Array)
+#17 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(48): Laravel\\Lumen\\Application->Laravel\\Lumen\\Concerns\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#18 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Middleware/Authenticate.php(62): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#19 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(167): App\\Http\\Middleware\\Authenticate->handle(Object(Laravel\\Lumen\\Http\\Request), Object(Closure), 'interno_api')
+#20 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(30): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#21 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(103): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#22 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(423): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#23 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(260): Laravel\\Lumen\\Application->sendThroughPipeline(Array, Object(Closure))
+#24 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(166): Laravel\\Lumen\\Application->handleFoundRoute(Array)
+#25 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(48): Laravel\\Lumen\\Application->Laravel\\Lumen\\Concerns\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#26 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Middleware/CorsMiddleware.php(34): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#27 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(167): App\\Http\\Middleware\\CorsMiddleware->handle(Object(Laravel\\Lumen\\Http\\Request), Object(Closure))
+#28 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(30): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#29 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(103): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#30 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(423): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#31 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(172): Laravel\\Lumen\\Application->sendThroughPipeline(Array, Object(Closure))
+#32 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(109): Laravel\\Lumen\\Application->dispatch(NULL)
+#33 /home/simdoctorcombr/public_html/api.clinicanova-dev/public/index.php(29): Laravel\\Lumen\\Application->run()
+#34 {main}
+"} 
+[2023-03-23 18:03:11] local.ERROR: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'A.id = 71261 
+                                            AND A.status = 1 AND C' at line 15 (SQL: SELECT  A.*, AES_DECRYPT(B.nome_cript, '19fa61d75522a4669b44e39c1d2e1726c530232130d407f89afee0964997f7a73e83be698b288febcf88e3e03c4f0757ea8964e59b63d93708b138cc42a66eb3') AS nomeDoutor,C.codigo_proc, C.procedimento_nome AS nomeProcedimento, C.procedimento_descricao, C.idProcedimento, C.retorno,
+                                                 (CONVERT(CAST(CONVERT( D.proc_cat_nome USING latin1) AS BINARY) USING UTF8)) as proc_cat_nome, E.valor AS valor_proc, F.nome AS nomeConvenioProc,
+                                                IF(A.tipo_repasse = 1, (E.valor - (A.valor_percentual/100)), IF(A.tipo_repasse = 2, A.valor_real, '')) AS valorRepasse,C.procedimento_categoria_id,
+                                                C.duracao,E.cod_procedimento as codigoProcConvenio FROM procedimentos_doutores_assoc AS A
+                                            INNER JOIN doutores AS B 
+                                            ON A.doutores_id = B.id
+                                            INNER JOIN procedimentos AS C 
+                                            ON C.idProcedimento = A.procedimentos_id
+                                            LEFT JOIN procedimentos_categorias AS D 
+                                            ON D.idProcedimentoCat = C.procedimento_categoria_id
+                                            INNER JOIN procedimentos_convenios_assoc AS E 
+                                            ON (E.identificador = A.identificador AND E.procedimentos_id = A.procedimentos_id AND E.convenios_id = A.proc_convenios_id)
+                                            LEFT JOIN convenios AS F 
+                                            ON ((F.identificador = A.identificador AND F.id = A.proc_convenios_id) OR (F.identificador IS NULL AND F.id = A.proc_convenios_id))
+                                            WHERE A.identificador = 3580AND  A.id = 71261 
+                                            AND A.status = 1 AND C.`status` = 1 	
+                                            GROUP BY A.procedimentos_id
+                                            ORDER BY C.procedimento_nome) {"exception":"[object] (Illuminate\\Database\\QueryException(code: 42000): SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'A.id = 71261 
+                                            AND A.status = 1 AND C' at line 15 (SQL: SELECT  A.*, AES_DECRYPT(B.nome_cript, '19fa61d75522a4669b44e39c1d2e1726c530232130d407f89afee0964997f7a73e83be698b288febcf88e3e03c4f0757ea8964e59b63d93708b138cc42a66eb3') AS nomeDoutor,C.codigo_proc, C.procedimento_nome AS nomeProcedimento, C.procedimento_descricao, C.idProcedimento, C.retorno,
+                                                 (CONVERT(CAST(CONVERT( D.proc_cat_nome USING latin1) AS BINARY) USING UTF8)) as proc_cat_nome, E.valor AS valor_proc, F.nome AS nomeConvenioProc,
+                                                IF(A.tipo_repasse = 1, (E.valor - (A.valor_percentual/100)), IF(A.tipo_repasse = 2, A.valor_real, '')) AS valorRepasse,C.procedimento_categoria_id,
+                                                C.duracao,E.cod_procedimento as codigoProcConvenio FROM procedimentos_doutores_assoc AS A
+                                            INNER JOIN doutores AS B 
+                                            ON A.doutores_id = B.id
+                                            INNER JOIN procedimentos AS C 
+                                            ON C.idProcedimento = A.procedimentos_id
+                                            LEFT JOIN procedimentos_categorias AS D 
+                                            ON D.idProcedimentoCat = C.procedimento_categoria_id
+                                            INNER JOIN procedimentos_convenios_assoc AS E 
+                                            ON (E.identificador = A.identificador AND E.procedimentos_id = A.procedimentos_id AND E.convenios_id = A.proc_convenios_id)
+                                            LEFT JOIN convenios AS F 
+                                            ON ((F.identificador = A.identificador AND F.id = A.proc_convenios_id) OR (F.identificador IS NULL AND F.id = A.proc_convenios_id))
+                                            WHERE A.identificador = 3580AND  A.id = 71261 
+                                            AND A.status = 1 AND C.`status` = 1 \t
+                                            GROUP BY A.procedimentos_id
+                                            ORDER BY C.procedimento_nome) at /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php:678)
+[stacktrace]
+#0 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(638): Illuminate\\Database\\Connection->runQueryCallback('SELECT  A.*, AE...', Array, Object(Closure))
+#1 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(346): Illuminate\\Database\\Connection->run('SELECT  A.*, AE...', Array, Object(Closure))
+#2 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Repositories/Clinicas/ProcedimentosRepository.php(160): Illuminate\\Database\\Connection->select('SELECT  A.*, AE...')
+#3 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Services/Clinicas/ConsultaService.php(612): App\\Repositories\\Clinicas\\ProcedimentosRepository->getAllProcedimentosVinculados('3580', NULL, NULL, 71261)
+#4 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Controllers/ApiClinicas/ConsultaController.php(123): App\\Services\\Clinicas\\ConsultaService->store('3580', Array, Array)
+#5 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(36): App\\Http\\Controllers\\ApiClinicas\\ConsultaController->store(Object(Laravel\\Lumen\\Http\\Request))
+#6 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/Util.php(40): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#7 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#8 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(37): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Laravel\\Lumen\\Application), Array, Object(Closure))
+#9 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/Container.php(611): Illuminate\\Container\\BoundMethod::call(Object(Laravel\\Lumen\\Application), Array, Array, NULL)
+#10 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(386): Illuminate\\Container\\Container->call(Array, Array)
+#11 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(352): Laravel\\Lumen\\Application->callControllerCallable(Array, Array)
+#12 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(326): Laravel\\Lumen\\Application->callLumenController(Object(App\\Http\\Controllers\\ApiClinicas\\ConsultaController), 'store', Array)
+#13 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(279): Laravel\\Lumen\\Application->callControllerAction(Array)
+#14 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(259): Laravel\\Lumen\\Application->callActionOnArrayBasedRoute(Array)
+#15 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(48): Laravel\\Lumen\\Application->Laravel\\Lumen\\Concerns\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#16 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Middleware/Authenticate.php(62): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#17 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(167): App\\Http\\Middleware\\Authenticate->handle(Object(Laravel\\Lumen\\Http\\Request), Object(Closure), 'interno_api')
+#18 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(30): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#19 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(103): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#20 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(423): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#21 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(260): Laravel\\Lumen\\Application->sendThroughPipeline(Array, Object(Closure))
+#22 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(166): Laravel\\Lumen\\Application->handleFoundRoute(Array)
+#23 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(48): Laravel\\Lumen\\Application->Laravel\\Lumen\\Concerns\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#24 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Middleware/CorsMiddleware.php(34): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#25 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(167): App\\Http\\Middleware\\CorsMiddleware->handle(Object(Laravel\\Lumen\\Http\\Request), Object(Closure))
+#26 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(30): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#27 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(103): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#28 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(423): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#29 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(172): Laravel\\Lumen\\Application->sendThroughPipeline(Array, Object(Closure))
+#30 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(109): Laravel\\Lumen\\Application->dispatch(NULL)
+#31 /home/simdoctorcombr/public_html/api.clinicanova-dev/public/index.php(29): Laravel\\Lumen\\Application->run()
+#32 {main}
+
+[previous exception] [object] (PDOException(code: 42000): SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'A.id = 71261 
+                                            AND A.status = 1 AND C' at line 15 at /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php:338)
+[stacktrace]
+#0 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(338): PDO->prepare('SELECT  A.*, AE...')
+#1 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(671): Illuminate\\Database\\Connection->Illuminate\\Database\\{closure}('SELECT  A.*, AE...', Array)
+#2 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(638): Illuminate\\Database\\Connection->runQueryCallback('SELECT  A.*, AE...', Array, Object(Closure))
+#3 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(346): Illuminate\\Database\\Connection->run('SELECT  A.*, AE...', Array, Object(Closure))
+#4 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Repositories/Clinicas/ProcedimentosRepository.php(160): Illuminate\\Database\\Connection->select('SELECT  A.*, AE...')
+#5 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Services/Clinicas/ConsultaService.php(612): App\\Repositories\\Clinicas\\ProcedimentosRepository->getAllProcedimentosVinculados('3580', NULL, NULL, 71261)
+#6 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Controllers/ApiClinicas/ConsultaController.php(123): App\\Services\\Clinicas\\ConsultaService->store('3580', Array, Array)
+#7 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(36): App\\Http\\Controllers\\ApiClinicas\\ConsultaController->store(Object(Laravel\\Lumen\\Http\\Request))
+#8 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/Util.php(40): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#9 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#10 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(37): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Laravel\\Lumen\\Application), Array, Object(Closure))
+#11 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/Container.php(611): Illuminate\\Container\\BoundMethod::call(Object(Laravel\\Lumen\\Application), Array, Array, NULL)
+#12 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(386): Illuminate\\Container\\Container->call(Array, Array)
+#13 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(352): Laravel\\Lumen\\Application->callControllerCallable(Array, Array)
+#14 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(326): Laravel\\Lumen\\Application->callLumenController(Object(App\\Http\\Controllers\\ApiClinicas\\ConsultaController), 'store', Array)
+#15 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(279): Laravel\\Lumen\\Application->callControllerAction(Array)
+#16 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(259): Laravel\\Lumen\\Application->callActionOnArrayBasedRoute(Array)
+#17 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(48): Laravel\\Lumen\\Application->Laravel\\Lumen\\Concerns\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#18 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Middleware/Authenticate.php(62): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#19 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(167): App\\Http\\Middleware\\Authenticate->handle(Object(Laravel\\Lumen\\Http\\Request), Object(Closure), 'interno_api')
+#20 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(30): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#21 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(103): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#22 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(423): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#23 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(260): Laravel\\Lumen\\Application->sendThroughPipeline(Array, Object(Closure))
+#24 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(166): Laravel\\Lumen\\Application->handleFoundRoute(Array)
+#25 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(48): Laravel\\Lumen\\Application->Laravel\\Lumen\\Concerns\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#26 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Middleware/CorsMiddleware.php(34): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#27 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(167): App\\Http\\Middleware\\CorsMiddleware->handle(Object(Laravel\\Lumen\\Http\\Request), Object(Closure))
+#28 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(30): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#29 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(103): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#30 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(423): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#31 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(172): Laravel\\Lumen\\Application->sendThroughPipeline(Array, Object(Closure))
+#32 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(109): Laravel\\Lumen\\Application->dispatch(NULL)
+#33 /home/simdoctorcombr/public_html/api.clinicanova-dev/public/index.php(29): Laravel\\Lumen\\Application->run()
+#34 {main}
+"} 
+[2023-03-23 18:03:13] local.ERROR: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'A.id = 71261 
+                                            AND A.status = 1 AND C' at line 15 (SQL: SELECT  A.*, AES_DECRYPT(B.nome_cript, '19fa61d75522a4669b44e39c1d2e1726c530232130d407f89afee0964997f7a73e83be698b288febcf88e3e03c4f0757ea8964e59b63d93708b138cc42a66eb3') AS nomeDoutor,C.codigo_proc, C.procedimento_nome AS nomeProcedimento, C.procedimento_descricao, C.idProcedimento, C.retorno,
+                                                 (CONVERT(CAST(CONVERT( D.proc_cat_nome USING latin1) AS BINARY) USING UTF8)) as proc_cat_nome, E.valor AS valor_proc, F.nome AS nomeConvenioProc,
+                                                IF(A.tipo_repasse = 1, (E.valor - (A.valor_percentual/100)), IF(A.tipo_repasse = 2, A.valor_real, '')) AS valorRepasse,C.procedimento_categoria_id,
+                                                C.duracao,E.cod_procedimento as codigoProcConvenio FROM procedimentos_doutores_assoc AS A
+                                            INNER JOIN doutores AS B 
+                                            ON A.doutores_id = B.id
+                                            INNER JOIN procedimentos AS C 
+                                            ON C.idProcedimento = A.procedimentos_id
+                                            LEFT JOIN procedimentos_categorias AS D 
+                                            ON D.idProcedimentoCat = C.procedimento_categoria_id
+                                            INNER JOIN procedimentos_convenios_assoc AS E 
+                                            ON (E.identificador = A.identificador AND E.procedimentos_id = A.procedimentos_id AND E.convenios_id = A.proc_convenios_id)
+                                            LEFT JOIN convenios AS F 
+                                            ON ((F.identificador = A.identificador AND F.id = A.proc_convenios_id) OR (F.identificador IS NULL AND F.id = A.proc_convenios_id))
+                                            WHERE A.identificador = 3580AND  A.id = 71261 
+                                            AND A.status = 1 AND C.`status` = 1 	
+                                            GROUP BY A.procedimentos_id
+                                            ORDER BY C.procedimento_nome) {"exception":"[object] (Illuminate\\Database\\QueryException(code: 42000): SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'A.id = 71261 
+                                            AND A.status = 1 AND C' at line 15 (SQL: SELECT  A.*, AES_DECRYPT(B.nome_cript, '19fa61d75522a4669b44e39c1d2e1726c530232130d407f89afee0964997f7a73e83be698b288febcf88e3e03c4f0757ea8964e59b63d93708b138cc42a66eb3') AS nomeDoutor,C.codigo_proc, C.procedimento_nome AS nomeProcedimento, C.procedimento_descricao, C.idProcedimento, C.retorno,
+                                                 (CONVERT(CAST(CONVERT( D.proc_cat_nome USING latin1) AS BINARY) USING UTF8)) as proc_cat_nome, E.valor AS valor_proc, F.nome AS nomeConvenioProc,
+                                                IF(A.tipo_repasse = 1, (E.valor - (A.valor_percentual/100)), IF(A.tipo_repasse = 2, A.valor_real, '')) AS valorRepasse,C.procedimento_categoria_id,
+                                                C.duracao,E.cod_procedimento as codigoProcConvenio FROM procedimentos_doutores_assoc AS A
+                                            INNER JOIN doutores AS B 
+                                            ON A.doutores_id = B.id
+                                            INNER JOIN procedimentos AS C 
+                                            ON C.idProcedimento = A.procedimentos_id
+                                            LEFT JOIN procedimentos_categorias AS D 
+                                            ON D.idProcedimentoCat = C.procedimento_categoria_id
+                                            INNER JOIN procedimentos_convenios_assoc AS E 
+                                            ON (E.identificador = A.identificador AND E.procedimentos_id = A.procedimentos_id AND E.convenios_id = A.proc_convenios_id)
+                                            LEFT JOIN convenios AS F 
+                                            ON ((F.identificador = A.identificador AND F.id = A.proc_convenios_id) OR (F.identificador IS NULL AND F.id = A.proc_convenios_id))
+                                            WHERE A.identificador = 3580AND  A.id = 71261 
+                                            AND A.status = 1 AND C.`status` = 1 \t
+                                            GROUP BY A.procedimentos_id
+                                            ORDER BY C.procedimento_nome) at /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php:678)
+[stacktrace]
+#0 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(638): Illuminate\\Database\\Connection->runQueryCallback('SELECT  A.*, AE...', Array, Object(Closure))
+#1 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(346): Illuminate\\Database\\Connection->run('SELECT  A.*, AE...', Array, Object(Closure))
+#2 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Repositories/Clinicas/ProcedimentosRepository.php(160): Illuminate\\Database\\Connection->select('SELECT  A.*, AE...')
+#3 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Services/Clinicas/ConsultaService.php(612): App\\Repositories\\Clinicas\\ProcedimentosRepository->getAllProcedimentosVinculados('3580', NULL, NULL, 71261)
+#4 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Controllers/ApiClinicas/ConsultaController.php(123): App\\Services\\Clinicas\\ConsultaService->store('3580', Array, Array)
+#5 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(36): App\\Http\\Controllers\\ApiClinicas\\ConsultaController->store(Object(Laravel\\Lumen\\Http\\Request))
+#6 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/Util.php(40): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#7 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#8 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(37): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Laravel\\Lumen\\Application), Array, Object(Closure))
+#9 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/Container.php(611): Illuminate\\Container\\BoundMethod::call(Object(Laravel\\Lumen\\Application), Array, Array, NULL)
+#10 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(386): Illuminate\\Container\\Container->call(Array, Array)
+#11 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(352): Laravel\\Lumen\\Application->callControllerCallable(Array, Array)
+#12 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(326): Laravel\\Lumen\\Application->callLumenController(Object(App\\Http\\Controllers\\ApiClinicas\\ConsultaController), 'store', Array)
+#13 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(279): Laravel\\Lumen\\Application->callControllerAction(Array)
+#14 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(259): Laravel\\Lumen\\Application->callActionOnArrayBasedRoute(Array)
+#15 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(48): Laravel\\Lumen\\Application->Laravel\\Lumen\\Concerns\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#16 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Middleware/Authenticate.php(62): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#17 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(167): App\\Http\\Middleware\\Authenticate->handle(Object(Laravel\\Lumen\\Http\\Request), Object(Closure), 'interno_api')
+#18 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(30): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#19 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(103): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#20 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(423): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#21 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(260): Laravel\\Lumen\\Application->sendThroughPipeline(Array, Object(Closure))
+#22 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(166): Laravel\\Lumen\\Application->handleFoundRoute(Array)
+#23 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(48): Laravel\\Lumen\\Application->Laravel\\Lumen\\Concerns\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#24 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Middleware/CorsMiddleware.php(34): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#25 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(167): App\\Http\\Middleware\\CorsMiddleware->handle(Object(Laravel\\Lumen\\Http\\Request), Object(Closure))
+#26 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(30): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#27 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(103): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#28 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(423): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#29 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(172): Laravel\\Lumen\\Application->sendThroughPipeline(Array, Object(Closure))
+#30 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(109): Laravel\\Lumen\\Application->dispatch(NULL)
+#31 /home/simdoctorcombr/public_html/api.clinicanova-dev/public/index.php(29): Laravel\\Lumen\\Application->run()
+#32 {main}
+
+[previous exception] [object] (PDOException(code: 42000): SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'A.id = 71261 
+                                            AND A.status = 1 AND C' at line 15 at /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php:338)
+[stacktrace]
+#0 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(338): PDO->prepare('SELECT  A.*, AE...')
+#1 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(671): Illuminate\\Database\\Connection->Illuminate\\Database\\{closure}('SELECT  A.*, AE...', Array)
+#2 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(638): Illuminate\\Database\\Connection->runQueryCallback('SELECT  A.*, AE...', Array, Object(Closure))
+#3 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/database/Connection.php(346): Illuminate\\Database\\Connection->run('SELECT  A.*, AE...', Array, Object(Closure))
+#4 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Repositories/Clinicas/ProcedimentosRepository.php(160): Illuminate\\Database\\Connection->select('SELECT  A.*, AE...')
+#5 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Services/Clinicas/ConsultaService.php(612): App\\Repositories\\Clinicas\\ProcedimentosRepository->getAllProcedimentosVinculados('3580', NULL, NULL, 71261)
+#6 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Controllers/ApiClinicas/ConsultaController.php(123): App\\Services\\Clinicas\\ConsultaService->store('3580', Array, Array)
+#7 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(36): App\\Http\\Controllers\\ApiClinicas\\ConsultaController->store(Object(Laravel\\Lumen\\Http\\Request))
+#8 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/Util.php(40): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#9 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#10 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/BoundMethod.php(37): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Laravel\\Lumen\\Application), Array, Object(Closure))
+#11 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/container/Container.php(611): Illuminate\\Container\\BoundMethod::call(Object(Laravel\\Lumen\\Application), Array, Array, NULL)
+#12 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(386): Illuminate\\Container\\Container->call(Array, Array)
+#13 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(352): Laravel\\Lumen\\Application->callControllerCallable(Array, Array)
+#14 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(326): Laravel\\Lumen\\Application->callLumenController(Object(App\\Http\\Controllers\\ApiClinicas\\ConsultaController), 'store', Array)
+#15 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(279): Laravel\\Lumen\\Application->callControllerAction(Array)
+#16 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(259): Laravel\\Lumen\\Application->callActionOnArrayBasedRoute(Array)
+#17 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(48): Laravel\\Lumen\\Application->Laravel\\Lumen\\Concerns\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#18 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Middleware/Authenticate.php(62): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#19 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(167): App\\Http\\Middleware\\Authenticate->handle(Object(Laravel\\Lumen\\Http\\Request), Object(Closure), 'interno_api')
+#20 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(30): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#21 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(103): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#22 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(423): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#23 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(260): Laravel\\Lumen\\Application->sendThroughPipeline(Array, Object(Closure))
+#24 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(166): Laravel\\Lumen\\Application->handleFoundRoute(Array)
+#25 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(48): Laravel\\Lumen\\Application->Laravel\\Lumen\\Concerns\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#26 /home/simdoctorcombr/public_html/api.clinicanova-dev/app/Http/Middleware/CorsMiddleware.php(34): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#27 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(167): App\\Http\\Middleware\\CorsMiddleware->handle(Object(Laravel\\Lumen\\Http\\Request), Object(Closure))
+#28 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Routing/Pipeline.php(30): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#29 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/illuminate/pipeline/Pipeline.php(103): Laravel\\Lumen\\Routing\\Pipeline->Laravel\\Lumen\\Routing\\{closure}(Object(Laravel\\Lumen\\Http\\Request))
+#30 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(423): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#31 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(172): Laravel\\Lumen\\Application->sendThroughPipeline(Array, Object(Closure))
+#32 /home/simdoctorcombr/public_html/api.clinicanova-dev/vendor/laravel/lumen-framework/src/Concerns/RoutesRequests.php(109): Laravel\\Lumen\\Application->dispatch(NULL)
+#33 /home/simdoctorcombr/public_html/api.clinicanova-dev/public/index.php(29): Laravel\\Lumen\\Application->run()
+#34 {main}
+"} 

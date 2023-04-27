@@ -19,10 +19,10 @@ use App\Services\Gerenciamento\DominioService;
 use App\Helpers\Functions;
 use App\Repositories\Clinicas\ConsultaRepository;
 use App\Repositories\Clinicas\UfRepository;
-use App\Repositories\Gerenciamento\DominioRepository;
+use App\Repositories\Gerenciamento\DominioRepository; 
 use App\Services\Clinicas\Utils\UploadService;
-use App\Services\Clinicas\ConsultaService;
-
+use App\Services\Clinicas\ConsultaService; 
+ 
 /**
  * Description of Activities
  *
@@ -266,12 +266,14 @@ class PacienteService extends BaseService {
                     $authTokenBio = (empty($row->auth_token_biometria)) ? $this->generateHashAuthBiometria($row->identificador, $row->id) : $row->auth_token_biometria;
                 }
 
-
                 $retorno[] = [
                     'id' => $row->id,
                     'nome' => $row->nome,
                     'sobrenome' => $row->sobrenome,
                     'email' => $row->email,
+                    'telefone' => $row->telefone,
+                    'cpf' => Functions::cpfToNumber($row->cpf),
+                    'celular' => $row->celular,
                     'urlFoto' => $urlFotoPerfil,
                     'perfilId' => $row->identificador,
                     'authTokenBio' => $authTokenBio,

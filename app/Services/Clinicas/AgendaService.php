@@ -22,6 +22,7 @@ use App\Repositories\Clinicas\StatusRefreshRepository;
 use App\Services\Clinicas\HorariosService;
 use App\Repositories\Clinicas\BloqueiosHorariosRepository;
 use App\Repositories\Clinicas\Consulta\ConsultaProcedimentoRepository;
+use App\Services\CacheService;
 
 /**
  * Description of Activities
@@ -285,7 +286,7 @@ class AgendaService extends BaseService {
             'ano.numeric' => 'Ano inválido',
         ]);
 
-        if ($validate->fails()) {
+     if ($validate->fails()) {
             return $this->returnError($validate->errors(), $validate->errors()->all());
         } else {
             $mes = sprintf('%02s', $request->query('mes'));
@@ -294,7 +295,17 @@ class AgendaService extends BaseService {
             $dataFim = date('t', strtotime($dataIni));
             $dataFim = $ano . '-' . $mes . '-' . $dataFim;
 
-            $horariosList = $this->horariosService->listHorarios($idDominio, $doutorId, $dataIni, null, $dataFim, null, null, null, true);
+            $CacheService = new CacheService;
+            $keyCache = $idDominio . $doutorId. request()->server('REQUEST_URI');
+            $verifyCache = $CacheService->verifyCache($keyCache);
+            if ($verifyCache) {
+                return $this->returnSuccess($verifyCache);
+            } else {
+
+                $horariosList = $this->horariosService->listHorarios($idDominio, $doutorId, $dataIni, null, $dataFim, null, null, null, true);
+                $CacheService->createCache($keyCache,$horariosList, 600);
+            }
+
 
             return $this->returnSuccess($horariosList);
         }

@@ -26,7 +26,7 @@ class CompromissoService extends BaseService {
 
     private function responseFields($row) {
         $retorno['id'] = $row->id;
-        $retorno['nome'] = utf8_decode($row->nome);
+        $retorno['nome'] = Functions::utf8ToAccentsConvert($row->nome);
         $retorno['impedeConsultas'] = ($row->impedeConsultas == 1) ? true : false;
         $retorno['data'] = $row->data_compromisso;
         $retorno['hora'] = $row->hora_agendamento;
@@ -119,7 +119,7 @@ class CompromissoService extends BaseService {
 
 
 
-        $camposInsert['nome'] = utf8_encode($dadosInput['compromisso']);
+        $camposInsert['nome'] = Functions::accentsToUtf8Convert($dadosInput['compromisso']);
         $camposInsert['data'] = Functions::dateDbToBr($dadosInput['data']);
         $camposInsert['data_agendamento'] = time();
         $camposInsert['hora_agendamento'] = $dadosInput['horario'];

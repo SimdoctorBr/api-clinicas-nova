@@ -57,7 +57,7 @@ class PlanoBeneficioService extends BaseService {
             return $this->returnSuccess($retorno);
         } else {
 
-            return $this->returnSuccess('', 'Sem planos de beneícios cadastros');
+            return $this->returnSuccess('', 'Sem planos de benefícios cadastros');
         }
     }
 

@@ -46,7 +46,6 @@ class DefinicaoHorarioService extends BaseService {
         $DIAS_HORARIOS = null;
         $HORARIOS_ADICIONAR = $HORARIOS_REMOVER = array();
 
-
         //PEgando as configurações de horarios de acordo com o tipo
         if ($tipoConsulta == 1) {
             $data = $valorTipoConsulta;
@@ -63,7 +62,12 @@ class DefinicaoHorarioService extends BaseService {
         if ($verificaHorario == null) {
             return null;
         }
-
+        if (!$todosDiasDisponiveis) { //Pegando somente um dia
+            $rowDiaAtendimento = $this->diasAtendimentoRepository->getByDoutores($idDominio, $doutor_id, $diaSemanaId, $verificaHorario->id);
+            if (count($rowDiaAtendimento) == 0) {
+                return null;
+            }
+        }
         $horariosPadrao = $this->gerarHorariosAgenda($verificaHorario->abertura, $verificaHorario->fechamento, $verificaHorario->intervalo);
 
         //horarios adicionais se o status for 1 adiciona se for 0 remover
@@ -89,9 +93,7 @@ class DefinicaoHorarioService extends BaseService {
 
 
         if (!$todosDiasDisponiveis) { //Pegando somente um dia
-            $rowDiaAtendimento = $this->diasAtendimentoRepository->getByDoutores($idDominio, $doutor_id, $diaSemanaId);
-
-//            sort($HORARIOS_ADICIONAR[$rowDiaAtendimento->dias_da_semana_id]);//orcdenando horários
+//              sort($HORARIOS_ADICIONAR[$rowDiaAtendimento->dias_da_semana_id]);//orcdenando horários
 //            sort($HORARIOS_REMOVER[$rowDiaAtendimento->dias_da_semana_id]); //orcdenando horários
 
 

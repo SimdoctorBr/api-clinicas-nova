@@ -59,10 +59,10 @@ class ProcedimentosRepository extends BaseRepository {
 
 
 
-        $camposSQL = " A.*, AES_DECRYPT(B.nome_cript, '$this->ENC_CODE') AS nomeDoutor, C.procedimento_nome AS nomeProcedimento, C.procedimento_descricao, C.idProcedimento, C.retorno,
+        $camposSQL = " A.*, AES_DECRYPT(B.nome_cript, '$this->ENC_CODE') AS nomeDoutor,C.codigo_proc, C.procedimento_nome AS nomeProcedimento, C.procedimento_descricao, C.idProcedimento, C.retorno,
                                                 D.proc_cat_nome, E.valor AS valor_proc,  (CONVERT(CAST(CONVERT( F.nome USING latin1) AS BINARY) USING UTF8)) AS nomeConvenioProc,
                                                 IF(A.tipo_repasse = 1, (E.valor - (A.valor_percentual/100)), IF(A.tipo_repasse = 2, A.valor_real, '')) AS valorRepasse,C.procedimento_categoria_id,
-                                              C.duracao,C.possui_parceiro, AES_DECRYPT(G.nome_cript, '$this->ENC_CODE') AS nomeDoutorParceiro, F.imposto as impostoConv,C.doutor_parceiro_id,E.cod_procedimento as codigoProc,
+                                              C.duracao,C.possui_parceiro, AES_DECRYPT(G.nome_cript, '$this->ENC_CODE') AS nomeDoutorParceiro, F.imposto as impostoConv,C.doutor_parceiro_id,E.cod_procedimento as codigoProcConvenio,
                                                   C.exibir_app_docbizz";
 
         $from = "FROM procedimentos_doutores_assoc AS A
@@ -100,7 +100,7 @@ class ProcedimentosRepository extends BaseRepository {
      * 
      * @param type $param
      */
-    public function getAllProcedimentosVinculados($idDominio, $page = null, $perPage = null) {
+    public function getAllProcedimentosVinculados($idDominio, $page = null, $perPage = null, $idProcDoutAssoc = null) {
 
 
         if (is_array($idDominio)) {
@@ -108,12 +108,16 @@ class ProcedimentosRepository extends BaseRepository {
         } else {
             $sql = "A.identificador = $idDominio";
         }
-
-
-        $camposSQL = " A.*, AES_DECRYPT(B.nome_cript, '$this->ENC_CODE') AS nomeDoutor, C.procedimento_nome AS nomeProcedimento, C.procedimento_descricao, C.idProcedimento, C.retorno,
+        
+        if(!empty($idProcDoutAssoc)){
+            
+            $sql .= " AND  A.id = $idProcDoutAssoc";
+        }
+       
+        $camposSQL = " A.*, AES_DECRYPT(B.nome_cript, '$this->ENC_CODE') AS nomeDoutor,C.codigo_proc, C.procedimento_nome AS nomeProcedimento, C.procedimento_descricao, C.idProcedimento, C.retorno,
                                                  (CONVERT(CAST(CONVERT( D.proc_cat_nome USING latin1) AS BINARY) USING UTF8)) as proc_cat_nome, E.valor AS valor_proc, F.nome AS nomeConvenioProc,
                                                 IF(A.tipo_repasse = 1, (E.valor - (A.valor_percentual/100)), IF(A.tipo_repasse = 2, A.valor_real, '')) AS valorRepasse,C.procedimento_categoria_id,
-                                                C.duracao";
+                                                C.duracao,E.cod_procedimento as codigoProcConvenio";
 
         $from = "FROM procedimentos_doutores_assoc AS A
                                             INNER JOIN doutores AS B 

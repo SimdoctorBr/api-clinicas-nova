@@ -22,8 +22,14 @@ class AsaasApiClientes extends AsaasApi {
     private $municipalInscription;
     private $stateInscription;
     private $observations;
+    private $groupName;
 
-    public function setName($name) {
+    
+    public function setGroupName($groupName) {
+        $this->groupName = $groupName;
+    }
+
+        public function setName($name) {
         $this->name = $name;
     }
 

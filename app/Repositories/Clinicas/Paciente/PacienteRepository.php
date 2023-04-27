@@ -177,6 +177,8 @@ class PacienteRepository extends BaseRepository {
         } else {
             $qr = $this->connClinicas()->select("SELECT $camposSQl $from   ORDER BY $orderBy ");
         }
+
+
         return $qr;
     }
 
@@ -184,6 +186,7 @@ class PacienteRepository extends BaseRepository {
 
         $dados['identificador'] = $idDominio;
         $qr = $this->insertDB('pacientes', $dados, $this->camposEncriptados, 'clinicas');
+        $this->insertTotalPacientesPerfil($idDominio);
         return $qr;
     }
 
@@ -199,7 +202,7 @@ class PacienteRepository extends BaseRepository {
         return $qr;
     }
 
-    public function getById($idDominio, $pacienteId,$verify = false) {
+    public function getById($idDominio, $pacienteId, $verify = false) {
         if (is_array($idDominio)) {
             $sqlFiltro = '  identificador IN(' . implode(',', $idDominio) . ")";
         } else {
@@ -359,6 +362,38 @@ class PacienteRepository extends BaseRepository {
         } else {
             return false;
         }
+    }
+
+    /**
+     * Voncular o paciente do Assas 
+     * @param type $identificador
+     * @param type $idPaciente
+     * @param type $customerId
+     */
+    public function vincularPacienteAssas($idDominio, $idPaciente, $customerId) {
+
+        try {
+            $campos['identificador'] = $idDominio;
+            $campos['pacientes_id'] = $idPaciente;
+            $campos['customer_id'] = $customerId;
+            $qr = $this->insertDB('pacientes_assas_clientes', $campos, null, 'clinicas');
+            return true;
+        } catch (Exception $ex) {
+            return $ex;
+        }
+    }
+
+    public function getTotalPacientes($idDominio) {
+        $qr = $this->connClinicas()->select("SELECT COUNT(*) as total FROM pacientes WHERE status_paciente = 1 AND identificador = '$idDominio'  ORDER BY nome ASC");
+        $row = $qr[0];
+        return $row->total;
+    }
+
+    public function insertTotalPacientesPerfil($idDominio) {
+        $totalPac = $this->getTotalPacientes($idDominio);
+     
+        $campos['total_pacientes_cad'] = $totalPac;
+        $qr = $this->updateDB('dominios', $campos, " id = $idDominio LIMIT 1", null, 'gerenciamento');
     }
 
 //    public function getPacienteFotos($idPaciente, $idConsulta = null) {
