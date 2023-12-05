@@ -9,7 +9,7 @@ use App\Helpers\Functions;
 class PacienteRepository extends BaseRepository {
 
     protected $camposEncriptados = array('nome_cript', 'sobrenome_cript', 'email_cript', 'cpf_cript', 'rg_cript', 'nome_conjuge_cript', 'cartao_nacional_saude_cript', 'telefone_cript'
-        , 'telefone2_cript', 'celular_cript', 'email_cript', 'filiacao_pai', 'filiacao_mae');
+        , 'telefone2_cript', 'celular_cript', 'email_cript', 'filiacao_pai', 'filiacao_mae', 'emergencia_nome', 'emergencia_telefone');
 
     public function getUltimaMatricula($idDominio) {
         $qr = $this->connClinicas()->select("SELECT if(MAX(matricula) IS NULL, 1, MAX(matricula)+1) as sugestaoMatricula FROM pacientes WHERE identificador = $idDominio");
@@ -52,13 +52,47 @@ class PacienteRepository extends BaseRepository {
 
         if (isset($dadosFiltro['search']) and!empty($dadosFiltro['search'])) {
 
-            $searchTxt = explode(' ', trim($dadosFiltro['search']));
-            $searchSobrenome = $searchTxt;
-            $searchSobrenome = implode(' ', array_splice($searchSobrenome, 1));
 
-            $orderBy = "  prioridadeBusca,nome,sobrenome ASC";
+            if (isset($dadosFiltro['tipo_busca']) and!empty($dadosFiltro['tipo_busca'])) {
+                switch ($dadosFiltro['tipo_busca']) {
+                    case 'nome':
 
-            $camposAdicionaisSQL = ", 
+                        $words = explode(' ', $dadosFiltro['search']);
+                        $sqlConcat = null;
+                        foreach ($words as $chave => $word) {
+                            $p = ($chave > 0) ? "%" : '';
+                            $sqlConcat[] = "CAST( CONCAT(AES_DECRYPT(nome_cript, '$this->ENC_CODE')) AS CHAR(255)) like '" . $p . trim($word) . "%'";
+                        }
+
+                        $sqlFiltro2 = " AND  (" . implode(' AND ', $sqlConcat) . " )";
+                        break;
+                    case 'sobrenome':
+
+                        $words = explode(' ', $dadosFiltro['search']);
+                        $sqlConcat = null;
+                        foreach ($words as $word) {
+                            $sqlConcat[] = "CAST( CONCAT(AES_DECRYPT(sobrenome_cript, '$this->ENC_CODE')) AS CHAR(255)) like '%" . trim($word) . "%'";
+                        }
+
+                        $sqlFiltro2 = " AND  (" . implode(' AND ', $sqlConcat) . " )";
+
+                        break;
+                    case 'cpf':
+                        $sqlFiltro2 = " AND  (
+                        CAST( CONCAT(AES_DECRYPT(cpf_cript, '$this->ENC_CODE')) AS CHAR(255)) like '" . Functions::cpfToNumber(trim($dadosFiltro['search'])) . "%')
+                            
+                        ";
+                        break;
+                }
+            } else {
+
+                $searchTxt = explode(' ', trim($dadosFiltro['search']));
+                $searchSobrenome = $searchTxt;
+                $searchSobrenome = implode(' ', array_splice($searchSobrenome, 1));
+
+                $orderBy = "  prioridadeBusca,nome,sobrenome ASC";
+
+                $camposAdicionaisSQL = ", 
                 IF(CAST( CONCAT(AES_DECRYPT(nome_cript,
                         '$this->ENC_CODE'),
                         ' ', AES_DECRYPT(sobrenome_cript,
@@ -74,25 +108,26 @@ class PacienteRepository extends BaseRepository {
                        CAST(AES_DECRYPT(nome_cript, '$this->ENC_CODE') AS CHAR(255)) LIKE '" . $searchTxt[0] . "%'),1,2)
 		  )) AS prioridadeBusca
 		  ";
-            if (count($searchTxt) > 1) {
-                $sqlFiltroPac = null;
-                foreach ($searchTxt as $textS) {
+                if (count($searchTxt) > 1) {
+                    $sqlFiltroPac = null;
+                    foreach ($searchTxt as $textS) {
 
-                    $sqlFiltroPac[] = "   (
+                        $sqlFiltroPac[] = "   (
                         CAST( CONCAT(AES_DECRYPT(nome_cript, '$this->ENC_CODE'), ' ', AES_DECRYPT(sobrenome_cript, '$this->ENC_CODE')) AS CHAR(255)) like '{$textS}%') OR    
                         TRIM(REPLACE(REPLACE( AES_DECRYPT(cpf_cript, '$this->ENC_CODE') , '-', ''), '.',''))  LIKE '%" . $textS . "%'
                         ";
-                }
-                $sqlFiltro[] = "(" . implode('OR', $sqlFiltroPac) . ")";
-
+                    }
+                    $sqlFiltro[] = "(" . implode('OR', $sqlFiltroPac) . ")";
+//                $sqlFiltro[] = "(" . implode('OR', $sqlFiltroPac) . ")";REGEXP 'ana|claudia|pacheco'
 //                var_dump($sqlFiltro);
-            } else {
-                $sqlFiltro[] .= "   (CAST( BINARY   AES_DECRYPT(nome_cript, '$this->ENC_CODE')  AS CHAR CHARACTER SET utf8) LIKE '%{$dadosFiltro['search']}%' OR
+                } else {
+                    $sqlFiltro[] .= "   (CAST( BINARY   AES_DECRYPT(nome_cript, '$this->ENC_CODE')  AS CHAR CHARACTER SET utf8) LIKE '%{$dadosFiltro['search']}%' OR
                        CAST(AES_DECRYPT(nome_cript, '$this->ENC_CODE') AS CHAR(255)) LIKE '%{$dadosFiltro['search']}%' OR           
                         CAST(AES_DECRYPT(sobrenome_cript, '$this->ENC_CODE') AS CHAR(255)) LIKE '%{$dadosFiltro['search']}%') OR   
                         TRIM(REPLACE(REPLACE( AES_DECRYPT(cpf_cript, '$this->ENC_CODE') , '-', ''), '.',''))  LIKE '%" . $dadosFiltro['search'] . "%' OR   
                         TRIM( AES_DECRYPT(cpf_cript, '$this->ENC_CODE'))  LIKE '%" . $dadosFiltro['search'] . "%'
                         ";
+                }
             }
         }
 
@@ -158,8 +193,10 @@ class PacienteRepository extends BaseRepository {
         AES_DECRYPT(email_cript, '$this->ENC_CODE') as email,
         AES_DECRYPT(cpf_cript, '$this->ENC_CODE') as cpf,
         AES_DECRYPT(rg_cript, '$this->ENC_CODE') as rg,
+        AES_DECRYPT(emergencia_nome, '$this->ENC_CODE') as emergencia_nome,
+        AES_DECRYPT(emergencia_telefone, '$this->ENC_CODE') as emergencia_telefone,
         AES_DECRYPT(nome_conjuge_cript, '$this->ENC_CODE') as nome_conjuge" . $camposAdicionaisSQL
-                . " , B.ds_uf_sigla as ufSigla, C.customer_id as idCustomerAsaas";
+                . " , B.ds_uf_sigla as ufSigla, C.customer_id as idCustomerAsaas,doc_verificados, doc_verificados_data, doc_verificados_motivo";
 
         $from = "FROM pacientes as A 
                LEFT JOIN uf as B
@@ -222,6 +259,8 @@ class PacienteRepository extends BaseRepository {
         AES_DECRYPT(email_cript, '$this->ENC_CODE') as email,
         AES_DECRYPT(cpf_cript, '$this->ENC_CODE') as cpf,
         AES_DECRYPT(rg_cript, '$this->ENC_CODE') as rg,
+               AES_DECRYPT(emergencia_nome, '$this->ENC_CODE') as emergencia_nome,
+        AES_DECRYPT(emergencia_telefone, '$this->ENC_CODE') as emergencia_telefone,
         AES_DECRYPT(nome_conjuge_cript, '$this->ENC_CODE') as nome_conjuge";
         }
         $qr = $this->connClinicas()->select("SELECT $camposSql
@@ -391,7 +430,7 @@ class PacienteRepository extends BaseRepository {
 
     public function insertTotalPacientesPerfil($idDominio) {
         $totalPac = $this->getTotalPacientes($idDominio);
-     
+
         $campos['total_pacientes_cad'] = $totalPac;
         $qr = $this->updateDB('dominios', $campos, " id = $idDominio LIMIT 1", null, 'gerenciamento');
     }

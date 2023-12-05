@@ -158,7 +158,6 @@ class HorariosService extends BaseService {
             }
 
 
-
             $countHorariosOcup = 0;
             $totalHorariosDisponiveis = 0;
             $totalHorariosAgendaveis = 0;
@@ -169,6 +168,9 @@ class HorariosService extends BaseService {
 
                 if ($qrHorarios['horarios'] != null) {
                     foreach ($qrHorarios['horarios'] as $rowHorarios) {
+
+
+
 
                         $horario = $rowHorarios['horario'];
                         $statusHorario = $rowHorarios['status'];
@@ -265,7 +267,6 @@ class HorariosService extends BaseService {
 
 
 
-
                         if (($VerificaBloqueioAgenda == 1
                                 or ( empty($VerificaBloqueioAgenda) and (
                                 (isset($BloqueioPeriodoHora['inicio']) and $BloqueioPeriodoHora['inicio'] <= $horario)
@@ -282,6 +283,8 @@ class HorariosService extends BaseService {
                             }
                         }
 
+                        
+                        
                         $limiteEncaixe = (isset($dadosFiltro['encaixe']) and $dadosFiltro['encaixe'] == true) ? true : false;
                         $verificaDisponibilidade = $this->consultaService->verificaDisponibilidadeConsultasHorario($idDominio, $doutorId, $dataAg, $horario, true, $limiteEncaixe);
 
@@ -301,7 +304,7 @@ class HorariosService extends BaseService {
                             $RETORNO[$contResult1]['horariosList'][$contResult]['disponivel'] = false;
                             $RETORNO[$contResult1]['horariosList'][$contResult]['descricao'] = 'Bloqueado';
                         }
-
+ 
                         //total horario agendavel
                         if ($RETORNO[$contResult1]['horariosList'][$contResult]['disponivel']) {
                             $totalHorariosAgendaveis++;
@@ -315,6 +318,8 @@ class HorariosService extends BaseService {
                             $RETORNO[$contResult1]['horariosList'][$contResult]['descricao'] = 'Bloqueado';
                         }
 
+                       
+                        
                         if (isset($COMPROMISSOS_BLOQUEIO[$dataAg]) and in_array($horario, $COMPROMISSOS_BLOQUEIO[$dataAg])) {
                             $RETORNO[$contResult1]['horariosList'][$contResult]['disponivel'] = false;
                             $RETORNO[$contResult1]['horariosList'][$contResult]['descricao'] = 'Bloqueado';
@@ -645,7 +650,8 @@ class HorariosService extends BaseService {
     public function verificaHorarioDisponivel($idDominio, $idDoutor, $data, $horario, $horarioFim = null) {
 
 
-        $qrHorarios = $this->listHorarios($idDominio, $idDoutor, $data, $horario, $data, $horarioFim);
+        $horaTermino = (!empty($horarioFim)) ? $horarioFim : $horario;
+        $qrHorarios = $this->listHorarios($idDominio, $idDoutor, $data, $horario, $data, $horaTermino);
 
         if (!isset($qrHorarios[0]['horariosList'])) {
             $this->returnError('', 'Horário indisponível');
@@ -655,7 +661,7 @@ class HorariosService extends BaseService {
         $erroHorafim = null;
         foreach ($qrHorarios[0]['horariosList'] as $rowHorario) {
 
-            if ($horario == $rowHorario['inicio'] and $rowHorario['disponivel'] == true) {
+            if (strtotime($horario) == strtotime($rowHorario['inicio']) and $rowHorario['disponivel'] == true) {
                 $verficaHorario = true;
             }
 

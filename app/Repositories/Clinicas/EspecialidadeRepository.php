@@ -48,6 +48,9 @@ class EspecialidadeRepository extends DoutoresRepository {
 ////                 dd( $dadosFiltro['nomeFormacao']);
 //                $sqlFiltro .= $this->sqlFilterNomeFormacao($dadosFiltro['nomeFormacao'], 'C');
 //            }
+            if (isset($dadosFiltro['tags']) and!empty($dadosFiltro['tags'])) {
+                $sqlFiltro .= $this->sqlFilterTagsTratamento($dadosFiltro['tags']);
+            }
 
             $camposSQL = " A.identificador, A.doutores_id, A.especialidade_id,CAST(A.outro AS CHAR(255)) AS outro, if(A.outro IS NOT NULL, A.outro, B.nome) AS nome,
                 AES_DECRYPT(C.nome_cript, '$this->ENC_CODE')  AS nomeDoutor, C.sexo";

@@ -178,7 +178,9 @@ class CobrancaAsaasService extends BaseService {
             $PacientesAsaasPagamentosService = new PacientesAsaasPagamentosService();
 
             //lançar cobrança
-            $dataVenc = $AsaasConfigService->calculaDiasProxVencimento($rowConfigAsaas->assin_dias_primeira);
+       
+            $dataVenc = $AsaasConfigService->calculaDiasProxVencimento($rowConfigAsaas->dias_venc_cobranca);
+            
             $AsaasApiCobranca = new AsaasApiCobrancas($this->ambienteAsaas, $rowConfigAsaas->apiKey);
             $AsaasApiCobrancasItem = new AsaasApiCobrancasItem();
             $AsaasApiCobrancasItem->setCustomerId($idCustomer);

@@ -4,6 +4,7 @@ namespace App\Repositories\Clinicas;
 
 use App\Repositories\BaseRepository;
 use Illuminate\Support\Facades\DB;
+use App\Helpers\Functions;
 
 class DoutoresRepository extends BaseRepository {
 
@@ -79,10 +80,26 @@ class DoutoresRepository extends BaseRepository {
         }, $nomesFormacao);
         $nomesFormacao = implode(',', $nomesFormacao);
 
+    
         return" AND (SELECT COUNT(*) FROM doutores_formacoes WHERE
                                                identificador = $alias.identificador AND nome_formacao IN($nomesFormacao)  AND doutores_id = $alias.id
                             ) >0
                             ";
+    }
+
+    public function sqlFilterTagsTratamento( $tagsTratamento, $alias = "A") {
+        
+      
+        if (!is_array($tagsTratamento)) {
+            $tagsTratamento = explode(',', $tagsTratamento);
+        }
+        $sqlTag = null;
+         
+        foreach ($tagsTratamento as $tagF) {
+            $tagF = Functions::removeAccents($tagF);
+            $sqlTag[] = "JSON_SEARCH(tags_tratamentos,'all','%".trim($tagF)."%') IS NOT NULL ";
+        }
+        return " AND (" . implode('OR ', $sqlTag) . ")";
     }
 
     /**
@@ -98,7 +115,7 @@ class DoutoresRepository extends BaseRepository {
         if (isset($tipoAtendimento) and $tipoAtendimento == 'video') {
 
             $sqlFilter = '';
-            if (isset($valorConsultaMax) and !empty($valorConsultaMax)) {
+            if (isset($valorConsultaMax) and!empty($valorConsultaMax)) {
                 $sqlFilter = " AND Bb.`valor`>='{$valorConsulta}' AND Bb.`valor`<='{$valorConsultaMax}'";
             } else {
                 $sqlFilter = " AND Bb.`valor`>='{$valorConsulta}'";
@@ -133,6 +150,9 @@ class DoutoresRepository extends BaseRepository {
             $sql = "A.identificador = $idDominio";
         }
 
+
+
+      
 
 
         $sqlFiltro = '';
@@ -202,6 +222,11 @@ class DoutoresRepository extends BaseRepository {
             $sqlFiltro .= $this->sqlFilterNomeFormacao($dadosFiltro['nomeFormacao']);
         }
 
+        if (isset($dadosFiltro['tags']) and!empty($dadosFiltro['tags'])) {     
+            
+            $sqlFiltro .= $this->sqlFilterTagsTratamento($dadosFiltro['tags']);
+        }
+
         if (isset($dadosFiltro['favoritoPacienteId']) and!empty($dadosFiltro['favoritoPacienteId'])) {
             $sqlFiltroCampos .= ", (SELECT id FROM pacientes_doutores_favoritos WHERE
                                                identificador = A.identificador AND doutores_id = A.id AND pacientes_id = " . $dadosFiltro['favoritoPacienteId'] . " 
@@ -219,7 +244,7 @@ class DoutoresRepository extends BaseRepository {
     AND (SELECT STATUS FROM consultas_status WHERE consulta_id =consultas.id ORDER BY id DESC LIMIT 1) = 'jaFoiAtendido') as totalConsultasAtendidas";
         }
 
-
+       
 
         $orderBy = "A.nome ASC";
         if (isset($dadosFiltro['orderBy']) and!empty($dadosFiltro['orderBy'])) {
@@ -231,7 +256,7 @@ class DoutoresRepository extends BaseRepository {
         } else {
             $camposSQL = "A.id,A.sobre,A.sexo,A.especialidades_id,A.outra_especialidade  ,A.identificador,A.preco_consulta as precoConsulta,A.website,A.mensagem_antes_marcar,A.pronome_id,A.cor,A.cor_letra,A.conselho_profissional_id,
             A.conselho_uf_id,A.cbo_s_id,A.nome_foto,A.data_cad as dataCad,A.administrador_id_cad,A.possui_repasse,A.tipo_repasse,A.valor_repasse,A.possui_videoconf,A.permite_agenda_website,A.doutor_parceiro,A.nome_responsavel,
-            A.status_doutor,A.somente_videoconf, A.plano_aluguel_sala_id,A.tags_tratamentos,A.pontuacao,A.link_video,
+            A.status_doutor,A.somente_videoconf, A.plano_aluguel_sala_id,A.tags_tratamentos,A.pontuacao,A.link_video,A.dt_ini_atividade_prof,
             AES_DECRYPT(nome_cript, '$this->ENC_CODE') as nome,A.proc_doutor_id_video,
                                 AES_DECRYPT(email_cript, '$this->ENC_CODE') as email,
                                 AES_DECRYPT(telefone_cript, '$this->ENC_CODE') as telefone,
@@ -246,7 +271,7 @@ class DoutoresRepository extends BaseRepository {
                                 AES_DECRYPT(banco2_cript, '$this->ENC_CODE') as banco2,
                                 AES_DECRYPT(conta2_cript, '$this->ENC_CODE') as conta2,
                                 AES_DECRYPT(agencia2_cript, '$this->ENC_CODE') as agencia2,
-                                    A.duracao_videocons,
+                                    A.duracao_videocons,A.dt_ini_atividade_prof,
                                 B.abreviacao, B.nome as nomePronome,B.artigo, D.nome as nomeConselhoProfissional, D.codigo as codigoConselhoProfisssional,
                                                 E.ds_uf_nome as nomeUFConselhoProfisional, E.ds_uf_sigla as siglaUFConselhoProfisional, F.codigo as codigoCBO, F.nome as nomeCBO,
                                                    AES_DECRYPT(conselho_profissional_numero_cript, '$this->ENC_CODE') as conselho_profissional_numero,G.nome as nomePlanoSala, proc_doutor_id_presencial,I.procedimento_nome as procPadraoNome,
@@ -276,9 +301,9 @@ class DoutoresRepository extends BaseRepository {
              LEFT JOIN especialidades as M
             ON M.id = A.especialidades_id
             WHERE  $sql AND A.status_doutor = 1 $sqlFiltro     ";
-
+// var_dump($sql);
 //        if (auth('clinicas')->user()->id = 4055) {
-//        var_dump("SELECT $camposSQL $from");
+//        var_dump("SELECT $camposSQL $from");    
 //            exit;
 //        }
 
@@ -300,15 +325,11 @@ class DoutoresRepository extends BaseRepository {
             $sql = "A.identificador = $idDominio";
         }
 
-
-
-
-
         $qr = $this->connClinicas()->select("SELECT A.id,A.sobre,A.sexo,A.especialidades_id,A.outra_especialidade,A.identificador,A.preco_consulta as precoConsulta,A.website,A.mensagem_antes_marcar,A.pronome_id,A.cor,A.cor_letra,A.conselho_profissional_id,
             A.conselho_uf_id,A.cbo_s_id,A.nome_foto,A.data_cad as dataCad,A.administrador_id_cad,A.possui_repasse,A.tipo_repasse,A.valor_repasse,A.possui_videoconf,A.permite_agenda_website,A.doutor_parceiro,A.nome_responsavel,
-            A.status_doutor,A.somente_videoconf, A.plano_aluguel_sala_id,A.tags_tratamentos,A.pontuacao,A.link_video,
+            A.status_doutor,A.somente_videoconf, A.plano_aluguel_sala_id,A.tags_tratamentos,A.pontuacao,A.link_video,A.dt_ini_atividade_prof,
             AES_DECRYPT(nome_cript, '$this->ENC_CODE') as nome,
-                    A.duracao_videocons,
+                    A.duracao_videocons,A.dt_ini_atividade_prof,
                                 AES_DECRYPT(email_cript, '$this->ENC_CODE') as email,
                                 AES_DECRYPT(telefone_cript, '$this->ENC_CODE') as telefone,
                                 AES_DECRYPT(celular1_cript, '$this->ENC_CODE') as celular1,

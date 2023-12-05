@@ -86,6 +86,24 @@ class Functions {
         $diff = $dtAtual->diff($dtIni);
         return $diff->y;
     }
+     public static function removeAccents($msg) {
+        $arrayAcentoToUtf8 = array("á" => "a", "à" => 'a', "â" => "a", "ã" => "a", "ä" => "a", "é" => "e", "è" => "e", "ê" => "e", "ë" => "e", "í" => "e", "ì" => "i", "î" => "i", "ï" => "i", "ó" => "o", "ò" => "o", "ô" => "o", "õ" => "o", "ö" => "o", "ú" => "u", "ù" => "u", "û" => "u", "ü" => "u", "ç" => "ç", "Á" => "A", "À" => "A", "Â" => "A", "Ã" => "A", "Ä" => "A", "É" => "E", "È" => "E", "Ê" => "E", "Ë" => "E", "Í" => "I", "Ì" => "I", "Î" => "I", "Ï" => "I", "Ó" => "O", "Ò" => "O", "Ô" => "O", "Õ" => "O", "Ö" => "O", "Ú" => "U", "Ù" => "U", "Û" => "U", "Ü" => "U", "Ç" => "Ç", "º" => "Âº", "ª" => "Âª");
+        return strtr($msg, $arrayAcentoToUtf8);
+    }
+
+    public static function accentsToJavascript($msg, $invert = false) {
+        $accents = ['á', 'à', 'â', 'ã', 'ä', 'Á', 'À', 'Â', 'Ã', 'Ä', 'é', 'è', 'ê', 'ê', 'É', 'È', 'Ê', 'Ë', 'í', 'ì', 'î', 'ï', 'Í', 'Ì', 'Î', 'Ï', 'ó', 'ò', 'ô', 'õ', 'ö', 'Ó', 'Ò', 'Ô', 'Õ', 'Ö', 'ú', 'ù', 'û', 'ü', 'Ú', 'Ù', 'Û', 'ç', 'Ç', 'ñ', 'Ñ', '&', "'"];
+        $code = ['\u00e1', '\u00e0', '\u00e2', '\u00e3', '\u00e4', '\u00c1', '\u00c0', '\u00c2', '\u00c3', '\u00c4', '\u00e9', ' \u00e8', '\u00ea', '\u00ea', '\u00c9', '\u00c8', '\u00ca', '\u00cb', '\u00ed', '\u00ec', '\u00ee', '\u00ef', '\u00cd', '\u00cc', '\u00ce',
+            '\u00cf', '\u00cf', '\u00f2', '\u00f4', '\u00f5', '\u00f6', '\u00d3', '\u00d2', '\u00d4', '\u00d5', '\u00d6', '\u00fa', '\u00f9', '\u00fb', '\u00fc',
+            '\u00da', '\u00d9', '\u00db', '\u00e7', '\u00c7', '\u00f1', '\u00d1', '\u0026', '\u0027'];
+        if ($invert) {
+            $fix = str_replace($code, $accents, $msg);
+        } else {
+            $fix = str_replace($accents, $code, $msg);
+        }
+
+        return $fix;
+    }
 
     public static function utf8Fix($msg, $utf8ToAccents = true) {
         $accents = array("á", "à", "â", "ã", "ä", "é", "è", "ê", "ë", "í", "ì", "î", "ï", "ó", "ò", "ô", "õ", "ö", "ú", "ù", "û", "ü", "ç", "Á", "À", "Â", "Ã", "Ä", "É", "È", "Ê", "Ë", "Í", "Ì", "Î", "Ï", "Ó", "Ò", "Ô", "Õ", "Ö", "Ú", "Ù", "Û", "Ü", "Ç", "º", "ª");
@@ -121,7 +139,7 @@ class Functions {
         if (count($date) != 3) {
             return false;
         }
-        return checkdate($date[1], $date[2], $date[0]);
+        return checkdate(trim($date[1]), trim($date[2]), trim($date[0]));
     }
 
     public static function gerarHorarios($inicio, $termino, $intervalo) {
@@ -304,4 +322,30 @@ class Functions {
         return true;
     }
 
+    public static function trimInputArray($inputValidate) {
+
+        $inputValidate = array_map(function ($item) {
+            if (!is_array($item)) {
+                return trim($item);
+            } else {
+                return $item;
+            }
+        }, $inputValidate);
+        return $inputValidate;
+    }
+
+    public static function isImageExtension($extension) {
+
+        switch ($extension) {
+            case 'png':
+            case 'PNG':
+            case 'jpeg':
+            case 'JPEG':
+            case 'jpg':
+            case 'JPG': return true;
+                break;
+            default: return false;
+                break;
+        }
+    }
 }

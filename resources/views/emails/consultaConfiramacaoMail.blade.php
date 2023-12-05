@@ -10,10 +10,9 @@
         @endif
 
         @if (isset($linkVideo) and !empty($linkVideo)) 
+        <h4><b>Consulta por video</b></h4>
+        <br>
         <table >
-            <tr>
-                <td><b>Consulta por video</b></td>
-            </tr>
             <tr>
                 <td>
 
@@ -75,8 +74,8 @@
              font-size:14px;'><b> Dados da Consulta:</b></div> 
         <b>Data:</b> {{$data}}<br/> 
         <b>Hora:</b>  {{$horario}} <br/>
-        <b>Doutor(a):</b> {{$nomeDoutor}}<br/>
-        <b>Clinica:</b> {{$nomeClinica}}<br/><br/>
+        <b>Doutor(a):</b> {{($nomeDoutor)}}<br/>
+        <b>Clinica:</b> {{utf8_decode($nomeClinica)}}<br/><br/>
         @endif
 
 
@@ -118,7 +117,7 @@
         <br><br>
         @endif
 
-        Você recebeu este e-mail porque você é um cliente da clínica<b>{{$nomeClinica}}</b>
+        Você recebeu este e-mail porque você é um cliente da clínica <b>{{utf8_decode($nomeClinica)}}</b>
 
 
         <div >Este e-mail não é para você? <a href='$this->linkBloqueiaEmail' onclick='return false;'>Cancelar recebimento</a> </div>

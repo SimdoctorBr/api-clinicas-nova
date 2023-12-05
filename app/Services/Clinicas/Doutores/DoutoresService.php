@@ -111,11 +111,12 @@ class DoutoresService extends BaseService {
             $retorno['tagsTratamentos'] = null;
         }
 
-
+//dd($row);
         $retorno['sobre'] = html_entity_decode($row->sobre);
         $retorno['linkVideoProfissional'] = $row->link_video;
         $retorno['pontuacao'] = $row->pontuacao;
         $retorno['perfilId'] = $row->identificador;
+        $retorno['dataIniAtividadeProf'] = $row->dt_ini_atividade_prof; 
 
         $retorno['favoritoPaciente'] = (isset($row->favoritoPaciente) and!empty($row->favoritoPaciente)) ? true : false;
         $retorno['favoritoId'] = (isset($row->favoritoPaciente) and!empty($row->favoritoPaciente)) ? $row->favoritoPaciente : null;
@@ -146,8 +147,8 @@ class DoutoresService extends BaseService {
         if (isset($row->proc_doutor_id_video) and!empty($row->proc_doutor_id_video)) {
             $ProcedimentosRepository = new ProcedimentosRepository();
             $rowProc = $ProcedimentosRepository->getAllProcedimentosVinculados($row->identificador, null, null, $row->proc_doutor_id_video);
-            $rowProc =$rowProc[0];
-         
+            $rowProc = $rowProc[0];
+
             $retorno['procedimentoPadraoVideo'] = [
                 'idProcedimentoDoutor' => $row->proc_doutor_id_video,
                 'idProcedimento' => $rowProc->procedimentos_id,
@@ -192,7 +193,7 @@ class DoutoresService extends BaseService {
 
             $dadosFiltro['orderBy'] = implode(',', $filtroOrderBy);
         }
-
+        
 
 
         $qr = $this->doutoresRepository->getAll($idDominio, $dadosFiltro, $page, $perPage);
@@ -259,7 +260,8 @@ class DoutoresService extends BaseService {
     public function getFiltros($idDominio, $dadosFiltro = null) {
 
 
-        $retorno = ['precoVideo' => ['min', 'max'], 'precoPresencial' => ['min', 'max'], 'especialidades' => [], 'grupoAtendimento' => [], 'formacaoAcademica' => []];
+        $retorno = ['precoVideo' => ['min', 'max'], 'precoPresencial' => ['min', 'max'], 'especialidades' => [], 'grupoAtendimento' => [], 'formacaoAcademica' => [],
+            'tags' => []];
 
         $retorno['grupoAtendimento'] = null;
 
@@ -277,8 +279,11 @@ class DoutoresService extends BaseService {
         }
 
 //        $resultSexo = $this->doutoresRepository->getAll($idDominio, ['sexo' => ['M']]);
-//        dd($resultSexo);
+  
 
+        
+        
+        
         $dadosFiltro['exibeListaDoutores'] = true;
         $resultEspecialidades = $this->especialidadeService->getAll($idDominio, $dadosFiltro);
         if ($resultEspecialidades['success']) {
@@ -310,8 +315,28 @@ class DoutoresService extends BaseService {
                 'nome' => 'Outros',
                 'disabled' => (!in_array('O', $siglasSexos)) ? true : false,
         ]];
+        unset($qrDoutores);
 
-//           
+        ///TAGS TRATAMENTO
+        $dadosFiltro['agruparIdDoutor'] = false;
+        $qrDoutoresTags = $this->doutoresRepository->getAll($idDominio, $dadosFiltro);
+        foreach ($qrDoutoresTags as $rowDout) {
+
+            if (!empty($rowDout->tags_tratamentos)) {
+                $tags = json_decode($rowDout->tags_tratamentos);
+                foreach ($tags as $nomeTag) {
+                    $retorno['tags'][] = array(
+                        'nome' => $nomeTag,
+                        'disabled' => false,
+                    );
+                }
+            }
+        }
+
+
+        $temp = array_unique(array_column($retorno['tags'], 'nome'));
+        $retorno['tags'] = array_values(array_intersect_key($retorno['tags'], $temp));
+
         //GRUPO DE ATENDIMENTO
         $GrupoAtendimentoRepository = new GrupoAtendimentoRepository;
         $idsGruposAtend = [];

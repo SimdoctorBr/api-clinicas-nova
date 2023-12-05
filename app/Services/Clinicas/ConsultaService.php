@@ -42,6 +42,9 @@ use App\Repositories\Clinicas\Asaas\AsaasConfigRepository;
 use App\Services\Clinicas\Financeiro\GatewayPagamentos\Asaas\CobrancaAsaasService;
 Use App\Services\Clinicas\Financeiro\GatewayPagamentos\Asaas\PacientesAsaasPagamentosService;
 use App\Services\Clinicas\EspecialidadeService;
+use App\Services\Google\IntegracaoGoogleService;
+use App\Repositories\Clinicas\IntegracaoGoogleRepository;
+use App\Repositories\Clinicas\Paciente\PacienteDependentesRepository;
 
 /**
  * Description of Activities
@@ -134,9 +137,9 @@ class ConsultaService extends BaseService {
 
         //Especialidades
         $retorno['doutor']['especialidades'] = null;
-        if (isset($rowConsulta->nomeEspecialidade) and!empty($rowConsulta->nomeEspecialidade)) {
+        if (isset($rowConsulta->nomeEspecialidade) and !empty($rowConsulta->nomeEspecialidade)) {
             $retorno['doutor']['especialidades'][] = array('nome' => utf8_decode($rowConsulta->nomeEspecialidade));
-        } elseif (isset($rowConsulta->outra_especialidade) and!empty($rowConsulta->outra_especialidade)) {
+        } elseif (isset($rowConsulta->outra_especialidade) and !empty($rowConsulta->outra_especialidade)) {
             $retorno['doutor']['especialidades'][] = array('nome' => $rowConsulta->outra_especialidade);
         }
 
@@ -201,7 +204,7 @@ class ConsultaService extends BaseService {
             'validadeLink' => null
         ];
 
-        if (isset($rowConsulta->idPacAssasPag) and!empty($rowConsulta->idPacAssasPag)) {
+        if (isset($rowConsulta->idPacAssasPag) and !empty($rowConsulta->idPacAssasPag)) {
             $PacientesAsaasPagamentosService = new PacientesAsaasPagamentosService;
             $statusAsaas = $PacientesAsaasPagamentosService->statusCobrancaPorId($rowConsulta->statusCobrancaAssas);
             $retorno['linkCobranca'] = [
@@ -288,7 +291,7 @@ class ConsultaService extends BaseService {
         }
 
         $retorno['procLancadoDoutor'] = null;
-        if (isset($rowConsulta->consAtendAbertoId) and!empty($rowConsulta->consAtendAbertoId)) {
+        if (isset($rowConsulta->consAtendAbertoId) and !empty($rowConsulta->consAtendAbertoId)) {
             $retorno['procLancadoDoutor']['id'] = $rowConsulta->consAtendAbertoId;
             $retorno['procLancadoDoutor']['dataCad'] = $rowConsulta->consAtendAbertoDtCad;
         }
@@ -341,7 +344,7 @@ class ConsultaService extends BaseService {
         $rowDominio = $rowDominio['data'];
 
         $dadosFiltro = null;
-        $dadosFiltro['doutoresId'] = (isset($dadosQuery['doutorId']) and!empty($dadosQuery['doutorId'])) ? $dadosQuery['doutorId'] : null;
+        $dadosFiltro['doutoresId'] = (isset($dadosQuery['doutorId']) and !empty($dadosQuery['doutorId'])) ? $dadosQuery['doutorId'] : null;
         $arrayCamposFiltro = ['dataConsulta' => 'A.data_consulta', 'horaConsulta' => 'A.hora_consulta'];
 
         if ($validate->fails()) {
@@ -351,28 +354,28 @@ class ConsultaService extends BaseService {
 
 
             //Ordenação
-            if (isset($dadosQuery['orderBy']) and!empty($dadosQuery["orderBy"])) {
+            if (isset($dadosQuery['orderBy']) and !empty($dadosQuery["orderBy"])) {
                 $dadosFiltro['orderBy'] = $this->urlOrderByToFields($arrayCamposFiltro, $dadosQuery["orderBy"]);
             }
 
             //
-            if (isset($dadosQuery['horaInicio']) and!empty($dadosQuery["horaInicio"])) {
+            if (isset($dadosQuery['horaInicio']) and !empty($dadosQuery["horaInicio"])) {
                 $dadosFiltro['horaInicio'] = $dadosQuery["horaInicio"];
             }
-            if (isset($dadosQuery['horaFim']) and!empty($dadosQuery["horaFim"])) {
+            if (isset($dadosQuery['horaFim']) and !empty($dadosQuery["horaFim"])) {
                 $dadosFiltro['horaFim'] = $dadosQuery["horaFim"];
             }
 
 
 
-            $dadosFiltro['dataInicio'] = (isset($dadosQuery['data']) and!empty($dadosQuery['data'])) ? $dadosQuery['data'] : null;
-            $dadosFiltro['dataFim'] = (isset($dadosQuery['dataFim']) and!empty($dadosQuery['dataFim'])) ? $dadosQuery['dataFim'] : null;
+            $dadosFiltro['dataInicio'] = (isset($dadosQuery['data']) and !empty($dadosQuery['data'])) ? $dadosQuery['data'] : null;
+            $dadosFiltro['dataFim'] = (isset($dadosQuery['dataFim']) and !empty($dadosQuery['dataFim'])) ? $dadosQuery['dataFim'] : null;
 
-            if (isset($dadosQuery['buscaPaciente']) and!empty($dadosQuery['buscaPaciente'])) {
+            if (isset($dadosQuery['buscaPaciente']) and !empty($dadosQuery['buscaPaciente'])) {
                 $dadosFiltro['buscaPaciente'] = $dadosQuery['buscaPaciente'];
             }
 
-            if (isset($dadosQuery['statusConsulta']) and!empty($dadosQuery['statusConsulta'])) {
+            if (isset($dadosQuery['statusConsulta']) and !empty($dadosQuery['statusConsulta'])) {
                 if ($this->validateStatusConsulta($dadosQuery['statusConsulta'])) {
                     $dadosFiltro['statusConsulta'] = $dadosQuery['statusConsulta'];
                 } else {
@@ -380,11 +383,11 @@ class ConsultaService extends BaseService {
                 }
             }
 
-            if (isset($dadosQuery['pacienteId']) and!empty($dadosQuery['pacienteId'])) {
+            if (isset($dadosQuery['pacienteId']) and !empty($dadosQuery['pacienteId'])) {
                 $dadosFiltro['pacienteId'] = trim($dadosQuery['pacienteId']);
             }
 
-            if (isset($dadosQuery['dataHoraLimite']) and!empty($dadosQuery['dataHoraLimite'])) {
+            if (isset($dadosQuery['dataHoraLimite']) and !empty($dadosQuery['dataHoraLimite'])) {
                 $dadosFiltro['dataHoraLimite'] = trim($dadosQuery['dataHoraLimite']);
             }
 
@@ -392,7 +395,7 @@ class ConsultaService extends BaseService {
                 $dadosFiltro['statusSomenteAgendado'] = true;
             }
 
-            if (isset($dadosQuery['dataHoraApartirDe']) and!empty($dadosQuery['dataHoraApartirDe'])) {
+            if (isset($dadosQuery['dataHoraApartirDe']) and !empty($dadosQuery['dataHoraApartirDe'])) {
                 $dadosFiltro['dataHoraApartirDe'] = $dadosQuery['dataHoraApartirDe'];
             }
 
@@ -497,7 +500,7 @@ class ConsultaService extends BaseService {
             foreach ($qrConsultasMarcadas as $row) {
 
                 $idConsulta = $row->id;
-                if (!empty($row->hora_consulta_fim) and$row->hora_consulta_fim != '00:00:00') {
+                if (!empty($row->hora_consulta_fim) and $row->hora_consulta_fim != '00:00:00') {
                     $consultaEstendida = true;
                 }
                 $cont++;
@@ -567,16 +570,19 @@ class ConsultaService extends BaseService {
     public function store($idDominio, $dadosInput, $dadosPac = null) {
 
         $dadosFiltroConsulta = null;
-        $pacienteId = (isset($dadosInput['pacienteId']) and!empty($dadosInput['pacienteId'])) ? $dadosInput['pacienteId'] : null;
+        $pacienteId = (isset($dadosInput['pacienteId']) and !empty($dadosInput['pacienteId'])) ? $dadosInput['pacienteId'] : null;
         $doutorId = $dadosInput['doutorId'];
         $data = $dadosInput['data'];
         $horario = $dadosInput['horario'];
-        $horarioFim = (isset($dadosInput['horarioFim']) and!empty($dadosInput['horarioFim'])) ? substr($dadosInput['horarioFim'], 0, 5) : null;
-        $dados_consulta = (isset($dadosInput['observacoes']) and!empty($dadosInput['observacoes'])) ? Functions::accentsToUtf8Convert($dadosInput['observacoes']) : null;
+        $horarioFim = (isset($dadosInput['horarioFim']) and !empty($dadosInput['horarioFim'])) ? substr($dadosInput['horarioFim'], 0, 5) : null;
+        $dados_consulta = (isset($dadosInput['observacoes']) and !empty($dadosInput['observacoes'])) ? Functions::accentsToUtf8Convert($dadosInput['observacoes']) : null;
 
         $DominioService = new DominioService;
         $rowDominio = $DominioService->getById($idDominio);
         $rowDominio = $rowDominio['data'];
+
+        $PacienteDependentesRepository = new PacienteDependentesRepository;
+        $isDependente = $PacienteDependentesRepository->isDependente($idDominio, $pacienteId);
 
         if (
                 isset($dadosInput['linkPagSeguro']) and $dadosInput['linkPagSeguro'] == true
@@ -594,9 +600,9 @@ class ConsultaService extends BaseService {
                 return $this->returnError(null, 'Este perfil não possui o Asaas configurado.');
 //            } elseif (!isset($dadosInput['formaPagAsaas']) or empty($dadosInput['formaPagAsaas'])) {
 //                return $this->returnError(null, 'Forma de pagamento não informada');
-            } elseif (isset($dadosInput['formaPagAsaas']) and!empty($dadosInput['formaPagAsaas']) and $dadosInput['formaPagAsaas'] != 'pix' and $dadosInput['formaPagAsaas'] != 'cartao') {
+            } elseif (isset($dadosInput['formaPagAsaas']) and !empty($dadosInput['formaPagAsaas']) and $dadosInput['formaPagAsaas'] != 'pix' and $dadosInput['formaPagAsaas'] != 'cartao') {
                 return $this->returnError(null, 'Forma de pagamento  inválida.');
-            } elseif (isset($dadosInput['formaPagAsaas']) and!empty($dadosInput['formaPagAsaas']) and $dadosInput['formaPagAsaas'] != 'pix' and $dadosInput['formaPagAsaas'] != 'cartao') {
+            } elseif (isset($dadosInput['formaPagAsaas']) and !empty($dadosInput['formaPagAsaas']) and $dadosInput['formaPagAsaas'] != 'pix' and $dadosInput['formaPagAsaas'] != 'cartao') {
                 return $this->returnError(null, 'Forma de pagamento  inválida.');
             } elseif (!isset($dadosInput['paciente']['email']) or empty($dadosInput['paciente']['email'])) {
                 return $this->returnError(null, 'Infome o e-mail do paciente');
@@ -608,13 +614,6 @@ class ConsultaService extends BaseService {
                 return $this->returnError(null, 'CPF do paciente inválido.');
             }
         }
-
-
-
-
-
-
-
         $ConsultaProcedimentoService = new ConsultaProcedimentoService();
         $PagSeguroConfigRepository = new PagSeguroConfigRepository();
 
@@ -638,17 +637,17 @@ class ConsultaService extends BaseService {
         $Convenios = new ConvenioRepository;
         $rowConvenio = $Convenios->getConveniosPacientes($idDominio, $pacienteId, $doutorId);
 
-        if (isset($dadosInput['tipoAtendimento']) and $dadosInput['tipoAtendimento'] == 'video' and!$rowDoutor->possui_videoconf) {
+        if (isset($dadosInput['tipoAtendimento']) and $dadosInput['tipoAtendimento'] == 'video' and !$rowDoutor->possui_videoconf) {
             return $this->returnError('', 'Este profissional não aceita consultas por vídeo');
         }
 
 
         //encaixe
-        if (isset($dadosInput['encaixe']) and!empty($dadosInput['encaixe'])
+        if (isset($dadosInput['encaixe']) and !empty($dadosInput['encaixe'])
                 and $dadosInput['encaixe'] != 'true' and $dadosInput['encaixe'] != 'false') {
             return $this->returnError('', "O encaixe deve ser 'true' ou 'false'");
         }
-        $dadosFiltroConsulta['encaixe'] = (isset($dadosInput['encaixe']) and!empty($dadosInput['encaixe'])) ? $dadosInput['encaixe'] : false;
+        $dadosFiltroConsulta['encaixe'] = (isset($dadosInput['encaixe']) and !empty($dadosInput['encaixe'])) ? $dadosInput['encaixe'] : false;
 
         /////Verifica  horários
         if (!empty($dadosInput['horarioFim']) and ( strtotime($horarioFim) < strtotime($horario))) {
@@ -680,10 +679,7 @@ class ConsultaService extends BaseService {
 
         foreach ($qrHorarios[0]['horariosList'] as $rowHorario) {
             if (isset($dadosInput['tipoAtendimento']) and $dadosInput['tipoAtendimento'] == 'video') {
-
-
                 if ($horario == $rowHorario['inicio'] and $rowHorario['disponivelVideo'] == true) {
-
                     $verficaHorario = true;
                     break;
                 }
@@ -724,7 +720,7 @@ class ConsultaService extends BaseService {
                 return $this->returnError('', 'Paciente não encontrado');
             }
             $rowPaciente = $qrPaciente['data'];
-            if (!isset($dadosInput['paciente']['celular']) and!empty($dadosInput['paciente']['celular'])) {
+            if (!isset($dadosInput['paciente']['celular']) and !empty($dadosInput['paciente']['celular'])) {
                 $PacienteService->atualizarPaciente($idDominio, $pacienteId, ['celular' => $dadosInput['paciente']['celular']]);
             }
         } else {
@@ -732,7 +728,7 @@ class ConsultaService extends BaseService {
             $dadosInsertPac['nome'] = $nomePac[0];
             unset($nomePac[0]);
             $dadosInsertPac['sobrenome'] = implode(' ', $nomePac);
-            $dadosInsertPac['celular'] = (isset($dadosPac['celular']) and!empty($dadosPac['celular'])) ? $dadosPac['celular'] : null;
+            $dadosInsertPac['celular'] = (isset($dadosPac['celular']) and !empty($dadosPac['celular'])) ? $dadosPac['celular'] : null;
             $resultPaciente = $PacienteService->store($idDominio, $dadosInsertPac);
             if ($resultPaciente['success']) {
                 $pacienteId = $resultPaciente['data']['id'];
@@ -777,10 +773,9 @@ class ConsultaService extends BaseService {
 //        $CamposInsert['tipo_desconto'] = $tipo_desconto;
 //        $CamposInsert['acrescimo_tipo'] = $tipoAcrescimo;
 //        $CamposInsert['confirmacao'] = $confirmacao;
-
-
-
-
+//        
+//        
+//        
         $idConsulta = $this->consultaRepository->insertConsulta($idDominio, $camposConsulta);
 
         $LogAtividadesService = new LogAtividadesService();
@@ -856,6 +851,7 @@ class ConsultaService extends BaseService {
             }
 
             //Assaas
+
             if (isset($dadosInput['linkAsaas']) and $dadosInput['linkAsaas'] == true and $precoConsulta > 0
             ) {
                 $descricaoAsaasCobranca = 'Agendamento com o dr(a) ' . $rowDoutor->nome . ' no dia ' . Functions::dateDbToBr($data) . ' as ' . $horario . 'h :';
@@ -897,20 +893,57 @@ class ConsultaService extends BaseService {
             $StatusRefreshRepository = new StatusRefreshRepository;
             $StatusRefreshRepository->insertAgenda($idDominio, $doutorId);
 
-            if (!empty($rowPaciente['email']) and $rowPaciente['enviaEmail'] == 1) {
+            /////////////////////////////////////////////////
+            ///adicionar no calendario do google
+            ////////////////////////////////////////////////
+            $IntegracaoGoogleService = new IntegracaoGoogleService;
+            $horaConsultaFim = (empty($horaFim)) ? date('H:i:00', strtotime($horario . " +" . $qrHorarios[0]['intervalo'] . " minutes ")) : $horarioFim . ':00';
+            $rowGoogleConfigDoutor = $IntegracaoGoogleService->getByDoutoresId($idDominio, $doutorId);
+
+            $dataHoraIni = $data . ' ' . $horario . ':00';
+            $dataHoraFim = $data . ' ' . $horaConsultaFim;
+            if ($rowGoogleConfigDoutor) {
+                $IntegracaoGoogleService->insertUpdateEventoCalendarioDoutor($idDominio, $doutorId, 1, $idConsulta, 'Consulta - ' . $rowPaciente['nome'] . ' ' . $rowPaciente['sobrenome'], $dataHoraIni, $dataHoraFim);
+            }
+            /////////////////////////////////////////////////
+//dd($rowPaciente);
+            ////Enviando e-mail
+
+            $dadosEmail = null;
+            if ($isDependente) {
+                $rowResponsavel = $PacienteService->getById($idDominio, $isDependente->paciente_id);
+                $rowResponsavel = $rowResponsavel['data'];
+                $dadosEmail['email'] = $rowResponsavel['email'];
+                $dadosEmail['enviaEmail'] = $rowResponsavel['enviaEmail'];
+            } else {
+                $dadosEmail['email'] = $rowPaciente['email'];
+                $dadosEmail['enviaEmail'] = $rowPaciente['enviaEmail'];
+            }
+    
+            if (!empty($dadosEmail['email']) and $dadosEmail['enviaEmail'] == 1) { 
                 $EmailAgendamentoService = new EmailAgendamentoService($idDominio);
                 $EmailAgendamentoService->setNomePaciente($rowPaciente['nome'] . ' ' . $rowPaciente['sobrenome']);
                 $EmailAgendamentoService->setDoutorId($doutorId);
                 $EmailAgendamentoService->setNomeDoutor($rowDoutor->nome);
-                $EmailAgendamentoService->setLinkPagseguro($linkPagamento);
+                if (isset($linkPagamento) and !empty($linkPagamento)) {
+                    $EmailAgendamentoService->setLinkPagseguro($linkPagamento);
+                }
                 $EmailAgendamentoService->setLinkVideo($linkVideo);
                 $EmailAgendamentoService->setDataConsulta($data);
                 $EmailAgendamentoService->setHoraConsulta($horario);
                 $EmailAgendamentoService->setExibelinkConfirmar(true);
                 $EmailAgendamentoService->setPrecoConsulta($precoConsulta);
-                $EmailAgendamentoService->setEmailPaciente($rowPaciente['email']);
+                $EmailAgendamentoService->setEmailPaciente($dadosEmail['email']);
+
+                     
+//                try {
                 $enviado = $EmailAgendamentoService->sendEmailAgendamento($idDominio, $idConsulta, 'confirmacaoConsulta');
+//                } catch (Exception $ex) {
+////                    dd('erro');
+//                }
             }
+            
+//              dd($enviado);
 
 
 //            $ConsultaReservadaService->store($idDominio, [
@@ -941,9 +974,9 @@ class ConsultaService extends BaseService {
         $doutorId = $rowConsulta->doutores_id;
         $data = $dadosInput['data'];
         $horario = $dadosInput['horario'];
-        $horarioFim = (isset($dadosInput['horarioFim']) and!empty($dadosInput['horarioFim'])) ? substr($dadosInput['horarioFim'], 0, 5) : null;
-        $celularPaciente = (isset($dadosInput['celularPaciente']) and!empty($dadosInput['celularPaciente'])) ? $dadosInput['celularPaciente'] : null;
-        $dados_consulta = (isset($dadosInput['observacoes']) and!empty($dadosInput['observacoes'])) ? Functions::accentsToUtf8Convert($dadosInput['observacoes']) : null;
+        $horarioFim = (isset($dadosInput['horarioFim']) and !empty($dadosInput['horarioFim'])) ? substr($dadosInput['horarioFim'], 0, 5) : null;
+        $celularPaciente = (isset($dadosInput['celularPaciente']) and !empty($dadosInput['celularPaciente'])) ? $dadosInput['celularPaciente'] : null;
+        $dados_consulta = (isset($dadosInput['observacoes']) and !empty($dadosInput['observacoes'])) ? Functions::accentsToUtf8Convert($dadosInput['observacoes']) : null;
 
         $DominioService = new DominioService;
         $rowDominio = $DominioService->getById($idDominio);
@@ -955,12 +988,12 @@ class ConsultaService extends BaseService {
         $DoutoresRepository = new DoutoresRepository();
         $qrDoutor = $DoutoresRepository->getById($idDominio, $doutorId);
 
-        if (!$qrDoutor['success']) {
+        if (!$qrDoutor) {
             return $this->returnError('', 'Doutor(a) não encontrado');
         }
 
         $rowDoutor = $qrDoutor;
-        if (isset($dadosInput['tipoAtendimento']) and $dadosInput['tipoAtendimento'] == 'video' and!$rowDoutor->possui_videoconf) {
+        if (isset($dadosInput['tipoAtendimento']) and $dadosInput['tipoAtendimento'] == 'video' and !$rowDoutor->possui_videoconf) {
             return $this->returnError('', 'Este profissional não aceita consultas por vídeo');
         }
 
@@ -1140,6 +1173,18 @@ Paciente : " . utf8_encode($rowPaciente['nome']) . " " . utf8_encode($rowPacient
 //                'data_expiracao' => date('Y-m-d', strtotime(date('Y-m-d') . " +2 days")),
 //            ]);
 
+
+
+            $msgGoogleEvent = 'Consulta - ' . $rowPaciente['nome'] . ' ' . $rowPaciente['sobrenome'];
+            $HorariosService = new HorariosService;
+
+            $IntegracaoGoogleService = new IntegracaoGoogleService;
+            $horaConsultaFim = (empty($horarioFim)) ? date('H:i:00', strtotime($horario . " +" . $qrHorarios[0]['intervalo'] . " minutes ")) : substr($horarioFim, 0, 5) . ':00';
+
+            $dataHoraIni = $data . ' ' . substr($horario, 0, 5) . ':00';
+            $dataHoraFim = $data . ' ' . $horaConsultaFim;
+            $tt = $IntegracaoGoogleService->insertUpdateEventoCalendarioDoutor($idDominio, $doutorId, 1, $idConsulta, $msgGoogleEvent, $dataHoraIni, $dataHoraFim);
+
             return $this->returnSuccess([
                         'consultaId' => $idConsulta
             ]);
@@ -1227,6 +1272,21 @@ Paciente : " . utf8_encode($rowPaciente['nome']) . " " . utf8_encode($rowPacient
         $qr = $this->consultaRepository->delete($idDominio, $idConsulta);
         $StatusRefreshRepository = new StatusRefreshRepository;
         $StatusRefreshRepository->insertAgenda($idDominio, $rowConsulta->doutores_id);
+
+        ///////////////////////////////////
+        ///Integração com o Google
+        ///////////////////////////////////
+        $IntegracaoGoogleService = new IntegracaoGoogleService;
+        $rowGoogleConfigDoutor = $IntegracaoGoogleService->getByDoutoresId($idDominio, $rowConsulta->doutores_id);
+        $tokenGoogleExpiradoDoutor = $IntegracaoGoogleService->verificaTokenExpirado(json_decode($rowGoogleConfigDoutor->credencial, true));
+
+        if ($tokenGoogleExpiradoDoutor) {
+            $eventoGoogle = $IntegracaoGoogleService->getEventoPorTipo($idDominio, 1, $idConsulta, $rowGoogleConfigDoutor->email, $rowGoogleConfigDoutor->calendario_google_id);
+            if ($eventoGoogle) {
+                $IntegracaoGoogleService->excluirEventoCalendario($idDominio, $eventoGoogle->evento_id, $eventoGoogle->id, $rowConsulta->doutores_id, $rowGoogleConfigDoutor);
+            }
+        }
+
         return $this->returnSuccess(NULL, 'Excluido com sucesso');
     }
 
@@ -1234,10 +1294,10 @@ Paciente : " . utf8_encode($rowPaciente['nome']) . " " . utf8_encode($rowPacient
 
         $rowConsultas = $this->consultaRepository->getById($idDominio, $consultaId);
 
-        $statusConsulta = explode('_', $rowConsultas->statusConsulta);
-
         $arrayStatus = [''];
         if ($rowConsultas) {
+
+            $statusConsulta = explode('_', $rowConsultas->statusConsulta);
 
             switch ($statusConsulta[0]) {
                 case 'jaSeEncontra':
@@ -1258,6 +1318,18 @@ Paciente : " . utf8_encode($rowPaciente['nome']) . " " . utf8_encode($rowPacient
                 default:
                     $dadosUpdate['confirmacao'] = (empty($meioConfirmacao)) ? 'sistema' : $meioConfirmacao;
                     $this->consultaRepository->updateConsulta($idDominio, $consultaId, $dadosUpdate);
+
+                    $msgGoogleEvent = 'Consulta - ' . $rowConsultas->nomePacienteCompleto;
+                    $HorariosService = new HorariosService;
+                    $qrHorarios = $HorariosService->listHorarios($idDominio, $rowConsultas->doutores_id, $rowConsultas->data_consulta, $rowConsultas->hora_consulta, $rowConsultas->data_consulta, $rowConsultas->hora_consulta, null, null, false, false, ['exibeConsultaTermino' => true]);
+
+                    $IntegracaoGoogleService = new IntegracaoGoogleService;
+                    $horaConsultaFim = (empty($rowConsultas->hora_consulta_fim)) ? date('H:i:00', strtotime($rowConsultas->hora_consulta . " +" . $qrHorarios[0]['intervalo'] . " minutes ")) : $rowConsultas->hora_consulta_fim;
+
+                    $dataHoraIni = $rowConsultas->data_consulta . ' ' . $rowConsultas->hora_consulta;
+                    $dataHoraFim = $rowConsultas->data_consulta . ' ' . $horaConsultaFim;
+                    $tt = $IntegracaoGoogleService->insertUpdateEventoCalendarioDoutor($idDominio, $rowConsultas->doutores_id, 1, $consultaId, $msgGoogleEvent, $dataHoraIni, $dataHoraFim);
+
                     return $this->returnSuccess(null, 'Consulta confirmada com sucesso');
                     break;
             }
@@ -1299,6 +1371,23 @@ Paciente : " . utf8_encode($rowPaciente['nome']) . " " . utf8_encode($rowPacient
                     $dados['razao_desmarcacao'] = $motivo;
                     $dados['desmarcado_por'] = (empty($desmarcadoPor)) ? 1 : '';
                     $ConsultaStatusRepository->alteraStatus($idDominio, $consultaId, $dados);
+
+                    /////////////////////////////////////////////////
+                    ///Alterar no calendario do google
+                    ////////////////////////////////////////////////
+
+                    $msgGoogleEvent = 'Consulta - ' . $rowConsultas->nomePacienteCompleto . ' - Dermarcada';
+                    $msgGoogleEvent .= (!empty($dados['razao_desmarcacao'])) ? ': ' . $dados['razao_desmarcacao'] : '';
+
+                    $HorariosService = new HorariosService;
+                    $qrHorarios = $HorariosService->listHorarios($idDominio, $rowConsultas->doutores_id, $rowConsultas->data_consulta, $rowConsultas->hora_consulta, $rowConsultas->data_consulta, $rowConsultas->hora_consulta, null, null, false, false, ['exibeConsultaTermino' => true]);
+
+                    $IntegracaoGoogleService = new IntegracaoGoogleService;
+                    $horaConsultaFim = (empty($rowConsultas->hora_consulta_fim)) ? date('H:i:00', strtotime($rowConsultas->hora_consulta . " +" . $qrHorarios[0]['intervalo'] . " minutes ")) : $rowConsultas->hora_consulta_fim;
+
+                    $dataHoraIni = $rowConsultas->data_consulta . ' ' . $rowConsultas->hora_consulta;
+                    $dataHoraFim = $rowConsultas->data_consulta . ' ' . $horaConsultaFim;
+                    $tt = $IntegracaoGoogleService->insertUpdateEventoCalendarioDoutor($idDominio, $rowConsultas->doutores_id, 1, $consultaId, $msgGoogleEvent, $dataHoraIni, $dataHoraFim);
 
                     return $this->returnError(null, 'Consulta desmarcada com sucesso');
                     break;
@@ -1343,13 +1432,16 @@ Paciente : " . utf8_encode($rowPaciente['nome']) . " " . utf8_encode($rowPacient
             return $this->returnError('Para alterar o status do paciente para "' . $arrayStatusNome[$status] . '", deve ser feito pagamento do agendamento ');
         }
 
+        $retorno = null;
+        $msgGoogleEvent = 'Consulta - ' . $rowConsultas->nomePacienteCompleto;
+
         if ($status == 'confirmado') {
 
             $this->consultaRepository->updateConsulta($idDominio, $consultaId, [
-                'confirmacao' => (isset($dadosInput['origemConfirmacao']) and!empty($dadosInput['origemConfirmacao'])) ? $dadosInput['origemConfirmacao'] : 'sistema',
+                'confirmacao' => (isset($dadosInput['origemConfirmacao']) and !empty($dadosInput['origemConfirmacao'])) ? $dadosInput['origemConfirmacao'] : 'sistema',
             ]);
             $StatusRefreshRepository->insertAgenda($idDominio, $rowConsultas->doutores_id);
-            return $this->returnSuccess(null, 'Confirmado com sucesso');
+            $retorno = $this->returnSuccess(null, 'Confirmado com sucesso');
         } else
         if ($status == 'agendado') {
 
@@ -1365,8 +1457,11 @@ Paciente : " . utf8_encode($rowPaciente['nome']) . " " . utf8_encode($rowPacient
             $StatusRefreshRepository->insertAgenda($idDominio, $rowConsultas->doutores_id);
 
             $this->consultaRepository->updateConsulta($idDominio, $consultaId, ['liberado_fila_espera' => 0]);
-            return $this->returnSuccess(null, 'Status alterado com sucesso!');
+            $retorno = $this->returnSuccess(null, 'Status alterado com sucesso!');
         } else {
+
+
+
             $agora = time();
             $dadosInsertStatus = [
                 'identificador' => $idDominio,
@@ -1385,13 +1480,16 @@ Paciente : " . utf8_encode($rowPaciente['nome']) . " " . utf8_encode($rowPacient
                     break;
 
                 case 'faltou':
-                    $dadosInsertStatus['obs_falta'] = (isset($dadosInput['motivo']) and!empty($dadosInput['motivo'])) ? $dadosInput['motivo'] : '';
+                    $dadosInsertStatus['obs_falta'] = (isset($dadosInput['motivo']) and !empty($dadosInput['motivo'])) ? $dadosInput['motivo'] : '';
+                    $msgGoogleEvent .= ' - Faltou';
+                    $msgGoogleEvent .= (!empty($dadosInsertStatus['obs_falta'])) ? ': ' . $dadosInsertStatus['obs_falta'] : '';
 
                     break;
                 case 'desmarcado':
-                    $dadosInsertStatus['desmarcado_por'] = (isset($dadosInput['desmarcadoPor']) and!empty($dadosInput['desmarcadoPor'])) ? $dadosInput['desmarcadoPor'] : 1;
-                    $dadosInsertStatus['razao_desmarcacao'] = (isset($dadosInput['motivo']) and!empty($dadosInput['motivo'])) ? $dadosInput['motivo'] : '';
-
+                    $dadosInsertStatus['desmarcado_por'] = (isset($dadosInput['desmarcadoPor']) and !empty($dadosInput['desmarcadoPor'])) ? $dadosInput['desmarcadoPor'] : 1;
+                    $dadosInsertStatus['razao_desmarcacao'] = (isset($dadosInput['motivo']) and !empty($dadosInput['motivo'])) ? $dadosInput['motivo'] : '';
+                    $msgGoogleEvent .= ' - Dermarcada';
+                    $msgGoogleEvent .= (!empty($dadosInsertStatus['razao_desmarcacao'])) ? ': ' . $dadosInsertStatus['razao_desmarcacao'] : '';
                     break;
             }
 
@@ -1406,7 +1504,7 @@ Paciente : " . utf8_encode($rowPaciente['nome']) . " " . utf8_encode($rowPacient
                     $this->consultaRepository->updateConsulta($idDominio, $consultaId, ['liberado_fila_espera' => 0]);
                 }
                 $StatusRefreshRepository->insertAgenda($idDominio, $rowConsultas->doutores_id);
-                return $this->returnSuccess(null, 'Status alterado com sucesso!');
+                $retorno = $this->returnSuccess(null, 'Status alterado com sucesso!');
             } elseif ($statusConsulta[0] == $status) {
 
                 if ($status == 'desmarcado' or $status == 'faltou') {
@@ -1417,12 +1515,27 @@ Paciente : " . utf8_encode($rowPaciente['nome']) . " " . utf8_encode($rowPacient
                     $this->consultaRepository->updateConsulta($idDominio, $consultaId, ['liberado_fila_espera' => 0]);
 
                     $StatusRefreshRepository->insertAgenda($idDominio, $rowConsultas->doutores_id);
-                    return $this->returnSuccess(null, 'Status alterado com sucesso!');
+                    $retorno = $this->returnSuccess(null, 'Status alterado com sucesso!');
                 } else {
-                    return $this->returnSuccess(null, 'O agendamento já está com este status');
+                    $retorno = $this->returnSuccess(null, 'O agendamento já está com este status');
                 }
             }
         }
-    }
+        if (isset($retorno['success']) and $retorno['success']) {
+            /////////////////////////////////////////////////
+            ///Alterar no calendario do google
+            ////////////////////////////////////////////////
 
+            $HorariosService = new HorariosService;
+            $qrHorarios = $HorariosService->listHorarios($idDominio, $rowConsultas->doutores_id, $rowConsultas->data_consulta, $rowConsultas->hora_consulta, $rowConsultas->data_consulta, $rowConsultas->hora_consulta, null, null, false, false, ['exibeConsultaTermino' => true]);
+
+            $IntegracaoGoogleService = new IntegracaoGoogleService;
+            $horaConsultaFim = (empty($rowConsultas->hora_consulta_fim)) ? date('H:i:00', strtotime($rowConsultas->hora_consulta . " +" . $qrHorarios[0]['intervalo'] . " minutes ")) : $rowConsultas->hora_consulta_fim;
+
+            $dataHoraIni = $rowConsultas->data_consulta . ' ' . $rowConsultas->hora_consulta;
+            $dataHoraFim = $rowConsultas->data_consulta . ' ' . $horaConsultaFim;
+            $tt = $IntegracaoGoogleService->insertUpdateEventoCalendarioDoutor($idDominio, $rowConsultas->doutores_id, 1, $consultaId, $msgGoogleEvent, $dataHoraIni, $dataHoraFim);
+        }
+        return $retorno;
+    }
 }

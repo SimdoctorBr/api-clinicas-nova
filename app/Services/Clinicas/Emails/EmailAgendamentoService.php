@@ -133,7 +133,7 @@ class EmailAgendamentoService {
     private function replaceTags($mensagem) {
 
 
-        $mensagem = str_replace('#dataConsulta', $this->dataConsulta, $mensagem);
+        $mensagem = str_replace('#dataConsulta', Functions::dateDbToBr($this->dataConsulta), $mensagem);
         $mensagem = str_replace('#horaConsulta', $this->horaConsulta, $mensagem);
         $mensagem = str_replace('#nomeDoutor', $this->nomeDoutor, $mensagem);
         $mensagem = str_replace('#nomeClinica', $this->dadosEmpresa->nome, $mensagem);
@@ -152,7 +152,6 @@ class EmailAgendamentoService {
 
         $rowDefMarcacao = $this->definicaoMarcacaoConsultaRepository->getByDoutoresId($idDominio, $idDoutor);
 
-    
         $this->definicoesMarcacaoDoutor = $rowDefMarcacao;
         $this->mostra_dados_consulta = $rowDefMarcacao->mostra_dados_consulta;
         $this->mostra_titulo_padrao = $rowDefMarcacao->mostra_titulo_padrao;
@@ -177,8 +176,6 @@ class EmailAgendamentoService {
             ],
         ];
 
-
-
         if ($rowDefMarcacao->mostra_link_confirmacao == 1) {
             $this->linkConfirmar = $this->linkBase . "/confirma_por_email.php?c=" . md5($idConsulta);
         }
@@ -186,8 +183,6 @@ class EmailAgendamentoService {
             $this->linkDesmarcar = $this->linkBase . "/desmarcar.php?consulta=" . $hashMD5DaConsulta;
         }
         $this->linkBloqueiaEmail = $this->linkBase . "/unsubscribe.php?c=" . base64_encode($idConsulta) . '&d=' . base64_encode($idDoutor) . '&t=' . base64_encode('p') . '&e=' . base64_encode($email);
-
-
 
         if (!empty($rowDefMarcacao->imagem_assinatura)) {
             $this->imagem_assinatura = "<img src='" . $this->linkBase . "/img/assinatura/" . rawurlencode($rowDefMarcacao->imagem_assinatura) . "' alt=\"Assinatura\"/>";
@@ -205,15 +200,15 @@ class EmailAgendamentoService {
 
 
         $this->getConfig($idDominio, $idConsulta, $this->emailPaciente, $this->doutorId);
-
+        
        
         $mensagem = null;
         $permiteEnvio = false;
         switch ($tipoEmail) {
             case 'confirmacaoConsulta':
-                
+
                 $assunto = utf8_decode($this->replaceTags($this->definicoesMarcacaoDoutor->assunto_email_confirmacao_consulta));
-           
+
                 if (empty($assunto)) {
                     $assunto = utf8_decode(sprintf("Sua consulta com %s foi agendada com sucesso!", "Dr(a) {$this->nomeDoutor}"));
                 }
@@ -267,14 +262,23 @@ class EmailAgendamentoService {
             $emailPaciente = $this->emailPaciente;
             $nomePaciente = $this->nomePaciente;
 
-            $envio = Mail::send('emails.consultaConfiramacaoMail', $dados, function($message) use ($emailPaciente, $nomePaciente, $assunto) {
-                        $message->to($emailPaciente, $nomePaciente)->subject($assunto);
-                        $message->from('naoresponda@simdoctor.com.br', 'Simdoctor');
-                    });
+           
+            try {
+                $envio = Mail::send('emails.consultaConfiramacaoMail', $dados, function ($message) use ($emailPaciente, $nomePaciente, $assunto) {
+                            $message->to($emailPaciente, $nomePaciente)->subject($assunto);
+                            $message->from('naoresponda@simdoctor.com.br', 'Simdoctor');
+                        });
+            } catch (\Exception $exc) {
+//                echo $exc->getTraceAsString();
+                return false;
+            }
+
+
+
+
             return $envio;
         } else {
             return false;
         }
     }
-
 }

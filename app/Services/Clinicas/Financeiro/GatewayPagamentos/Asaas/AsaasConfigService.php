@@ -40,6 +40,7 @@ class AsaasConfigService extends BaseService {
         if (!empty($assinDiasPrimeiro)) {
             $diasVencPrimeiraParcela = $assinDiasPrimeiro;
         }
+     
         $dtVencimento = date('Y-m-d', strtotime(date('Y-m-d') . "  +$diasVencPrimeiraParcela day"));
 
         if (date('w', strtotime($dtVencimento)) == 6) {

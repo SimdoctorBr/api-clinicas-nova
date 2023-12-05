@@ -16,6 +16,7 @@ use App\Services\Clinicas\HorariosService;
 use App\Repositories\Clinicas\StatusRefreshRepository;
 use App\Helpers\Functions;
 use App\Services\Clinicas\LogAtividadesService;
+use App\Services\Google\IntegracaoGoogleService;
 
 /**
  * Description of Activities
@@ -149,6 +150,19 @@ class CompromissoService extends BaseService {
 
             $StatusRefreshRepository = new StatusRefreshRepository;
             $StatusRefreshRepository->insertAgenda($idDominio, $dadosInput['doutorId']);
+
+            //integração com a agenda do Google
+            $msgGoogleEvent = 'Compromisso - ' . $dadosInput['compromisso'];
+
+            $IntegracaoGoogleService = new IntegracaoGoogleService;
+
+            $qrHorarios = $HorariosService->listHorarios($idDominio, $dadosInput['doutorId'], $dadosInput['data'], $dadosInput['horario'], $dadosInput['data'], $dadosInput['horario'], null, null, false, false, ['exibeConsultaTermino' => true]);
+            $horaConsultaFim = (empty($dadosInput['horarioFim'])) ? date('H:i:00', strtotime($dadosInput['horario'] . " +" . $qrHorarios[0]['intervalo'] . " minutes ")) : substr($dadosInput['horarioFim'], 0, 5) . ':00';
+
+            $dataHoraIni = $dadosInput['data'] . ' ' . substr($dadosInput['horario'], 0, 5) . ':00';
+            $dataHoraFim = $dadosInput['data'] . ' ' . $horaConsultaFim;
+            $tt = $IntegracaoGoogleService->insertUpdateEventoCalendarioDoutor($idDominio, $dadosInput['doutorId'], 2, $idInsert, $msgGoogleEvent, $dataHoraIni, $dataHoraFim);
+
             return $rowCompromisso;
         } else {
             return $this->returnError(NULL, 'Erro ao cadastrar o compromisso');
@@ -170,6 +184,22 @@ class CompromissoService extends BaseService {
 
             $LogAtividadesService = new LogAtividadesService();
             $LogAtividadesService->store($idDominio, 4, "Excluiu o compromisso \"" . addslashes($rowCompromisso['nome']) . "\"  para o(a) doutor(a) " . utf8_encode($rowCompromisso['nomeDoutor']) . " no dia " . Functions::dateDbToBr($rowCompromisso['data']) . utf8_encode(" às ") . substr($rowCompromisso['hora'], 0, 5) . "h", $rowCompromisso['id'], 24);
+
+            ///////////////////////////////////
+            ///Integração com o Google
+            ///////////////////////////////////
+            $IntegracaoGoogleService = new IntegracaoGoogleService;
+            $rowGoogleConfigDoutor = $IntegracaoGoogleService->getByDoutoresId($idDominio, $rowCompromisso['doutorId']);
+            $tokenGoogleExpiradoDoutor = $IntegracaoGoogleService->verificaTokenExpirado(json_decode($rowGoogleConfigDoutor->credencial, true));
+
+            if ($tokenGoogleExpiradoDoutor) {
+                $eventoGoogle = $IntegracaoGoogleService->getEventoPorTipo($idDominio, 2, $compromissoId, $rowGoogleConfigDoutor->email, $rowGoogleConfigDoutor->calendario_google_id);
+                if ($eventoGoogle) {
+                    $IntegracaoGoogleService->excluirEventoCalendario($idDominio, $eventoGoogle->evento_id, $eventoGoogle->id, $rowCompromisso['doutorId'], $rowGoogleConfigDoutor);
+                }
+            }
+
+
 
             return $this->returnError('', 'Compromisso excluido com sucesso.');
         } else {

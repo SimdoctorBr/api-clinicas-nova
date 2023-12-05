@@ -107,6 +107,12 @@ $router->group(['middleware' => 'auth:clinicas', 'prefix' => 'api/clinicas', 'na
         $router->get('/resumoDiario/{doutorId}', 'AgendaController@resumoDiario');
     });
 
+    //Administracao
+    $router->group(['prefix' => 'administracao'], function ($router) {
+        $router->get('/lgpdAutorizacoes', 'Administracao\LgpdAutorizacoesController@index');
+        $router->get('/lgpdAutorizacoes/termosCondicoes', 'Administracao\LgpdAutorizacoesController@getTermosCondicoes');
+    });
+
     //Consultas
     $router->group(['prefix' => 'consultas'], function ($router) {
         $router->get('/', 'ConsultaController@index');
@@ -150,6 +156,7 @@ $router->group(['middleware' => 'auth:clinicas', 'prefix' => 'api/clinicas', 'na
         $router->post('/{pacienteId}/atualizar', 'Paciente\PacienteController@update');
         $router->get('/{pacienteId}/consultas/proximas', 'Paciente\PacienteController@proximasConsultas');
         $router->get('/{pacienteId}/consultas/historico', 'Paciente\PacienteController@getHistoricoConsulta');
+        $router->get('/{pacienteId}/dependentes', 'Paciente\PacienteController@getDependentes');
 
         $router->get('/{pacienteId}/fotos', 'Paciente\PacienteFotoController@index');
         $router->post('/{pacienteId}/fotos', 'Paciente\PacienteFotoController@store');
@@ -179,11 +186,14 @@ $router->group(['middleware' => 'auth:clinicas', 'prefix' => 'api/clinicas', 'na
         $router->post('/{pacienteId}/planoBeneficios/cancelarAlteracaoPlano', 'Paciente\PacientePlBeneficioController@cancelarAlteracaoPlano');
         $router->get('/{pacienteId}/planoBeneficios/ativo', 'Paciente\PacientePlBeneficioController@planoAtivo');
         $router->get('/{pacienteId}/planoBeneficios/{plBeneficioContratadoId}/historicoPagamentos', 'Paciente\PacientePlBeneficioController@planoHistoricoPagamento');
+        $router->post('/{pacienteId}/codigo/enviarCodigo', 'Paciente\PacienteController@enviarCodigo');
+        $router->post('/{pacienteId}/codigo/verificarCodigo', 'Paciente\PacienteController@verificarCodigo');
     });
 
     $router->group(['prefix' => 'doutores'], function ($router) {
 
         $router->get('/', 'Doutores\DoutoresController@index');
+
         $router->get('/{doutorId}', 'Doutores\DoutoresController@getById');
         $router->post('/{doutorId}/avaliacoes', 'Doutores\DoutoresController@storeAvaliacoes');
 
@@ -195,6 +205,9 @@ $router->group(['middleware' => 'auth:clinicas', 'prefix' => 'api/clinicas', 'na
         $router->post('/{doutorId}/fotos/{fotoId}/edit', 'Doutores\DoutoresFotoController@update');
     });
 
+    $router->group(['prefix' => 'configuracoes'], function ($router) {
+        $router->get('/documentosExigidos', 'Configuracoes\DocumentosExigidosController@index');
+    });
     $router->group(['prefix' => 'convenios'], function ($router) {
         $router->get('/', 'ConvenioController@index');
     });
@@ -281,6 +294,11 @@ $router->group(['middleware' => 'auth:clinicas', 'prefix' => 'v1/clinicas', 'nam
         $router->get('/resumoDiario/{doutorId}', 'AgendaController@resumoDiario');
     });
 
+    //Administracao
+    $router->group(['prefix' => 'administracao'], function ($router) {
+        $router->get('/lgpdAutorizacoes', 'Administracao\LgpdAutorizacoesController@index');
+        $router->get('/lgpdAutorizacoes/termosCondicoes', 'Administracao\LgpdAutorizacoesController@getTermosCondicoes');
+    });
     //Consultas
     $router->group(['prefix' => 'consultas'], function ($router) {
         $router->get('/', 'ConsultaController@index');
@@ -324,6 +342,7 @@ $router->group(['middleware' => 'auth:clinicas', 'prefix' => 'v1/clinicas', 'nam
         $router->post('/{pacienteId}/atualizar', 'Paciente\PacienteController@update');
         $router->get('/{pacienteId}/consultas/proximas', 'Paciente\PacienteController@proximasConsultas');
         $router->get('/{pacienteId}/consultas/historico', 'Paciente\PacienteController@getHistoricoConsulta');
+        $router->get('/{pacienteId}/dependentes', 'Paciente\PacienteController@getDependentes');
 
         $router->get('/{pacienteId}/fotos', 'Paciente\PacienteFotoController@index');
         $router->post('/{pacienteId}/fotos', 'Paciente\PacienteFotoController@store');
@@ -355,11 +374,14 @@ $router->group(['middleware' => 'auth:clinicas', 'prefix' => 'v1/clinicas', 'nam
         $router->get('/{pacienteId}/planoBeneficios/ativo', 'Paciente\PacientePlBeneficioController@planoAtivo');
         $router->get('/{pacienteId}/planoBeneficios/{plBeneficioContratadoId}/historicoPagamentos', 'Paciente\PacientePlBeneficioController@planoHistoricoPagamento');
         $router->delete('/{pacienteId}/planoBeneficios/{plBeneficioContratadoId}', 'Paciente\PacientePlBeneficioController@delete');
+        $router->post('/{pacienteId}/codigo/enviarCodigo', 'Paciente\PacienteController@enviarCodigo');
+        $router->post('/{pacienteId}/codigo/verificarCodigo', 'Paciente\PacienteController@verificarCodigo');
     });
 
     $router->group(['prefix' => 'doutores'], function ($router) {
 
         $router->get('/', 'Doutores\DoutoresController@index');
+        $router->get('/testeGoogle', 'Doutores\DoutoresController@testeGoogle');
         $router->post('/{doutorId}/avaliacoes', 'Doutores\DoutoresController@storeAvaliacoes');
 
         $router->get('/{doutorId}/convenios', 'Doutores\DoutoresController@getConveniosDoutores');
@@ -372,6 +394,10 @@ $router->group(['middleware' => 'auth:clinicas', 'prefix' => 'v1/clinicas', 'nam
 
     $router->group(['prefix' => 'convenios'], function ($router) {
         $router->get('/', 'ConvenioController@index');
+    });
+
+    $router->group(['prefix' => 'configuracoes'], function ($router) {
+        $router->get('/documentosExigidos', 'Configuracoes\DocumentosExigidosController@index');
     });
 
     $router->group(['prefix' => 'planoBeneficio'], function ($router) {
@@ -419,6 +445,11 @@ $router->group(['middleware' => 'auth:clinicas_pacientes', 'prefix' => 'v1/clini
         $router->get('/resumoDiario/{doutorId}', 'AgendaController@resumoDiario');
     });
 
+    //Administracao
+    $router->group(['prefix' => 'administracao'], function ($router) {
+        $router->get('/lgpdAutorizacoes', 'Administracao\LgpdAutorizacoesController@index');
+        $router->get('/lgpdAutorizacoes/termosCondicoes', 'Administracao\LgpdAutorizacoesController@getTermosCondicoes');
+    });
     //Consultas
     $router->group(['prefix' => 'consultas'], function ($router) {
         $router->post('/', 'ConsultaController@store');
@@ -446,7 +477,7 @@ $router->group(['middleware' => 'auth:clinicas_pacientes', 'prefix' => 'v1/clini
         $router->post('/{pacienteId}/atualizar', 'Paciente\PacienteController@update');
         $router->get('/{pacienteId}/consultas/proximas', 'Paciente\PacienteController@proximasConsultas');
         $router->get('/{pacienteId}/consultas/historico', 'Paciente\PacienteController@getHistoricoConsulta');
-
+        $router->get('/{pacienteId}/dependentes', 'Paciente\PacienteController@getDependentes');
         $router->get('/{pacienteId}/fotos', 'Paciente\PacienteFotoController@index');
         $router->post('/{pacienteId}/fotos', 'Paciente\PacienteFotoController@store');
         $router->delete('/{pacienteId}/fotos/{fotoId}', 'Paciente\PacienteFotoController@delete');
@@ -480,6 +511,8 @@ $router->group(['middleware' => 'auth:clinicas_pacientes', 'prefix' => 'v1/clini
 
         $router->get('/{pacienteId}/planoBeneficios/ativo', 'Paciente\PacientePlBeneficioController@planoAtivo');
         $router->get('/{pacienteId}/planoBeneficios/{plBeneficioContratadoId}/historicoPagamentos', 'Paciente\PacientePlBeneficioController@planoHistoricoPagamento');
+        $router->post('/{pacienteId}/codigo/enviarCodigo', 'Paciente\PacienteController@enviarCodigo');
+        $router->post('/{pacienteId}/codigo/verificarCodigo', 'Paciente\PacienteController@verificarCodigo');
     });
 
     //Doutores
@@ -495,6 +528,10 @@ $router->group(['middleware' => 'auth:clinicas_pacientes', 'prefix' => 'v1/clini
 
     $router->group(['prefix' => 'convenios'], function ($router) {
         $router->get('/', 'ConvenioController@index');
+    });
+
+    $router->group(['prefix' => 'configuracoes'], function ($router) {
+        $router->get('/documentosExigidos', 'Configuracoes\DocumentosExigidosController@index');
     });
     $router->group(['prefix' => 'planoBeneficio'], function ($router) {
         $router->post('/', 'PlanoBeneficioController@store');
@@ -546,6 +583,11 @@ $router->group(['middleware' => 'auth:interno_api', 'prefix' => 'v1/clinicas'], 
             $router->get('/resumoDiario/{doutorId}', 'AgendaController@resumoDiario'); //ok
         });
 
+        //Administracao
+        $router->group(['prefix' => 'administracao'], function ($router) {
+            $router->get('/lgpdAutorizacoes', 'Administracao\LgpdAutorizacoesController@index');
+            $router->get('/lgpdAutorizacoes/termosCondicoes', 'Administracao\LgpdAutorizacoesController@getTermosCondicoes');
+        });
         //CONTINUAR DAQUI A ALTERAÇÂO DE USUARIO INTERNO
         //Consultas
         $router->group(['prefix' => 'consultas'], function ($router) {
@@ -587,6 +629,8 @@ $router->group(['middleware' => 'auth:interno_api', 'prefix' => 'v1/clinicas'], 
             $router->post('/{pacienteId}/atualizar', 'Paciente\PacienteController@update');
             $router->get('/{pacienteId}/consultas/proximas', 'Paciente\PacienteController@proximasConsultas');
             $router->get('/{pacienteId}/consultas/historico', 'Paciente\PacienteController@getHistoricoConsulta');
+            $router->get('/{pacienteId}/dependentes', 'Paciente\PacienteController@getDependentes');
+
             $router->get('/{pacienteId}/fotos', 'Paciente\PacienteFotoController@index'); //ok
             $router->post('/{pacienteId}/fotos', 'Paciente\PacienteFotoController@store'); //ok
             $router->delete('/{pacienteId}/fotos/{fotoId}', 'Paciente\PacienteFotoController@delete'); //ok
@@ -629,6 +673,10 @@ $router->group(['middleware' => 'auth:interno_api', 'prefix' => 'v1/clinicas'], 
 
         $router->group(['prefix' => 'convenios'], function ($router) {
             $router->get('/', 'ConvenioController@index');
+        });
+
+        $router->group(['prefix' => 'configuracoes'], function ($router) {
+            $router->get('/documentosExigidos', 'Configuracoes\DocumentosExigidosController@index');
         });
         $router->group(['prefix' => 'planoBeneficio'], function ($router) {
             $router->post('/', 'PlanoBeneficioController@store');

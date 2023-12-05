@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\ApiClinicas\Controller as BaseController;
 use App\Services\Clinicas\PacienteService;
 use Illuminate\Validation\Rules\Password;
+use App\Helpers\Functions;
 
 class PacienteController extends BaseController {
 
@@ -47,6 +48,8 @@ class PacienteController extends BaseController {
             'envia_email' => 'nullable|numeric',
             'cep' => 'nullable|numeric|digits:8',
             'dataNascimento' => 'date',
+            'pacIdResponsavel' => 'required_if:isDependente,true',
+            'telefoneEmergencia' => 'nullable|numeric'
                 ], [
             'nome.required' => 'O nome do paciente não pode ser vazio',
             'nome.min' => 'O nome do paciente deve ter no mínimo 3 letras',
@@ -62,6 +65,12 @@ class PacienteController extends BaseController {
             'cpf.digits' => 'O cpf deve conter 11 dígitos',
             'dataNascimento.date' => 'Data de nascimento inválida',
             'senha' => 'min:8|max:16',
+            'cep.numeric' => 'O cep deve ser numérico',
+            'cep.digits' => 'O cep deve ter 8 dígitos',
+            'uf.max' => 'A UF deve ser a sigla do estado',
+            'pacIdResponsavel.required_if' => 'Id do paciente responsável não informado no campo \'pacIdResponsavel\'',
+            'pacIdResponsavel.numeric' => 'Id do paciente responsável deve ser numérico',
+            'telefoneEmergencia.numeric' => 'O telefoneEmergencia dever ser numérico',
         ]);
 
         if ($validate->fails()) {
@@ -72,8 +81,7 @@ class PacienteController extends BaseController {
             ]);
         } else {
 
-
-            $result = $this->pacienteService->store($idDominio, $request->input());
+            $result = $this->pacienteService->store($idDominio, $request->input(), $request->file());
             return $result;
         }
     }
@@ -90,13 +98,13 @@ class PacienteController extends BaseController {
         $dadosFiltro = null;
         $page = 1;
         $perPage = 100;
-        if ($request->has('page') and!empty($request->query("page"))) {
+        if ($request->has('page') and !empty($request->query("page"))) {
             $page = $request->query("page");
         }
-        if ($request->has('perPage') and!empty($request->query("perPage"))) {
+        if ($request->has('perPage') and !empty($request->query("perPage"))) {
             $perPage = $request->query("perPage");
         }
-        if ($request->has('search') and!empty($request->query("search"))) {
+        if ($request->has('search') and !empty($request->query("search"))) {
             $dadosFiltro['search'] = $request->query("search");
         }
 
@@ -127,7 +135,7 @@ class PacienteController extends BaseController {
         );
 
         $tokenBio = null;
-        if ($request->has('authTokenBio') and!empty($request->input('authTokenBio'))) {
+        if ($request->has('authTokenBio') and !empty($request->input('authTokenBio'))) {
             $tokenBio = $request->input('authTokenBio');
         } else {
             
@@ -172,7 +180,7 @@ class PacienteController extends BaseController {
             return $this->sendErrorValidator($validate->errors()->all());
         } else {
 
-            if ($request->has('codigo') and!empty($request->input('codigo'))) {
+            if ($request->has('codigo') and !empty($request->input('codigo'))) {
                 return $result = $this->pacienteService->esqueciSenhaVerificaCodigo($idDominio, $request->input('email'), $request->input('codigo'), $request->input('password'));
             } else {
 
@@ -191,8 +199,18 @@ class PacienteController extends BaseController {
             return response()->json($getDominio);
         }
 
+//        $validate = validator($request->query(),
+//                ['showDependentes' => 'boolean'],
+//                ['showDependentes.boolean' => 'O campo \'showDependentes\' deve ser \'true\' ou \'false\'']);
+        if ($request->has('showDependentes') and
+                $request->query('showDependentes') != true and
+                $request->query('showDependentes') != false
+        ) {
+            return $this->sendErrorValidator('O campo \'showDependentes\' deve ser \'true\' ou \'false\'');
+        }
 
-        return $this->pacienteService->getById($idDominio, $pacienteId);
+
+        return $this->pacienteService->getById($idDominio, $pacienteId, $request->query());
     }
 
     public function alterarSenha(Request $request, $pacienteId) {
@@ -418,7 +436,8 @@ class PacienteController extends BaseController {
             return response()->json($getDominio);
         }
 
-        $validate = validator($request->input(), [
+        $inputValidate = Functions::trimInputArray($request->input());
+        $validate = validator($inputValidate, [
             'nome' => 'sometimes|required|min:3',
             'sobrenome' => 'sometimes|min:3',
             'nomeSocial' => 'min:3',
@@ -433,6 +452,7 @@ class PacienteController extends BaseController {
             'envia_email' => 'nullable|numeric',
             'cep' => 'nullable|numeric|digits:8',
             'dataNascimento' => 'date',
+            'telefoneEmergencia' => 'nullable|numeric'
                 ], [
             'nome.required' => 'O nome do paciente não pode ser vazio',
             'nome.min' => 'O nome do paciente deve ter no mínimo 3 letras',
@@ -448,6 +468,8 @@ class PacienteController extends BaseController {
             'cpf.digits' => 'O cpf deve conter 11 dígitos',
             'cep.digits' => 'O cpf deve conter 8 dígitos',
             'dataNascimento.date' => 'Data de nascimento inválida',
+            'uf.max' => 'A UF deve ser a sigla do estado',
+            'telefoneEmergencia.numeric' => 'O telefoneEmergencia dever ser numérico',
         ]);
 
         if ($validate->fails()) {
@@ -458,7 +480,9 @@ class PacienteController extends BaseController {
             ]);
         } else {
 
-            $result = $this->pacienteService->atualizarPaciente($idDominio, $pacienteId, $request->input());
+
+
+            $result = $this->pacienteService->atualizarPaciente($idDominio, $pacienteId, $inputValidate, $request->file());
             return $result;
         }
     }
@@ -558,4 +582,59 @@ class PacienteController extends BaseController {
         }
     }
 
+    public function getDependentes(Request $request, $pacienteId) {
+
+        $getDominio = $this->getIdDominio($request, 'input', true);
+        if ($getDominio['success']) {
+            $idDominio = $getDominio['perfisId'];
+        } else {
+            return response()->json($getDominio);
+        }
+
+        $result = $this->pacienteService->getDependentes($idDominio, $pacienteId, $request->query());
+        return $result;
+    }
+
+    public function enviarCodigo(Request $request, $pacienteId) {
+
+        $getDominio = $this->getIdDominio($request, 'input', true);
+        if ($getDominio['success']) {
+            $idDominio = $getDominio['perfisId'];
+        } else {
+            return response()->json($getDominio);
+        }
+
+        $result = $this->pacienteService->enviarCodigo($idDominio, $pacienteId, $request->query());
+        return $result;
+    }
+
+    public function verificarCodigo(Request $request, $pacienteId) {
+
+        $getDominio = $this->getIdDominio($request, 'input', true);
+        if ($getDominio['success']) {
+            $idDominio = $getDominio['perfisId'];
+        } else {
+            return response()->json($getDominio);
+        }
+        $validate = validator($request->input(), [
+            'codigoConfirmacao' => 'required|numeric',
+            'tipo' => 'required',
+                ],
+                [
+                    'tipo.required' => 'Informe o tipo',
+                    'codigoConfirmacao.required' => 'Informe o código',
+                    'codigoConfirmacao.numeric' => 'O código deve ser numérico',
+        ]);
+
+        if ($validate->fails()) {
+            return response()->json(
+                            ['success' => false,
+                                'data' => null,
+                                'message' => $validate->errors()->all()[0]
+            ]);
+        } else {
+            $result = $this->pacienteService->verificarCodigo($idDominio, $pacienteId, $request->input());
+            return $result;
+        }
+    }
 }

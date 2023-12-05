@@ -81,6 +81,7 @@ class GrupoAtendimentoRepository extends BaseRepository {
             $sqlFiltro = " AND doutores_id = $idsDoutores";
         }
      
+       
         $qr = $this->connClinicas()->select(" SELECT $campos
                                             FROM doutores_grupo_atendimento
                                                WHERE identificador = $idDominio $sqlFiltro  AND status = 1");

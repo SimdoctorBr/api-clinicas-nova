@@ -36,7 +36,7 @@ class PacienteFavoritosRepository extends BaseRepository {
                                 AES_DECRYPT(B.agencia1_cript, '$this->ENC_CODE') as agencia1,
                                 AES_DECRYPT(B.banco2_cript, '$this->ENC_CODE') as banco2,
                                 AES_DECRYPT(B.conta2_cript, '$this->ENC_CODE') as conta2,
-                                AES_DECRYPT(B.agencia2_cript, '$this->ENC_CODE') as agencia2,
+                                AES_DECRYPT(B.agencia2_cript, '$this->ENC_CODE') as agencia2,B.dt_ini_atividade_prof,
                                      C.abreviacao, C.nome as nomePronome,C.artigo,E.codigo as codigoConselhoProfisssional,
                                                 F.ds_uf_nome as nomeUFConselhoProfisional, F.ds_uf_sigla as siglaUFConselhoProfisional, G.codigo as codigoCBO, G.nome as nomeCBO,
                                                    AES_DECRYPT(conselho_profissional_numero_cript, '$this->ENC_CODE') as conselho_profissional_numero,proc_doutor_id_presencial,I.procedimento_nome as procPadraoNome,

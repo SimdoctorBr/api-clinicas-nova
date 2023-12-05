@@ -11,7 +11,11 @@ class LogomarcaRepository extends BaseRepository {
 
         $pegaFotos = "SELECT * FROM logomarca WHERE identificador = '$identificador'";
         $qrFotos = $this->connClinicas()->select($pegaFotos);
-        return $obj;
+        if(count($qrFotos)>0){
+            return $qrFotos[0];
+        } else{
+            return false;
+        }
     }
 
 }

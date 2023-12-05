@@ -5,6 +5,8 @@ namespace App\Http\Controllers\ApiClinicas\Doutores;
 use Illuminate\Http\Request;
 use App\Http\Controllers\ApiClinicas\Controller as BaseController;
 use App\Services\Clinicas\Doutores\DoutoresService;
+use App\Services\Google\IntegracaoGoogleService;
+use App\Repositories\Clinicas\IntegracaoGoogleRepository;
 
 class DoutoresController extends BaseController {
 
@@ -76,6 +78,7 @@ class DoutoresController extends BaseController {
                 }
             }
         }
+       
 
         $page = 1;
         $perPage = 100;
@@ -198,6 +201,10 @@ class DoutoresController extends BaseController {
         if ($request->has('valorConsultaMax') and!empty($request->query('valorConsultaMax'))) {
             $dadosFiltro['valorConsultaMax'] = $request->query('valorConsultaMax');
         }
+        if ($request->has('tags') and!empty($request->query('tags'))) {
+            $tags = explode(',',$request->query('tags'));            
+            $dadosFiltro['tags'] = $tags;            
+        }
 
 
         $result = $this->doutoresService->getfiltros($idDominio, $dadosFiltro);
@@ -251,6 +258,26 @@ class DoutoresController extends BaseController {
 
 
         return $result;
+    }
+
+    public function testeGoogle(Request $request) {
+        $getDominio = $this->getIdDominio($request, 'input', true);
+        if ($getDominio['success']) {
+            $idDominio = $getDominio['perfisId'];
+        } else {
+            return response()->json($getDominio);
+        }
+
+
+        $doutorId = 2538;
+
+        $IntegracaoGoogleService = new IntegracaoGoogleService;
+
+        $dataHoraIni = '2023-05-03 16:00:00';
+        $dataHoraFim = '2023-05-03 16:30:00';
+        $tt = $IntegracaoGoogleService->adicionaEventoCalendarioDoutor($idDominio, $doutorId, 1, '1072301', 'testelaravel gapi 22222222', $dataHoraIni, $dataHoraFim);
+dd($tt);
+        return 'test';
     }
 
 }
