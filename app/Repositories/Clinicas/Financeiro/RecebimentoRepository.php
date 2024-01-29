@@ -66,7 +66,6 @@ class RecebimentoRepository extends BaseRepository {
             $sqlTipo .= " AND A.idRecebimento IN(" . implode(',', $idsRecebimentos) . ")";
         }
 
-
         $qr = $this->connClinicas()->select("
         SELECT A.*,B.*, C.*, D.*, AES_DECRYPT(F.nome_cript, '$this->ENC_CODE') as nome, AES_DECRYPT(F.sobrenome_cript, '$this->ENC_CODE') as sobrenome,
          AES_DECRYPT(F.cpf_cript, '$this->ENC_CODE') as cpfPaciente,

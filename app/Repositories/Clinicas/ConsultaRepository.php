@@ -171,6 +171,7 @@ class ConsultaRepository extends BaseRepository {
                                      H.numero_carteira, H.validade_carteira, 
                                      /* I.nome as nomePlanoSaude, I.registro_ans, */
                                     AES_DECRYPT(J.nome_cript, '$this->ENC_CODE')  as nomeDoutor,
+                                    J.tipo_contrato as tipoContratoDoutor,
                                        J.nome_foto as nomeFotoDoutor,     
                                         L.nome as nomeConselhoProfissional, J.conselho_uf_id,  AES_DECRYPT(J.conselho_profissional_numero_cript, '$this->ENC_CODE') as conselho_profissional_numero, J.preco_consulta,
                                     J.id as idDoutor, J.cpf as cpfDoutor, J.cnpj as cnpjDoutor,
@@ -291,6 +292,7 @@ class ConsultaRepository extends BaseRepository {
                                     L.codigo as siglaConselhoProfissional,
                                     J.conselho_profissional_id,
                                     J.cbo_s_id,
+                                     J.tipo_contrato as tipoContratoDoutor,
                                 /*     I.tipo_identificacao_xml,
                                     I.codigo_prestador,
                                     I.tipo_dados_contratado,

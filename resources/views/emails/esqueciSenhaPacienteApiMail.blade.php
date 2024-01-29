@@ -32,7 +32,7 @@
 @foreach($links as  $row)
 
 <div class="box-links">
-    <label><b>Clínica:</b></label> {{$row['clinica']}}<br> 
+    <label><b>Clínica:</b></label> {{utf8_decode($row['clinica'])}}<br> 
     <label><b>Código:</b></label> <b style="color:#2472ff">{{$row['codigo']}}</b><br>
 </div>
 

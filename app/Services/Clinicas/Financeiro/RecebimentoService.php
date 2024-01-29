@@ -20,6 +20,7 @@ use App\Repositories\Clinicas\Financeiro\Fornecedores\FornecedorRepository;
 use App\Repositories\Clinicas\Financeiro\PeriodoRepeticaoRepository;
 use App\Repositories\Clinicas\StatusRefreshRepository;
 use App\Services\Clinicas\LogAtividadesService;
+use Illuminate\Support\Facades\Crypt;
 
 /**
  * Description of Activities
@@ -225,20 +226,20 @@ class RecebimentoService extends BaseService {
         ) {
             return 'Informe um dos campos: consultasId ou pacientesId';
         }
-        if ((isset($dadosInput['consultasId']) and!empty($dadosInput['consultasId'])) and
-                isset($dadosInput['pacientesId']) and!empty($dadosInput['pacientesId'])
+        if ((isset($dadosInput['consultasId']) and !empty($dadosInput['consultasId'])) and
+                isset($dadosInput['pacientesId']) and !empty($dadosInput['pacientesId'])
         ) {
             return 'Somente um dos campos podem ser usados: consultasId ou pacientesId';
         }
         //Desconto
-        if (isset($dadosInput['tipoDesconto']) and!empty($dadosInput['tipoDesconto'])) {
+        if (isset($dadosInput['tipoDesconto']) and !empty($dadosInput['tipoDesconto'])) {
 
             if ($dadosInput['tipoDesconto'] != 1 and $dadosInput['tipoDesconto'] != 2) {
                 return 'Tipo de desconto inválido';
             }
         }
         //Acrescimo
-        if (isset($dadosInput['tipoAcrescimo']) and!empty($dadosInput['tipoAcrescimo'])) {
+        if (isset($dadosInput['tipoAcrescimo']) and !empty($dadosInput['tipoAcrescimo'])) {
 
             if ($dadosInput['tipoAcrescimo'] != 1 and $dadosInput['tipoAcrescimo'] != 2) {
                 return 'Tipo de acréscimo inválido';
@@ -337,17 +338,17 @@ class RecebimentoService extends BaseService {
 
         $valorBruto = $dadosInput['valorBruto'];
         $valorLiquido = $valorBruto;
-        $consultasId = (isset($dadosInput['consultasId']) and!empty($dadosInput['consultasId'])) ? $dadosInput['consultasId'] : null;
-        $pacientesId = (isset($dadosInput['pacientesId']) and!empty($dadosInput['pacientesId'])) ? $dadosInput['pacientesId'] : null;
-        $categoriaId = (isset($dadosInput['categoriaId']) and!empty($dadosInput['categoriaId'])) ? $dadosInput['categoriaId'] : null;
-        $descricao = (isset($dadosInput['pagDescricao']) and!empty($dadosInput['pagDescricao'])) ? $dadosInput['pagDescricao'] : null;
-        $tipoDesconto = (isset($dadosInput['tipoDesconto']) and!empty($dadosInput['tipoDesconto'])) ? $dadosInput['tipoDesconto'] : null;
-        $valorDesconto = (isset($dadosInput['valorDesconto']) and!empty($dadosInput['valorDesconto'])) ? $dadosInput['valorDesconto'] : null;
-        $motivoDesconto = (isset($dadosInput['motivoDesconto']) and!empty($dadosInput['motivoDesconto'])) ? $dadosInput['motivoDesconto'] : null;
+        $consultasId = (isset($dadosInput['consultasId']) and !empty($dadosInput['consultasId'])) ? $dadosInput['consultasId'] : null;
+        $pacientesId = (isset($dadosInput['pacientesId']) and !empty($dadosInput['pacientesId'])) ? $dadosInput['pacientesId'] : null;
+        $categoriaId = (isset($dadosInput['categoriaId']) and !empty($dadosInput['categoriaId'])) ? $dadosInput['categoriaId'] : null;
+        $descricao = (isset($dadosInput['pagDescricao']) and !empty($dadosInput['pagDescricao'])) ? $dadosInput['pagDescricao'] : null;
+        $tipoDesconto = (isset($dadosInput['tipoDesconto']) and !empty($dadosInput['tipoDesconto'])) ? $dadosInput['tipoDesconto'] : null;
+        $valorDesconto = (isset($dadosInput['valorDesconto']) and !empty($dadosInput['valorDesconto'])) ? $dadosInput['valorDesconto'] : null;
+        $motivoDesconto = (isset($dadosInput['motivoDesconto']) and !empty($dadosInput['motivoDesconto'])) ? $dadosInput['motivoDesconto'] : null;
 
-        $tipoAcrescimo = (isset($dadosInput['tipoAcrescimo']) and!empty($dadosInput['tipoAcrescimo'])) ? $dadosInput['tipoAcrescimo'] : null;
-        $valorAcrescimo = (isset($dadosInput['valorAcrescimo']) and!empty($dadosInput['valorAcrescimo'])) ? $dadosInput['valorAcrescimo'] : null;
-        $motivoAcrescimo = (isset($dadosInput['motivoAcrescimo']) and!empty($dadosInput['motivoAcrescimo'])) ? $dadosInput['motivoAcrescimo'] : null;
+        $tipoAcrescimo = (isset($dadosInput['tipoAcrescimo']) and !empty($dadosInput['tipoAcrescimo'])) ? $dadosInput['tipoAcrescimo'] : null;
+        $valorAcrescimo = (isset($dadosInput['valorAcrescimo']) and !empty($dadosInput['valorAcrescimo'])) ? $dadosInput['valorAcrescimo'] : null;
+        $motivoAcrescimo = (isset($dadosInput['motivoAcrescimo']) and !empty($dadosInput['motivoAcrescimo'])) ? $dadosInput['motivoAcrescimo'] : null;
 
         $pagDataPagamento = $dadosInput['pagDataPagamento'];
         $pagDataVencimento = $dadosInput['pagDataVencimento'];
@@ -355,7 +356,7 @@ class RecebimentoService extends BaseService {
         $arrayProcPagReceberEm = (!empty($dadosInput['pagContaRecebimentoId'])) ? $dadosInput['pagContaRecebimentoId'] : null;
         $arrayProcValor = $dadosInput['pagValor'];
         $arrayProcPeriodoRepeticao = $dadosInput['pagTipoPeriodoRepeticao'];
-        $arrayProcQntParcelaTotal = (isset($dadosInput['pagQntParcela']) and!empty($dadosInput['pagQntParcela'])) ? $dadosInput['pagQntParcela'] : null;
+        $arrayProcQntParcelaTotal = (isset($dadosInput['pagQntParcela']) and !empty($dadosInput['pagQntParcela'])) ? $dadosInput['pagQntParcela'] : null;
 //        $arrayProcValorParcela = $dadosInput['pagValorParcela'];
 
 
@@ -445,10 +446,9 @@ class RecebimentoService extends BaseService {
 //                    return $this->returnError(null, 'Existem procedimentos já lançados que não foram enviados. ');
 //                }
                 $totalValorPRoc = array_sum(array_map(function ($item) {
-                            return $item['valor']*$item['qnt'];
+                            return $item['valor'] * $item['qnt'];
                         }, $dadosInput['procedimentos']));
 
-               
                 if ($totalValorPRoc != $valorBruto) {
                     return $this->returnError(null, 'O valor bruto informado é diferente do total de procedimentos da consulta');
                 }
@@ -731,4 +731,34 @@ class RecebimentoService extends BaseService {
         }
     }
 
+    public function downloadRecibo($dadosQuery) {
+
+        $codeRecibo = json_decode(Crypt::decrypt($dadosQuery['code']));
+        $idDominio = $codeRecibo->idDominio;
+        $nomeDominio = $codeRecibo->nomeDominio;
+        $tipo = $codeRecibo->tipo;
+        $idTipo = $codeRecibo->idTipo;
+
+        $params = [
+            'getReciboApi' => 1,
+            'tipo' => $tipo,
+            'idTipo' => $idTipo,
+            'identificador' => $idDominio,
+        ];
+        $urlRecibo = env('APP_URL_CLINICAS') . '/' . $nomeDominio . '/admin/financeiro/recibo_print_pdf_api.php';
+
+        $curlHandle = curl_init($urlRecibo);
+        curl_setopt($curlHandle, CURLOPT_POSTFIELDS, $params);
+        curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, true);
+
+        $curlResponse = curl_exec($curlHandle);
+        
+        if(!empty($curlResponse)){
+          return $this->returnSuccess(env('APP_PATH_CLINICAS').  '/' . $nomeDominio . '/arquivos/temp/'.$curlResponse);
+        } else {
+            return $this->returnError(null, 'Ocorreu um erro ao baixar o recibo, por favor tente mais tarde.');
+        }
+        
+      
+    }
 }

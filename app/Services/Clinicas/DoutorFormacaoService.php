@@ -21,6 +21,40 @@ use App\Repositories\Clinicas\DoutorFormacaoRepository;
 class DoutorFormacaoService extends BaseService {
 
     private $doutorFormacaoRepository;
+    private $doutores_id;
+    private $tipo_formacao;
+    private $instituicao_ensino;
+    private $nome_formacao;
+    private $periodo_de;
+    private $periodo_ate;
+
+    public function setNome_formacao($nome_formacao) {
+        $this->nome_formacao = $nome_formacao;
+    }
+
+    public function setPeriodo_de($periodo_de) {
+        $this->periodo_de = $periodo_de;
+    }
+
+    public function setPeriodo_ate($periodo_ate) {
+        $this->periodo_ate = $periodo_ate;
+    }
+
+    public function setDoutorFormacaoRepository($doutorFormacaoRepository) {
+        $this->doutorFormacaoRepository = $doutorFormacaoRepository;
+    }
+
+    public function setDoutores_id($doutores_id) {
+        $this->doutores_id = $doutores_id;
+    }
+
+    public function setTipo_formacao($tipo_formacao) {
+        $this->tipo_formacao = $tipo_formacao;
+    }
+
+    public function setInstituicao_ensino($instituicao_ensino) {
+        $this->instituicao_ensino = $instituicao_ensino;
+    }
 
     public function __construct() {
         $this->doutorFormacaoRepository = new DoutorFormacaoRepository;
@@ -29,9 +63,9 @@ class DoutorFormacaoService extends BaseService {
     private function fieldsResponse($row) {
 
 //        $retorno['id'] = $row->id;
-        $retorno['tipoFormacao'] = utf8_decode($row->tipo_formacao);
-        $retorno['nomeFormacao'] = utf8_decode($row->nome_formacao);
-        $retorno['instituicaoEnsino'] = utf8_decode($row->instituicao_ensino);
+        $retorno['tipoFormacao'] = Functions::utf8ToAccentsConvert($row->tipo_formacao);
+        $retorno['nomeFormacao'] = Functions::utf8ToAccentsConvert($row->nome_formacao);
+        $retorno['instituicaoEnsino'] = Functions::utf8ToAccentsConvert($row->instituicao_ensino);
         $retorno['periodoDe'] = $row->periodo_de;
         $retorno['periodoAte'] = $row->periodo_ate;
         return $retorno;
@@ -99,4 +133,15 @@ class DoutorFormacaoService extends BaseService {
         }
     }
 
+    public function insertFormacaoDoutor($idDominio, $idDoutor) {
+
+        $campos['doutores_id'] = $idDoutor;
+        $campos['identificador'] = $idDominio;
+        $campos['tipo_formacao'] = $this->tipo_formacao;
+        $campos['nome_formacao'] = $this->nome_formacao;
+        $campos['instituicao_ensino'] = $this->instituicao_ensino;
+        $campos['periodo_de'] = $this->periodo_de;
+        $campos['periodo_ate'] = $this->periodo_ate;
+        return $this->doutorFormacaoRepository->storeFormacaoDoutor($idDominio, $idDoutor, $campos);
+    }
 }

@@ -9,7 +9,12 @@ class UfRepository extends BaseRepository {
 
     public function getBySigla($sigla) {
         $qr = $this->connClinicas()->select("SELECT * FROM uf WHERE ds_uf_sigla = '$sigla';");
-        return $qr[0];
+        if(count($qr) >0){
+             return $qr[0];
+        } else{
+             return false;
+        }
+       
     }
 
 }

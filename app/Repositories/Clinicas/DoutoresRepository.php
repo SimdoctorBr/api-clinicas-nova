@@ -80,24 +80,23 @@ class DoutoresRepository extends BaseRepository {
         }, $nomesFormacao);
         $nomesFormacao = implode(',', $nomesFormacao);
 
-    
         return" AND (SELECT COUNT(*) FROM doutores_formacoes WHERE
                                                identificador = $alias.identificador AND nome_formacao IN($nomesFormacao)  AND doutores_id = $alias.id
                             ) >0
                             ";
     }
 
-    public function sqlFilterTagsTratamento( $tagsTratamento, $alias = "A") {
-        
-      
+    public function sqlFilterTagsTratamento($tagsTratamento, $alias = "A") {
+
+
         if (!is_array($tagsTratamento)) {
             $tagsTratamento = explode(',', $tagsTratamento);
         }
         $sqlTag = null;
-         
+
         foreach ($tagsTratamento as $tagF) {
             $tagF = Functions::removeAccents($tagF);
-            $sqlTag[] = "JSON_SEARCH(tags_tratamentos,'all','%".trim($tagF)."%') IS NOT NULL ";
+            $sqlTag[] = "JSON_SEARCH(tags_tratamentos,'all','%" . trim($tagF) . "%') IS NOT NULL ";
         }
         return " AND (" . implode('OR ', $sqlTag) . ")";
     }
@@ -115,7 +114,7 @@ class DoutoresRepository extends BaseRepository {
         if (isset($tipoAtendimento) and $tipoAtendimento == 'video') {
 
             $sqlFilter = '';
-            if (isset($valorConsultaMax) and!empty($valorConsultaMax)) {
+            if (isset($valorConsultaMax) and !empty($valorConsultaMax)) {
                 $sqlFilter = " AND Bb.`valor`>='{$valorConsulta}' AND Bb.`valor`<='{$valorConsultaMax}'";
             } else {
                 $sqlFilter = " AND Bb.`valor`>='{$valorConsulta}'";
@@ -131,7 +130,7 @@ class DoutoresRepository extends BaseRepository {
               ) >0";
         } else {
 
-            if (isset($valorConsultaMax) and!empty($valorConsultaMax)) {
+            if (isset($valorConsultaMax) and !empty($valorConsultaMax)) {
                 return " AND  ($aliasProcedimentosConveniosAssoc.valor >= {$valorConsulta} AND
              $aliasProcedimentosConveniosAssoc.valor <= {$valorConsultaMax})";
             } else {
@@ -152,7 +151,7 @@ class DoutoresRepository extends BaseRepository {
 
 
 
-      
+
 
 
         $sqlFiltro = '';
@@ -161,11 +160,11 @@ class DoutoresRepository extends BaseRepository {
 //            $sqlFiltro .= " AND  A.doutores_id = '" . $dadosFiltro['doutoresId'] . "'";
 //        }
 //        dd($dadosFiltro); 
-        if (isset($dadosFiltro['nome']) and!empty($dadosFiltro['nome'])) {
+        if (isset($dadosFiltro['nome']) and !empty($dadosFiltro['nome'])) {
             $sqlFiltro .= " AND  (CAST(AES_DECRYPT(nome_cript, '$this->ENC_CODE') AS CHAR(255)) like '%{$dadosFiltro['nome']}%' OR 
                 CONVERT( BINARY   AES_DECRYPT(nome_cript, '$this->ENC_CODE')  USING latin1) LIKE '%{$dadosFiltro['nome']}%')";
         }
-        if (isset($dadosFiltro['valorConsulta']) and!empty($dadosFiltro['valorConsulta'])) {
+        if (isset($dadosFiltro['valorConsulta']) and !empty($dadosFiltro['valorConsulta'])) {
 
             $tipoAtendimentoF = (isset($dadosFiltro['tipoAtendimento'])) ? $dadosFiltro['tipoAtendimento'] : null;
             $valorConsultaMax = (isset($dadosFiltro['valorConsultaMax'])) ? $dadosFiltro['valorConsultaMax'] : null;
@@ -191,20 +190,20 @@ class DoutoresRepository extends BaseRepository {
 //            }
         }
 
-        if (isset($dadosFiltro['doutorId']) and!empty($dadosFiltro['doutorId'])) {
+        if (isset($dadosFiltro['doutorId']) and !empty($dadosFiltro['doutorId'])) {
             $sqlFiltro .= "AND  A.id = " . $dadosFiltro['doutorId'];
         }
-        if (isset($dadosFiltro['sexo']) and!empty($dadosFiltro['sexo'])) {
+        if (isset($dadosFiltro['sexo']) and !empty($dadosFiltro['sexo'])) {
             $sqlFiltro .= $this->sqlFilterSexo($dadosFiltro['sexo']);
         }
 
 
-        if (isset($dadosFiltro['tipoAtendimento']) and!empty($dadosFiltro['tipoAtendimento'])) {
+        if (isset($dadosFiltro['tipoAtendimento']) and !empty($dadosFiltro['tipoAtendimento'])) {
             $sqlFiltro .= $this->sqlFilterTipoAtendimento($dadosFiltro['tipoAtendimento']);
         }
 
 
-        if (isset($dadosFiltro['especialidade']) and!empty($dadosFiltro['especialidade'])) {
+        if (isset($dadosFiltro['especialidade']) and !empty($dadosFiltro['especialidade'])) {
 
             $sqlFiltro .= $this->sqlFilterEspecialidade($idDominio, $dadosFiltro['especialidade']);
         }
@@ -222,12 +221,12 @@ class DoutoresRepository extends BaseRepository {
             $sqlFiltro .= $this->sqlFilterNomeFormacao($dadosFiltro['nomeFormacao']);
         }
 
-        if (isset($dadosFiltro['tags']) and!empty($dadosFiltro['tags'])) {     
-            
+        if (isset($dadosFiltro['tags']) and !empty($dadosFiltro['tags'])) {
+
             $sqlFiltro .= $this->sqlFilterTagsTratamento($dadosFiltro['tags']);
         }
 
-        if (isset($dadosFiltro['favoritoPacienteId']) and!empty($dadosFiltro['favoritoPacienteId'])) {
+        if (isset($dadosFiltro['favoritoPacienteId']) and !empty($dadosFiltro['favoritoPacienteId'])) {
             $sqlFiltroCampos .= ", (SELECT id FROM pacientes_doutores_favoritos WHERE
                                                identificador = A.identificador AND doutores_id = A.id AND pacientes_id = " . $dadosFiltro['favoritoPacienteId'] . " 
                             ) as favoritoPaciente
@@ -244,10 +243,10 @@ class DoutoresRepository extends BaseRepository {
     AND (SELECT STATUS FROM consultas_status WHERE consulta_id =consultas.id ORDER BY id DESC LIMIT 1) = 'jaFoiAtendido') as totalConsultasAtendidas";
         }
 
-       
+
 
         $orderBy = "A.nome ASC";
-        if (isset($dadosFiltro['orderBy']) and!empty($dadosFiltro['orderBy'])) {
+        if (isset($dadosFiltro['orderBy']) and !empty($dadosFiltro['orderBy'])) {
             $orderBy = "  {$dadosFiltro['orderBy']} ";
         }
 
@@ -424,4 +423,28 @@ class DoutoresRepository extends BaseRepository {
         return $retorno;
     }
 
+    public function isExistsEmail($idDominio, $email) {
+        $qr = $this->connClinicas()->select("SELECT id FROM doutores WHERE identificador = $idDominio AND  AES_DECRYPT(email_cript, '$this->ENC_CODE')='$email' AND status_doutor = 1");
+        if (count($qr) > 0) {
+            return $qr[0];
+        } else {
+            return false;
+        }
+    }
+
+    public function store($idDominio, $dados) {
+        $dados['identificador'] = $idDominio;
+        return $qr = $this->insertDB('doutores', $dados, [
+            'nome_cript', 'email_cript', 'telefone_cript', 'celular1_cript', 'celular2_cript', 'cpf_cript', 'cnpj_cript', 'conselho_profissional_numero_cript',
+            'conta1_cript', 'agencia1_cript', 'banco1_ript', 'pix1', 'conta2_cript', 'agencia2_cript', 'banco2_ript', 'pix2'
+                ], 'clinicas');
+    }
+
+    public function storeDadosEndereco($idDominio, $idDoutor, $dados) {
+        $dados['identificador'] = $idDominio;
+        $dados['doutores_id'] = $idDoutor;
+        return $qr = $this->insertDB('doutores_endereco', $dados, [
+            'cep', 'logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'estado',
+                ], 'clinicas');
+    }
 }

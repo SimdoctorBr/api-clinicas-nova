@@ -171,6 +171,7 @@ class PacienteController extends BaseController {
             'codigo.digits' => 'O código deve ter 6 digitos',
             'password.required' => "Informe a nova senha",
             'password.min' => "A nova senha dever ter no mínimo 8 caracteres",
+            'password.required_with' => "Informe a senha",
             'confirmPassword.required_with' => "Confirme a nova senha",
             'confirmPassword.same' => "As novas senhas são diferentes",
                 ]

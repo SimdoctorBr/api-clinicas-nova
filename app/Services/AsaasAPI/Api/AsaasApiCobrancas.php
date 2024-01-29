@@ -80,10 +80,11 @@ class AsaasApiCobrancas extends AsaasApi {
 //            $dados['remoteIp'] = $dadosCobranca->getRemoteIp();
 //        }
 
-        if (!empty($dadosCobranca->getSplit())) {
-            $dados['split'] = $dadosCobranca->getSplit();
+        if (!empty($dadosCobranca->getContasSplit())) {
+            $dados['split'] = $dadosCobranca->getContasSplit();
         }
 
+       
         if (!empty($idCobranca)) {
             $response = $this->connect($this->baseUrl . '/' . $idCobranca, 'POST', $dados);
         } else {

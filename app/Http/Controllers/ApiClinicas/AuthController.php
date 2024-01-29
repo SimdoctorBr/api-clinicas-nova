@@ -113,7 +113,7 @@ class AuthController extends BaseController {
         $credentials = $request->only(['email', 'password']);
 
         $UserObj = new User;
-        if ($request->has('authTokenBio') and!empty($request->input('authTokenBio'))) {
+        if ($request->has('authTokenBio') and !empty($request->input('authTokenBio'))) {
             $user = $UserObj::where('auth_token_docbiz', $request->input('authTokenBio'))
                     ->where('identificador', $request->input('perfil_id'))
                     ->first();
@@ -166,7 +166,7 @@ class AuthController extends BaseController {
 
             $PacienteModel = new Paciente;
 
-            if ($request->has('authTokenBio') and!empty($request->input('authTokenBio'))) {
+            if ($request->has('authTokenBio') and !empty($request->input('authTokenBio'))) {
                 $rowPaciente = $PacienteModel->validateLoginTokenBio($idDominio, $request->input('authTokenBio'));
             } else {
                 $rowPaciente = $user = $PacienteModel->validateLogin($idDominio, $email, $senha);
@@ -183,7 +183,7 @@ class AuthController extends BaseController {
                 return response()->json(['message' => 'Unauthorized'], 401);
             }
 
-            if ($request->has('authTokenBio') and!empty($request->input('authTokenBio'))) {
+            if ($request->has('authTokenBio') and !empty($request->input('authTokenBio'))) {
                 $authTokenBio = $this->generateHashAuthPacienteBiometria($rowPaciente);
             } else {
                 $authTokenBio = (empty($user->auth_token_biometria)) ? $this->generateHashAuthPacienteBiometria($rowPaciente) : $rowPaciente->auth_token_biometria;
@@ -204,7 +204,7 @@ class AuthController extends BaseController {
 
 
 
-            if ($request->has('authTokenBio') and!empty($request->input('authTokenBio'))) {
+            if ($request->has('authTokenBio') and !empty($request->input('authTokenBio'))) {
                 $user = $UserModel->validateLoginTokenBio($dominiosDocBiz, $request->input('authTokenBio'));
             } else {
                 $this->validate($request, [
@@ -216,7 +216,7 @@ class AuthController extends BaseController {
                     'password.required' => "Informe o campo 'password' ",
                     'perfil_id.required' => "Informe o campo id fo perfil",
                 ]);
-                $usuarioIdSelecionado = ($request->has('usuarioIdSelecionado') and!empty($request->input('usuarioIdSelecionado'))) ? $request->input('usuarioIdSelecionado') : null;
+                $usuarioIdSelecionado = ($request->has('usuarioIdSelecionado') and !empty($request->input('usuarioIdSelecionado'))) ? $request->input('usuarioIdSelecionado') : null;
                 $user = $UserModel->validateLogin($dominiosDocBiz, $email, $senha, $usuarioIdSelecionado);
 
                 //verificando se existe p mesmo email e senha em dois ou mias perfis
@@ -252,7 +252,7 @@ class AuthController extends BaseController {
                 return response()->json(['message' => 'Unauthorized'], 401);
             }
 
-            if ($request->has('authTokenBio') and!empty($request->input('authTokenBio'))) {
+            if ($request->has('authTokenBio') and !empty($request->input('authTokenBio'))) {
                 $authTokenDocbiz = $this->generateHashAuthDocBiz($user);
             } else {
 
@@ -386,20 +386,22 @@ class AuthController extends BaseController {
 
             $idDominio = ($request->has('perfilId')) ? $request->input('perfilId') : null;
 
-            $DominioRepository = new DominioRepository;
-            $rowDominio = $DominioRepository->getById($idDominio);
+            if (!empty($idDominio)) {
+                $DominioRepository = new DominioRepository;
+                $rowDominio = $DominioRepository->getById($idDominio);
 
-            $dominiosDocBiz = [];
-
-            if ($rowDominio->alteracao_docbizz == 1) {
-                $qrDominioDocBiz = $DominioRepository->getDominiosDocBiz();
-                foreach ($qrDominioDocBiz as $chave => $rowDominioDoc) {
-                    $dominiosDocBiz[] = $rowDominioDoc->dominio_id;
+                $dominiosDocBiz = [];
+                if ($rowDominio->alteracao_docbizz == 1) {
+                    $qrDominioDocBiz = $DominioRepository->getDominiosDocBiz();
+                    foreach ($qrDominioDocBiz as $chave => $rowDominioDoc) {
+                        $dominiosDocBiz[] = $rowDominioDoc->dominio_id;
+                    }
+                    $idDominio = $dominiosDocBiz;
                 }
-                $idDominio = $dominiosDocBiz;
             }
 
-            if ($request->has('codigo') and!empty($request->input('codigo'))) {
+
+            if ($request->has('codigo') and !empty($request->input('codigo'))) {
 
                 return $result = $this->administradorService->esqueciSenhaVerificaCodigo($idDominio, $request->input('email'), $request->input('codigo'), $request->input('password'));
             } else {
@@ -435,14 +437,14 @@ class AuthController extends BaseController {
                         'message' => 'Este e-mail já está cadastrado',
             ]);
         }
-        
-           if ($request->has('cpf') and !empty($request->input('cpf')) and !Functions::validateCPF($request->input('cpf'))) {
-               
+
+        if ($request->has('cpf') and !empty($request->input('cpf')) and !Functions::validateCPF($request->input('cpf'))) {
+
             return response()->json([
                         'success' => false,
                         'data' => '',
                         'message' => 'CPF inválido',
-            ]); 
+            ]);
         }
 
 
@@ -456,7 +458,7 @@ class AuthController extends BaseController {
             $dadosPaciente['telefone'] = trim($request->input('telefone'));
             $dadosPaciente['celular'] = trim($request->input('celular'));
             $dadosPaciente['identificador'] = trim($request->input('perfilId'));
-            $dadosPaciente['cpf'] = ($request->has('cpf') and!empty($request->input('cpf'))) ?
+            $dadosPaciente['cpf'] = ($request->has('cpf') and !empty($request->input('cpf'))) ?
                     Functions::cpfToNumber(trim($request->input('cpf'))) : '';
             $dadosPaciente['envia_email'] = true;
 
@@ -507,7 +509,7 @@ class AuthController extends BaseController {
 
             $idDominio = ($request->has('perfilId')) ? $request->input('perfilId') : null;
 
-            if ($request->has('codigo') and!empty($request->input('codigo'))) {
+            if ($request->has('codigo') and !empty($request->input('codigo'))) {
                 return $result = $this->pacienteService->esqueciSenhaVerificaCodigo($idDominio, $request->input('email'), $request->input('codigo'), $request->input('password'));
             } else {
 
@@ -558,7 +560,7 @@ class AuthController extends BaseController {
         $credentials = $request->only(['email', 'password']);
 
         $UserObj = new User;
-        if ($request->has('authTokenBio') and!empty($request->input('authTokenBio'))) {
+        if ($request->has('authTokenBio') and !empty($request->input('authTokenBio'))) {
             $user = $UserObj::where('auth_token_docbiz', $request->input('authTokenBio'))
                     ->where('identificador', $request->input('perfil_id'))
                     ->first();
@@ -589,5 +591,4 @@ class AuthController extends BaseController {
 
         return $this->respondWithToken($token, $authTokenDocbiz);
     }
-
 }

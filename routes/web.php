@@ -97,6 +97,7 @@ $router->group(['middleware' => 'auth:clinicas', 'prefix' => 'api/clinicas', 'na
 
     $router->get('/gruposAtendimento', 'GrupoAtendimentoController@index');
     $router->get('/idiomas', 'IdiomaClinicaController@index');
+    $router->get('/conselhosProfissionais', 'GlobalController@conselhosProfissionais');
 
     //Agenda
     $router->group(['prefix' => 'agenda'], function ($router) {
@@ -194,6 +195,8 @@ $router->group(['middleware' => 'auth:clinicas', 'prefix' => 'api/clinicas', 'na
 
         $router->get('/', 'Doutores\DoutoresController@index');
 
+        $router->post('/', 'Doutores\DoutoresController@store');
+
         $router->get('/{doutorId}', 'Doutores\DoutoresController@getById');
         $router->post('/{doutorId}/avaliacoes', 'Doutores\DoutoresController@storeAvaliacoes');
 
@@ -284,6 +287,7 @@ $router->group(['middleware' => 'auth:clinicas', 'prefix' => 'v1/clinicas', 'nam
 
     $router->get('/gruposAtendimento', 'GrupoAtendimentoController@index');
     $router->get('/idiomas', 'IdiomaClinicaController@index');
+    $router->get('/conselhosProfissionais', 'GlobalController@conselhosProfissionais');
 
     //Agenda
     $router->group(['prefix' => 'agenda'], function ($router) {
@@ -381,6 +385,8 @@ $router->group(['middleware' => 'auth:clinicas', 'prefix' => 'v1/clinicas', 'nam
     $router->group(['prefix' => 'doutores'], function ($router) {
 
         $router->get('/', 'Doutores\DoutoresController@index');
+
+        $router->post('/', 'Doutores\DoutoresController@store');
         $router->get('/testeGoogle', 'Doutores\DoutoresController@testeGoogle');
         $router->post('/{doutorId}/avaliacoes', 'Doutores\DoutoresController@storeAvaliacoes');
 
@@ -435,6 +441,7 @@ $router->group(['middleware' => 'auth:clinicas_pacientes', 'prefix' => 'v1/clini
     $router->get('/gruposAtendimento', 'GrupoAtendimentoController@index');
     $router->get('/idiomas', 'IdiomaClinicaController@index');
     $router->get('/formacoesDoutores', 'DoutorFormacaoController@index');
+    $router->get('/conselhosProfissionais', 'GlobalController@conselhosProfissionais');
 
     //Agenda
     $router->group(['prefix' => 'agenda'], function ($router) {
@@ -518,6 +525,8 @@ $router->group(['middleware' => 'auth:clinicas_pacientes', 'prefix' => 'v1/clini
     //Doutores
     $router->group(['prefix' => 'doutores'], function ($router) {
         $router->get('/', 'Doutores\DoutoresController@index');
+
+        $router->post('/', 'Doutores\DoutoresController@store');
         $router->get('/filtros', 'Doutores\DoutoresController@filtros');
         $router->get('/{doutorId}/convenios', 'Doutores\DoutoresController@getConveniosDoutores');
         $router->get('/{doutorId}/fotos', 'Doutores\DoutoresFotoController@index');
@@ -558,6 +567,10 @@ $router->group(['middleware' => 'auth:clinicas_pacientes', 'prefix' => 'v1/clini
 //Api interna
 $router->group(['prefix' => '/v1/clinicas'], function () use ($router) {
     $router->post('loginInterno', 'AuthControllerInterno@loginInterno');
+
+    $router->group(['namespace' => 'ApiClinicas'], function ($router) {
+        $router->get('financeiro/recebimentos/downloadRecibo', 'Financeiro\RecebimentoController@downloadRecibo');
+    });
 });
 
 $router->group(['middleware' => 'auth:interno_api', 'prefix' => 'v1/clinicas'], function ($router) {
@@ -566,6 +579,11 @@ $router->group(['middleware' => 'auth:interno_api', 'prefix' => 'v1/clinicas'], 
 
     $router->group(['namespace' => 'ApiClinicas'], function ($router) {
 
+
+        $router->get('/cbo', 'GlobalController@cbo');
+        $router->get('/conselhosProfissionais', 'GlobalController@conselhosProfissionais');
+        
+        
         $router->get('/idiomas', 'IdiomaClinicaController@index'); //ok
         $router->get('/gruposAtendimento', 'GrupoAtendimentoController@index'); //ok
         $router->get('/formacoesDoutores', 'DoutorFormacaoController@index'); //ok
@@ -667,6 +685,8 @@ $router->group(['middleware' => 'auth:interno_api', 'prefix' => 'v1/clinicas'], 
         $router->group(['prefix' => 'doutores'], function ($router) {
 
             $router->get('/', 'Doutores\DoutoresController@index'); //ok
+
+            $router->post('/', 'Doutores\DoutoresController@store');
             $router->get('/filtros', 'Doutores\DoutoresController@filtros'); //ok
             $router->post('/{doutorId}/avaliacoes', 'Doutores\DoutoresController@storeAvaliacoes'); //ok
         });

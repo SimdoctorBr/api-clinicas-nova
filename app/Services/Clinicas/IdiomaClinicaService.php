@@ -89,5 +89,21 @@ class IdiomaClinicaService extends BaseService {
     }
 
  
+    public function insertIdiomasDoutor($idDominio, $idDoutor, $idGrupo) {
+
+
+
+        $qrVerifica = $this->idiomaClinicaRepository->verificaIdiomaDoutor($idDominio, $idDoutor, $idGrupo);
+        if ($qrVerifica) {
+            $row = $qrVerifica;
+            $this->idiomaClinicaRepository->updateIdiomaDoutorByIdDoutoresIdioma($idDominio, $row->id, ['status' => 1]);
+            return $row->id;
+        } else {
+            $campos['doutores_id'] = $idDoutor;
+            $campos['idiomas_id'] = $idGrupo;
+            $campos['identificador'] = $idDominio;
+            return $this->idiomaClinicaRepository->storeIdiomaDoutor($idDominio, $idDoutor, $campos);
+        }
+    }
 
 }

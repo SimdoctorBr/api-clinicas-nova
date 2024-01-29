@@ -86,7 +86,8 @@ class Functions {
         $diff = $dtAtual->diff($dtIni);
         return $diff->y;
     }
-     public static function removeAccents($msg) {
+
+    public static function removeAccents($msg) {
         $arrayAcentoToUtf8 = array("á" => "a", "à" => 'a', "â" => "a", "ã" => "a", "ä" => "a", "é" => "e", "è" => "e", "ê" => "e", "ë" => "e", "í" => "e", "ì" => "i", "î" => "i", "ï" => "i", "ó" => "o", "ò" => "o", "ô" => "o", "õ" => "o", "ö" => "o", "ú" => "u", "ù" => "u", "û" => "u", "ü" => "u", "ç" => "ç", "Á" => "A", "À" => "A", "Â" => "A", "Ã" => "A", "Ä" => "A", "É" => "E", "È" => "E", "Ê" => "E", "Ë" => "E", "Í" => "I", "Ì" => "I", "Î" => "I", "Ï" => "I", "Ó" => "O", "Ò" => "O", "Ô" => "O", "Õ" => "O", "Ö" => "O", "Ú" => "U", "Ù" => "U", "Û" => "U", "Ü" => "U", "Ç" => "Ç", "º" => "Âº", "ª" => "Âª");
         return strtr($msg, $arrayAcentoToUtf8);
     }
@@ -291,6 +292,29 @@ class Functions {
             }
         }
         return $retorno;
+    }
+
+    public static function validateCNPJ($cnpj) {
+
+        $cnpj = preg_replace('/[^0-9]/', '', (string) $cnpj);
+        // Valida tamanho
+        if (strlen($cnpj) != 14)
+            return false;
+        // Valida primeiro dígito verificador
+        for ($i = 0, $j = 5, $soma = 0; $i < 12; $i++) {
+            $soma += $cnpj[$i] * $j;
+            $j = ($j == 2) ? 9 : $j - 1;
+        }
+        $resto = $soma % 11;
+        if ($cnpj[12] != ($resto < 2 ? 0 : 11 - $resto))
+            return false;
+        // Valida segundo dígito verificador
+        for ($i = 0, $j = 6, $soma = 0; $i < 13; $i++) {
+            $soma += $cnpj[$i] * $j;
+            $j = ($j == 2) ? 9 : $j - 1;
+        }
+        $resto = $soma % 11;
+        return $cnpj[13] == ($resto < 2 ? 0 : 11 - $resto);
     }
 
     public static function validateCPF($cpf) {

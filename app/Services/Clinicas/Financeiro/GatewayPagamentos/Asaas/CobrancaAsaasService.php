@@ -23,6 +23,7 @@ use App\Services\AsaasAPI\Api\AsaasApiCobrancasItem;
 use App\Services\AsaasAPI\Api\AsaasApiCommons;
 use App\Services\Clinicas\Paciente\PlanoBeneficio\PlanoBeneficioConsOrcService;
 use App\Repositories\Clinicas\StatusRefreshRepository;
+use App\Repositories\Clinicas\Asaas\AssasSubcontasSplitClinicasRepository;
 
 /**
  * Description of Activities
@@ -44,14 +45,28 @@ class CobrancaAsaasService extends BaseService {
     private $descricao;
     private $arrayFormapag = ['pix', 'cartao'];
     private $dataVencimento;
-    
-    
+    private $contasSplit = [];
+
+    /**
+     * 
+     * @param type $tipoCliente 1- Doutores
+     * @param type $tipoId 
+     * @param type $tipovalorSplit 1- Percentual, 2 - Valor fixo
+     * @param type $valorSplit
+     */
+    public function setSplitValores($tipoCliente, $tipoId, $tipovalorSplit, $valorSplit) {
+        $this->contasSplit[] = [
+            'tipoCliente' => $tipoCliente,
+            'tipoId' => $tipoId,
+            'tipoValorSplit' => $tipovalorSplit,
+            'valorSplit' => $valorSplit,
+        ];
+    }
+
     public function setDataVencimento($dataVencimento) {
         $this->dataVencimento = $dataVencimento;
     }
 
-        
-    
     public function setDescricao($descricao) {
         $this->descricao = $descricao;
     }
@@ -101,6 +116,7 @@ class CobrancaAsaasService extends BaseService {
         $AsaasConfigService = new AsaasConfigService;
         $ConsultaService = new ConsultaService;
 
+//        dd($this->contasSplit);
         if (empty($rowConfigAsaas)) {
             $rowConfigAsaas = $AsaasConfigService->getConfig($idDominio);
         }
@@ -122,8 +138,7 @@ class CobrancaAsaasService extends BaseService {
                 return $this->returnError(null, 'Este perfil não possui o Asaas configurado.');
 //            } elseif (empty($formaPag)) {
 //                return $this->returnError(null, 'Forma de pagamento não informada');
-            } 
-            elseif (!empty($formaPag) and $formaPag != 'pix' and $formaPag != 'cartao') {
+            } elseif (!empty($formaPag) and $formaPag != 'pix' and $formaPag != 'cartao') {
                 return $this->returnError(null, 'Forma de pagamento  inválida.');
             } elseif (!empty($formaPag) and !in_array($formaPag, $this->arrayFormapag)) {
                 return $this->returnError(null, 'Forma de pagamento  inválida.');
@@ -151,7 +166,7 @@ class CobrancaAsaasService extends BaseService {
                         $idPaciente, $nomePaciente, $cpfPaciente, $emailPaciente);
                 if ($insertCustomer['success']) {
                     $idCustomer = $insertCustomer['data']['idCustomer'];
-                } 
+                }
             }
 
             //
@@ -169,7 +184,7 @@ class CobrancaAsaasService extends BaseService {
 
                 $qrPlBenPendencia = $PacientesAsaasPagamentosRepository->verificaAssinaturaPendencias($identificador, $rowAssinaturaPag->id);
 
-                if (!$rowAssinaturaPag and!$qrPlBenPendencia) {
+                if (!$rowAssinaturaPag and !$qrPlBenPendencia) {
                     $valorLiquido = Functions::calcularValorDescontoPlBeneficio($valorBruto, $rowAssinaturaPag->desconto_tipo, $rowAssinaturaPag->desconto_valor);
                 }
             }
@@ -178,9 +193,9 @@ class CobrancaAsaasService extends BaseService {
             $PacientesAsaasPagamentosService = new PacientesAsaasPagamentosService();
 
             //lançar cobrança
-       
+
             $dataVenc = $AsaasConfigService->calculaDiasProxVencimento($rowConfigAsaas->dias_venc_cobranca);
-            
+
             $AsaasApiCobranca = new AsaasApiCobrancas($this->ambienteAsaas, $rowConfigAsaas->apiKey);
             $AsaasApiCobrancasItem = new AsaasApiCobrancasItem();
             $AsaasApiCobrancasItem->setCustomerId($idCustomer);
@@ -190,15 +205,49 @@ class CobrancaAsaasService extends BaseService {
             $AsaasApiCobrancasItem->setValor($valorLiquido);
             $AsaasApiCobrancasItem->setTipoPagamento(AsaasApiCommons::sistemaToTipoPagamentoAsaas($this->formaPagamento));
             $AsaasApiCobrancasItem->setPeriodo('');
-            $linkPagAsaas = $AsaasApiCobranca->insertUpdateCobranca($AsaasApiCobrancasItem);
-            
-            if(isset($linkPagAsaas->errors)){
-                return $this->returnError($linkPagAsaas->errors[0]->description,'Ocorreu um erro ao gerar o link de pagamento');
+
+            ///SPLIT
+            $dadosSplitHistorico = [];
+            $AssasSubcontasSplitClinicasRepository = new AssasSubcontasSplitClinicasRepository;
+            if (count($this->contasSplit) > 0) {
+                foreach ($this->contasSplit as $dadosSplit) {
+                    $rowDoutSPlit = $AssasSubcontasSplitClinicasRepository->getByTipoClienteId($idDominio, $dadosSplit['tipoCliente'], $dadosSplit['tipoId']);
+                    if ($rowDoutSPlit) {
+                        $AsaasApiCobrancasItem->setSplitPagamento($rowDoutSPlit->walletId, $dadosSplit['tipoValorSplit'], $dadosSplit['valorSplit']);
+                        $dadosSplitHistorico[$rowDoutSPlit->walletId] = $dadosSplit;
+                    }
+                }
             }
-            
+
+
+
+            $linkPagAsaas = $AsaasApiCobranca->insertUpdateCobranca($AsaasApiCobrancasItem);
+
+            if (isset($linkPagAsaas->errors)) {
+                return $this->returnError($linkPagAsaas->errors[0]->description, 'Ocorreu um erro ao gerar o link de pagamento');
+            }
+
+
             $linkPagamentoAsaas = $linkPagAsaas->invoiceUrl;
 
             $PacientesAsaasPagamentosService = new PacientesAsaasPagamentosService();
+
+
+            //Adicionando o split
+            if (count($dadosSplitHistorico) > 0 && isset($linkPagAsaas->split) && count($linkPagAsaas->split) > 0) {
+                foreach ($linkPagAsaas->split as $rowS) {
+                    $PacientesAsaasPagamentosService->setPagSplit($dadosSplitHistorico[$rowS->walletId]['tipoCliente'],
+                            $dadosSplitHistorico[$rowS->walletId]['tipoId'],
+                            $dadosSplitHistorico[$rowS->walletId]['tipoValorSplit'],
+                            $dadosSplitHistorico[$rowS->walletId]['valorSplit'],
+                            $rowS->totalValue, $rowS->id);
+                }
+            }
+
+
+
+
+
             $PacientesAsaasPagamentosService->setTipo_registro(2);
             $PacientesAsaasPagamentosService->setId_registro($linkPagAsaas->id);
             $PacientesAsaasPagamentosService->setIdDominio($idDominio);
@@ -237,7 +286,7 @@ class CobrancaAsaasService extends BaseService {
             $PacientesAsaasPagamentosService->insertUpdate();
 
             return $this->returnSuccess([
-                            'linkPagamento' => $linkPagamentoAsaas
+                        'linkPagamento' => $linkPagamentoAsaas
             ]);
         }
     }
@@ -245,6 +294,7 @@ class CobrancaAsaasService extends BaseService {
     public function getById($idDominio, $idPacienteAss) {
         
     }
+
     public function delete($idDominio, $id) {
         
     }
@@ -256,5 +306,4 @@ class CobrancaAsaasService extends BaseService {
     public function update($idDominio, $id, array $dados) {
         
     }
-
 }

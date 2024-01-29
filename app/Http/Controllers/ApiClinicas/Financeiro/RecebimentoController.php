@@ -9,17 +9,16 @@ use App\Services\Clinicas\Financeiro\RecebimentoService;
 
 class RecebimentoController extends Controller {
 
-    
     public function store(Request $request) {
-        
-        
-          $getDominio = $this->getIdDominio($request, 'input', true);
+
+
+        $getDominio = $this->getIdDominio($request, 'input', true);
         if ($getDominio['success']) {
             $idDominio = $getDominio['perfisId'];
         } else {
             return response()->json($getDominio);
         }
-        
+
         $RecebimentoService = new RecebimentoService;
 
         $validate = validator($request->input(),
@@ -32,11 +31,10 @@ class RecebimentoController extends Controller {
             'consultasId.numeric' => 'O campo \'consultasId\' deve ser numérico',
         ]);
 
-      
         if ($validate->fails()) {
             return response()->json([
-                'success' =>false,
-                'error' =>$validate->errors()->all()[0]
+                        'success' => false,
+                        'error' => $validate->errors()->all()[0]
             ]);
         } else {
 
@@ -49,9 +47,24 @@ class RecebimentoController extends Controller {
                 return $this->returnResponse($result);
             }
         }
-        
-        
-        
     }
 
+    public function downloadRecibo(Request $request) {
+
+
+        if (!$request->has('code')) {
+
+            return response()->json([
+                        'success' => false,
+                        'error' => 'Url inválida'
+                            ], 404);
+        } else {
+            $RecebimentoService = new RecebimentoService;
+            $result = $RecebimentoService->downloadRecibo($request->query());
+        
+            if($result['success']){              
+               return response()->download($result['data'],'Recibo.pdf')->deleteFileAfterSend(true);
+            }
+        }
+    }
 }

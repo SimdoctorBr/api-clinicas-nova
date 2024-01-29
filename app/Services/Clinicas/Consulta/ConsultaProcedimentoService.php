@@ -31,11 +31,11 @@ class ConsultaProcedimentoService extends BaseService {
 
         $campos['identificador'] = $idDominio;
         $campos['data_cad'] = date('Y-m-d H:i:s');
-        $campos['valor_repasse'] = ( isset($dadosInsert['valor_repasse']) and!empty($dadosInsert['valor_repasse'])) ? $dadosInsert['valor_repasse'] : null;
-        $campos['tipo_repasse'] = (isset($dadosInsert['tipo_repasse']) and!empty($dadosInsert['tipo_repasse'])) ? $dadosInsert['tipo_repasse'] : null;
-        $campos['origem_repasse'] = (isset($dadosInsert['origem_repasse']) and!empty($dadosInsert['origem_repasse'])) ? $dadosInsert['origem_repasse'] : null;
-        $campos['executante_doutores_id'] = (isset($dadosInsert['executante_doutores_id']) and!empty($dadosInsert['executante_doutores_id'])) ? $dadosInsert['executante_doutores_id'] : null;
-        $campos['retorno_proc'] = (isset($dadosInsert['retorno_proc']) and!empty($dadosInsert['retorno_proc'])) ? $dadosInsert['retorno_proc'] : null;
+        $campos['valor_repasse'] = ( isset($dadosInsert['valor_repasse']) and !empty($dadosInsert['valor_repasse'])) ? $dadosInsert['valor_repasse'] : null;
+        $campos['tipo_repasse'] = (isset($dadosInsert['tipo_repasse']) and !empty($dadosInsert['tipo_repasse'])) ? $dadosInsert['tipo_repasse'] : null;
+        $campos['origem_repasse'] = (isset($dadosInsert['origem_repasse']) and !empty($dadosInsert['origem_repasse'])) ? $dadosInsert['origem_repasse'] : null;
+        $campos['executante_doutores_id'] = (isset($dadosInsert['executante_doutores_id']) and !empty($dadosInsert['executante_doutores_id'])) ? $dadosInsert['executante_doutores_id'] : null;
+        $campos['retorno_proc'] = (isset($dadosInsert['retorno_proc']) and !empty($dadosInsert['retorno_proc'])) ? $dadosInsert['retorno_proc'] : null;
         $campos['dicom'] = (!empty($dadosInsert['dicom'])) ? $dadosInsert['dicom'] : null;
         $campos['dicom_code'] = (!empty($dadosInsert['dicom_code'])) ? $dadosInsert['dicom_code'] : null;
         $campos['dicom_modality_id'] = (!empty($dadosInsert['dicom_modality_id'])) ? $dadosInsert['dicom_modality_id'] : null;
@@ -55,12 +55,12 @@ class ConsultaProcedimentoService extends BaseService {
         $campos['id_proc_pacote'] = (!empty($dadosInsert['id_proc_pacote'])) ? $dadosInsert['id_proc_pacote'] : null;
         $campos['id_proc_pacote_item'] = (!empty($dadosInsert['id_proc_pacote_item'])) ? $dadosInsert['id_proc_pacote_item'] : null;
 
-        if (isset($dadosInsert['id_proc_pacote_item']) and!empty($dadosInsert['id_proc_pacote_item'])) {
+        if (isset($dadosInsert['id_proc_pacote_item']) and !empty($dadosInsert['id_proc_pacote_item'])) {
             $campos['base_calc_pacote_item'] = $dadosInsert['valor_proc'];
             $campos['valor_proc'] = null;
         }
 
-        if (isset($dadosInsert['duracao']) and!empty($dadosInsert['duracao'])) {
+        if (isset($dadosInsert['duracao']) and !empty($dadosInsert['duracao'])) {
             $campos['duracao'] = $dadosInsert['duracao'];
         } else {
             $campos['duracao'] = null;
@@ -68,13 +68,13 @@ class ConsultaProcedimentoService extends BaseService {
 
         $campos['executante_nome_cript'] = (!empty($dadosInsert['executante_nome_cript'])) ? $dadosInsert['executante_nome_cript'] : null;
 
-        if (isset($dadosInsert['idCarteriaVirtualItem']) and!empty($dadosInsert['idCarteriaVirtualItem'])) {
+        if (isset($dadosInsert['idCarteriaVirtualItem']) and !empty($dadosInsert['idCarteriaVirtualItem'])) {
             $CarteiraVirtualRepository = new CarteiraVirtualRepository();
             $CarteiraVirtualRepository->vinculaCarteiraItemConsulta($idDominio, $dadosInsert['idCarteriaVirtualItem'], $dadosInsert['consultas_id']);
         }
 
         $ConsultaProcedimentoRepository = new ConsultaProcedimentoRepository;
-        if (isset($dadosInsert['id']) and!empty($dadosInsert['id'])) {
+        if (isset($dadosInsert['id']) and !empty($dadosInsert['id'])) {
             $ConsultaProcedimentoRepository->update($idDominio, $dadosInsert['id'], $dadosInsert);
             return $dadosInsert['id'];
         } else {
@@ -96,7 +96,7 @@ class ConsultaProcedimentoService extends BaseService {
                     'procedimentoId' => $rowProc->procedimentos_id,
                     'procConvId' => $rowProc->procedimentos_id . '_' . $rowProc->convenios_id,
                     'nome' => Functions::utf8Fix($rowProc->nome_proc),
-                    'duracao' =>$rowProc->duracao,
+                    'duracao' => $rowProc->duracao,
                     'convenioId' => $rowProc->convenios_id,
                     'convenioNome' => Functions::correcaoUTF8Decode($rowProc->nome_convenio),
                     'valor' => $rowProc->valor_proc,
@@ -155,6 +155,7 @@ class ConsultaProcedimentoService extends BaseService {
         $DADOS_RETORNO = [
             'idsProcConsultas' => null,
             'valorTotalProc' => 0,
+            'dadosSplit' => null
         ];
 
         $qrConvenios = $ConvenioRepository->getAll($idDominio);
@@ -183,7 +184,7 @@ class ConsultaProcedimentoService extends BaseService {
         foreach ($dadosProcedimentos as $rowInputProc) {
 
 
-            if (isset($rowInputProc['idConsultaProcedimento']) and!empty($rowInputProc['idConsultaProcedimento'])) {
+            if (isset($rowInputProc['idConsultaProcedimento']) and !empty($rowInputProc['idConsultaProcedimento'])) {
                 $idsConsultaProcSelecionado[] = $rowInputProc['idConsultaProcedimento'];
             }
 
@@ -335,6 +336,21 @@ class ConsultaProcedimentoService extends BaseService {
                             } else {
                                 $valorRepasse = $rowInputProc['qnt'] * $rowRepasse->valor_real;
                             }
+
+
+                            if ($rowRepasse->split_assas == 1) {
+
+                                if (!isset($DADOS_RETORNO['dadosSplit'][$idDoutorRepasse])) {
+                                    $DADOS_RETORNO['dadosSplit'] = [$idDoutorRepasse => [
+                                            'valorRepasse' => $valorRepasse
+                                    ]];
+                                }else{
+                                    $DADOS_RETORNO['dadosSplit'][$idDoutorRepasse] ['valorRepasse'] += $valorRepasse;
+                                }
+
+
+                              
+                            }
                         }
                     }
                 }
@@ -360,7 +376,7 @@ class ConsultaProcedimentoService extends BaseService {
 
 
 
-            $dadosConsultaProcInsert['id'] = (isset($rowInputProc['idConsultaProcedimento']) and!empty($rowInputProc['idConsultaProcedimento'])) ? $rowInputProc['idConsultaProcedimento'] : '';
+            $dadosConsultaProcInsert['id'] = (isset($rowInputProc['idConsultaProcedimento']) and !empty($rowInputProc['idConsultaProcedimento'])) ? $rowInputProc['idConsultaProcedimento'] : '';
             $dadosConsultaProcInsert['identificador'] = $idDominio;
             $dadosConsultaProcInsert['consultas_id'] = $consultaId;
             $dadosConsultaProcInsert['convenios_id'] = $DADOS_CONVENIO[$rowInputProc['convenioId']]['id'];
@@ -416,10 +432,8 @@ class ConsultaProcedimentoService extends BaseService {
 //                    $idsProcParcial[] = $idConsultaProcedimento;
 //                }
             $DADOS_RETORNO['valorTotalProc'] += $totalProc;
-          
         }
-        
-          return $DADOS_RETORNO;
-    }
 
+        return $DADOS_RETORNO;
+    }
 }

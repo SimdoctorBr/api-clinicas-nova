@@ -35,6 +35,19 @@ class GrupoAtendimentoRepository extends BaseRepository {
         return $qr;
     }
 
+    public function getById($idDominio, $grupoAtendId) {
+
+        $qr = $this->connClinicas()->select("SELECT A.*
+                                                 FROM grupo_atendimento AS A
+                                                WHERE (A.identificador IS NULL OR A.identificador = $idDominio)
+                                                    AND A.id = $grupoAtendId");
+        if (count($qr) > 0) {
+            return $qr[0];
+        } else {
+            return false;
+        }
+    }
+
     public function getDoutoresPorGrupoAtendimentoId($idDominio, $grupoAtendId) {
 
         if (is_array($idDominio)) {
@@ -80,12 +93,30 @@ class GrupoAtendimentoRepository extends BaseRepository {
         } else {
             $sqlFiltro = " AND doutores_id = $idsDoutores";
         }
-     
-       
+
+
         $qr = $this->connClinicas()->select(" SELECT $campos
                                             FROM doutores_grupo_atendimento
                                                WHERE identificador = $idDominio $sqlFiltro  AND status = 1");
         return $qr;
     }
 
+    public function verificaGrupoDoutor($idDominio, $idDoutor, $idGrupo) {
+        $qr = $this->connClinicas()->select("SELECT id FROM doutores_grupo_atendimento WHERE identificador = $idDominio AND grupo_atendimento_id= $idGrupo AND doutores_id = $idDoutor");
+        if (count($qr) > 0) {
+            return $qr[0];
+        } else {
+            return false;
+        }
+    }
+
+    public function storeGrupoDoutor($idDominio, $idDoutor, $dados) {
+        $dados['identificador'] = $idDominio;
+        $dados['doutores_id'] = $idDoutor;
+        return $qr = $this->insertDB('doutores_grupo_atendimento', $dados, null, 'clinicas');
+    }
+    
+    public function updateGrupoDoutorByIdDoutoresGrupo($idDominio, $idDoutoresGrupo,$dados) {
+        return $qr = $this->updateDB('doutores_grupo_atendimento', $dados, " identificador = $idDominio AND id = $idDoutoresGrupo LIMIT 1",null, 'clinicas');
+    }
 }

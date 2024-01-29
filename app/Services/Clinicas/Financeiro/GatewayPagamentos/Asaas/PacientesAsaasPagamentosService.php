@@ -12,6 +12,7 @@ use App\Services\BaseService;
 use DateTime;
 use App\Helpers\Functions;
 use App\Repositories\Clinicas\PacientesAsaasPagamentosRepository;
+use \App\Repositories\Clinicas\Asaas\AssasSubcontasSplitClinicasRepository;
 
 /**
  * Description of Activities
@@ -43,6 +44,7 @@ class PacientesAsaasPagamentosService extends BaseService {
     private $numero_fatura;
     private $netValue;
     private $cobranca_alteracao;
+    private $pagSplit = [];
 
     public function setCobranca_alteracao($cobranca_alteracao) {
         $this->cobranca_alteracao = $cobranca_alteracao;
@@ -144,6 +146,27 @@ class PacientesAsaasPagamentosService extends BaseService {
         $this->id_assinatura = $id_assinatura;
     }
 
+    /**
+     * 
+     * @param type $tipo_cliente
+     * @param type $doutoresId
+     * @param type $tipoSplit 1-Percentual, 2-Fixo
+     * @param type $valorSplit
+     * @param type $valorPago
+     * @param type $idSplitAssas
+     */
+    public function setPagSplit($tipo_cliente, $doutoresId, $tipoSplit, $valorSplit, $valorPago, $idSplitAssas = null) {
+
+        $this->pagSplit[] = [
+            'tipo_cliente' => $tipo_cliente,
+            'tipo_id' => $doutoresId,
+            'tipo_split' => $tipoSplit,
+            'valor_tipo_split' => $valorSplit,
+            'valor' => $valorPago,
+            'id_split_assas' => $idSplitAssas,
+        ];
+    }
+
     public function insertUpdate() {
 
         $PacientesAsaasPagamentosRepository = new PacientesAsaasPagamentosRepository;
@@ -189,7 +212,19 @@ class PacientesAsaasPagamentosService extends BaseService {
             $PacientesAsaasPagamentosRepository->update($this->idDominio, $this->id);
             return $this->id;
         } else {
-            return $PacientesAsaasPagamentosRepository->store($this->idDominio, $campos);
+            $idPag = $PacientesAsaasPagamentosRepository->store($this->idDominio, $campos);
+
+            if (is_numeric($idPag) and count($this->pagSplit) > 0) {
+                foreach ($this->pagSplit as $itemSplit) {
+                    $dadosInsert = $itemSplit;
+                    $dadosInsert['identificador'] = $this->idDominio;
+                    $dadosInsert['paciente_assas_pag_id'] = $idPag;
+                    $dadosInsert['data_cad'] = date('Y-m-d H:i:s');
+                    $AssasSubcontasSplitClinicasRepository = new AssasSubcontasSplitClinicasRepository;
+                    $AssasSubcontasSplitClinicasRepository->insertSplitHistorico($this->idDominio, $dadosInsert);
+                }
+            }
+            return $idPag;
         }
     }
 

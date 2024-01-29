@@ -326,7 +326,7 @@ class PacienteService extends BaseService {
 
             $teste = Mail::send('emails.esqueciSenhaPacienteApiMail', ['name' => $nome, 'links' => $Links], function ($message) use ($email, $nome, $rowEmpresa) {
                         $message->to($email, $nome)->subject('Alteração de senha');
-                        $message->from('naoresponda@simdoctor.com.br', $rowEmpresa->nome);
+                        $message->from('naoresponda@simdoctor.com.br', utf8_decode($rowEmpresa->nome));
                     });
 
             return $this->returnSuccess(null, 'E-mail enviado com sucesso.');

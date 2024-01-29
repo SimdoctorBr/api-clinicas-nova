@@ -86,4 +86,15 @@ class EspecialidadeService extends BaseService {
         }
     }
 
+    public function insertEspecialidadeDoutor($idDominio, $idDoutor, $especialidadeId = null, $outraEspecialidade = null) {
+        $campos['doutores_id'] = $idDoutor;
+        $campos['identificador'] = $idDominio;
+        if (!empty($especialidadeId)) {
+            $campos['especialidade_id'] = $especialidadeId;
+        }
+        if (!empty($outraEspecialidade)) {
+            $campos['outro'] = $outraEspecialidade;
+        }
+        return $this->especialidadeRepository->storeEspecialidadeDoutor($idDominio, $idDoutor, $campos);
+    }
 }

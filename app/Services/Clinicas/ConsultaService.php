@@ -45,6 +45,7 @@ use App\Services\Clinicas\EspecialidadeService;
 use App\Services\Google\IntegracaoGoogleService;
 use App\Repositories\Clinicas\IntegracaoGoogleRepository;
 use App\Repositories\Clinicas\Paciente\PacienteDependentesRepository;
+use Illuminate\Support\Facades\Crypt;
 
 /**
  * Description of Activities
@@ -57,6 +58,7 @@ class ConsultaService extends BaseService {
     private $definicaoMarcacaoConsultaRepository;
     private $prontuarioService;
     private $consultaProcedimentoService;
+    private $tipoContratoDoutor = [1 => 'Pessoa Jurídica', 2 => 'Autônomo'];
 
     public function __construct() {
         $this->consultaRepository = new ConsultaRepository;
@@ -135,6 +137,13 @@ class ConsultaService extends BaseService {
             'encaixeAutorizadoPor' => $rowConsulta->encaixe_observacao,
         );
 
+        $retorno['doutor']['tipoContrato'] = null;
+        if (!empty($rowConsulta->tipoContratoDoutor)) {
+            $retorno['doutor']['tipoContrato'] = [
+                'id' => $rowConsulta->tipoContratoDoutor,
+                'nome' => $this->tipoContratoDoutor[$rowConsulta->tipoContratoDoutor],
+            ];
+        }
         //Especialidades
         $retorno['doutor']['especialidades'] = null;
         if (isset($rowConsulta->nomeEspecialidade) and !empty($rowConsulta->nomeEspecialidade)) {
@@ -241,7 +250,17 @@ class ConsultaService extends BaseService {
         $retorno['pago'] = false;
         if (!empty($rowConsulta->idRecebimento)) {
             $retorno['pago'] = true;
+
+            $codeRecibo = Crypt::encrypt(json_encode([
+                        'idDominio' => $rowConsulta->identificador,
+                        'nomeDominio' => $nomeDominio,
+                        'tipo' => 'consultas',
+                        'idTipo' => $rowConsulta->id,
+            ]));
+            $retorno['urlRecibo'] = env('APP_URL') . '/financeiro/recebimentos/downloadRecibo?code=' . $codeRecibo;
         }
+
+
 
         $retorno['desconto'] = null;
         $retorno['acrescimo'] = null;
@@ -569,6 +588,7 @@ class ConsultaService extends BaseService {
 
     public function store($idDominio, $dadosInput, $dadosPac = null) {
 
+
         $dadosFiltroConsulta = null;
         $pacienteId = (isset($dadosInput['pacienteId']) and !empty($dadosInput['pacienteId'])) ? $dadosInput['pacienteId'] : null;
         $doutorId = $dadosInput['doutorId'];
@@ -714,11 +734,14 @@ class ConsultaService extends BaseService {
         $PacienteService = new PacienteService();
 
         if (!empty($pacienteId)) {
+
             $qrPaciente = $PacienteService->getById($idDominio, $pacienteId);
 
             if (!$qrPaciente['success']) {
                 return $this->returnError('', 'Paciente não encontrado');
             }
+
+
             $rowPaciente = $qrPaciente['data'];
             if (!isset($dadosInput['paciente']['celular']) and !empty($dadosInput['paciente']['celular'])) {
                 $PacienteService->atualizarPaciente($idDominio, $pacienteId, ['celular' => $dadosInput['paciente']['celular']]);
@@ -845,10 +868,14 @@ class ConsultaService extends BaseService {
                 }
             }
 
+
             if (count($dadosProcedimentos) > 0) {
                 $resultProc = $ConsultaProcedimentoService->calculoProcedimentosConsultas($idDominio, $idConsulta, $doutorId, $dadosProcedimentos, $rowDominio, $rowDoutor);
                 $precoConsulta = $resultProc['valorTotalProc'];
+                
             }
+
+
 
             //Assaas
 
@@ -866,6 +893,13 @@ class ConsultaService extends BaseService {
                 $CobrancaAsaasService->setPacienteNome($rowPaciente['nome'] . ' ' . $rowPaciente['sobrenome']);
                 $CobrancaAsaasService->setValor($precoConsulta);
                 $CobrancaAsaasService->setDescricao($descricaoAsaasCobranca);
+
+                if (isset($resultProc['dadosSplit']) and $resultProc['dadosSplit'] != null) {
+                    foreach ($resultProc['dadosSplit'] as $chaveIdDoutor => $valor) {
+                        $CobrancaAsaasService->setSplitValores(1, $chaveIdDoutor, 2, $valor['valorRepasse']);
+                    }
+                }
+
                 $rowCons = $this->consultaRepository->getById($idDominio, $idConsulta);
 
                 $cobrancaAsaas = $CobrancaAsaasService->createCobrancaConsulta($idDominio, $idConsulta, $rowConfigAsaas, $rowCons);
@@ -919,8 +953,8 @@ class ConsultaService extends BaseService {
                 $dadosEmail['email'] = $rowPaciente['email'];
                 $dadosEmail['enviaEmail'] = $rowPaciente['enviaEmail'];
             }
-    
-            if (!empty($dadosEmail['email']) and $dadosEmail['enviaEmail'] == 1) { 
+
+            if (!empty($dadosEmail['email']) and $dadosEmail['enviaEmail'] == 1) {
                 $EmailAgendamentoService = new EmailAgendamentoService($idDominio);
                 $EmailAgendamentoService->setNomePaciente($rowPaciente['nome'] . ' ' . $rowPaciente['sobrenome']);
                 $EmailAgendamentoService->setDoutorId($doutorId);
@@ -935,17 +969,14 @@ class ConsultaService extends BaseService {
                 $EmailAgendamentoService->setPrecoConsulta($precoConsulta);
                 $EmailAgendamentoService->setEmailPaciente($dadosEmail['email']);
 
-                     
 //                try {
                 $enviado = $EmailAgendamentoService->sendEmailAgendamento($idDominio, $idConsulta, 'confirmacaoConsulta');
 //                } catch (Exception $ex) {
 ////                    dd('erro');
 //                }
             }
-            
+
 //              dd($enviado);
-
-
 //            $ConsultaReservadaService->store($idDominio, [
 //                'consultas_id' => '',
 //                'identificador' => $idDominio,

@@ -51,13 +51,13 @@ class GrupoAtendimentoService extends BaseService {
                 $retorno[$i]['nome'] = utf8_decode($row->nome);
 //
                 if (isset($dadosFiltro['withDoctors']) and $dadosFiltro['withDoctors'] == true) {
-                    
+
                     $qrGrupoDoutor = $this->grupoAtendimento->getDoutoresPorGrupoAtendimentoId($idDominio, $row->id);
                     foreach ($qrGrupoDoutor as $rowDout) {
                         $retorno[$i]['doutores'][] = ['id' => $rowDout->doutores_id,
                             'nome' => $rowDout->nomeDoutor,
                             'perfilId' => $rowDout->identificador,
-                                ];
+                        ];
                     }
                 }
 
@@ -87,4 +87,20 @@ class GrupoAtendimentoService extends BaseService {
         }
     }
 
+    public function insertGrupoDoutor($idDominio, $idDoutor, $idGrupo) {
+
+
+
+        $qrVerifica = $this->grupoAtendimento->verificaGrupoDoutor($idDominio, $idDoutor, $idGrupo);
+        if ($qrVerifica) {
+            $row = $qrVerifica;
+            $this->grupoAtendimento->updateGrupoDoutorByIdDoutoresGrupo($idDominio, $row->id, ['status' => 1]);
+            return $row->id;
+        } else {
+            $campos['doutores_id'] = $idDoutor;
+            $campos['grupo_atendimento_id'] = $idGrupo;
+            $campos['identificador'] = $idDominio;
+            return $this->grupoAtendimento->storeGrupoDoutor($idDominio, $idDoutor, $campos);
+        }
+    }
 }

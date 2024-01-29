@@ -25,6 +25,31 @@ class AsaasApiCobrancasItem {
     private $creditCardToken;
     private $remoteIp;
     private $nome;
+    private $contasSplit = [];
+
+    /**
+     * 
+     * @param type $walletId
+     * @param type $tipoValor 1 -percentual, 2- fixo, 3 - fixoParcelamento
+     * @param type $valor
+     */
+    public function setSplitPagamento($walletId, $tipoValor, $valor) {
+
+        $split['walletId'] = $walletId;
+        switch ($tipoValor) {
+            case 1: $split['percentualValue'] = $valor;
+                break;
+            case 2: $split['fixedValue'] = $valor;
+                break;
+            case 3:$split['totalFixedValue'] = $valor;
+                break;
+        }
+        $this->contasSplit[] = $split;
+    }
+
+    public function getContasSplit() {
+        return $this->contasSplit;
+    }
 
     public function getDtVencimento() {
         return $this->dtVencimento;
@@ -142,10 +167,6 @@ class AsaasApiCobrancasItem {
         return $this->status;
     }
 
-    public function getSplit() {
-        return $this->split;
-    }
-
     public function getCreditCard() {
         return $this->creditCard;
     }
@@ -205,7 +226,6 @@ class AsaasApiCobrancasItem {
 
         $this->creditCardToken = $creditCardToken;
         $this->remoteIp = $remoteIp;
-
     }
 
     public function setDadosCartaoCreditoTitular($nome, $email, $cpfCnpj, $cep, $phone, $enderecoNumero, $enderecoComplemento = null, $celular = null) {
@@ -219,25 +239,5 @@ class AsaasApiCobrancasItem {
             'phone' => $phone,
             'mobilePhone' => $celular,
         ];
-
     }
-
-    /**
-     * 
-     * @param type $walletId
-     * @param type $tipoValor fixo, percentual
-     * @param type $valor
-     * @return type
-     */
-    public function setSplitPagamento($walletId, $tipoValor = 'fixo', $valor) {
-        $this->split = [
-            'walletId' => $walletId,
-        ];
-        if ($tipoValor == 'percentual') {
-            $this->split['percentualValue'] = $valor;
-        } else {
-            $this->split['fixedValue'] = $valor;
-        }
-    }
-
 }

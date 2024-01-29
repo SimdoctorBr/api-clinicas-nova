@@ -39,12 +39,13 @@ class DoutorFormacaoRepository extends BaseRepository {
         } else {
             $sqlDominio = "A.identificador = $idDominio";
         }
+
         $qr = $this->connClinicas()->select("SELECT A.*,AES_DECRYPT(B.nome_cript, '$this->ENC_CODE')  as nomeDoutor
                                                  FROM doutores_formacoes AS A
                                                 LEFT JOIN doutores AS B
                                                 ON B.id = A.doutores_id
                                                 WHERE
-                                                $sqlDominio AND A.nome_formacao = '$nomeFormacao' AND B.status_doutor=1 ");
+                                                $sqlDominio AND A.nome_formacao = '" . addslashes($nomeFormacao) . "' AND B.status_doutor=1 ");
         return $qr;
     }
 
@@ -56,9 +57,8 @@ class DoutorFormacaoRepository extends BaseRepository {
                                                 A.identificador = $idDominio AND A.doutores_id = $doutorId  ");
         return $qr;
     }
-    
-    
-     public function getDoutoresFiltro($idDominio, $idsDoutores, $agruparIdsFormacoes = false) {
+
+    public function getDoutoresFiltro($idDominio, $idsDoutores, $agruparIdsFormacoes = false) {
 
         $campos = '*';
         $sqlFiltro = "";
@@ -77,4 +77,13 @@ class DoutorFormacaoRepository extends BaseRepository {
         return $qr;
     }
 
+    public function storeFormacaoDoutor($idDominio, $idDoutor, $dados) {
+        $dados['identificador'] = $idDominio;
+        $dados['doutores_id'] = $idDoutor;
+        return $qr = $this->insertDB('doutores_formacoes', $dados, null, 'clinicas');
+    }
+
+    public function updateFormacaoDoutorByIdDoutoresFormacao($idDominio, $idDoutoresFormacao, $dados) {
+        return $qr = $this->updateDB('doutores_formacoes', $dados, " identificador = $idDominio AND id = $idDoutoresFormacao LIMIT 1", null, 'clinicas');
+    }
 }

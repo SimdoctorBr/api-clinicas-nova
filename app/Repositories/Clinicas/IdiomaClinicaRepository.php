@@ -67,4 +67,32 @@ class IdiomaClinicaRepository extends BaseRepository {
         return $qr;
     }
 
+    public function getById($id) {
+
+        $qr = $this->connClinicas()->select("SELECT A.* FROM idiomas AS A  WHERE  A.id = $id");
+        if (count($qr) > 0) {
+            return $qr[0];
+        } else {
+            return false;
+        }
+    }
+
+    public function verificaIdiomaDoutor($idDominio, $idDoutor, $idIdioma) {
+        $qr = $this->connClinicas()->select("SELECT id FROM doutores_idiomas WHERE identificador = $idDominio AND idiomas_id= $idIdioma AND doutores_id = $idDoutor");
+        if (count($qr) > 0) {
+            return $qr[0];
+        } else {
+            return false;
+        }
+    }
+
+    public function storeIdiomaDoutor($idDominio, $idDoutor, $dados) {
+        $dados['identificador'] = $idDominio;
+        $dados['doutores_id'] = $idDoutor;
+        return $qr = $this->insertDB('doutores_idiomas', $dados, null, 'clinicas');
+    }
+
+    public function updateIdiomaDoutorByIdDoutoresIdioma($idDominio, $idDoutoresIdioma, $dados) {
+        return $qr = $this->updateDB('doutores_idiomas', $dados, " identificador = $idDominio AND id = $idDoutoresIdioma LIMIT 1", null, 'clinicas');
+    }
 }

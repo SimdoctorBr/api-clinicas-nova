@@ -21,18 +21,18 @@ class EspecialidadeRepository extends DoutoresRepository {
         $sqlFiltroUnion = '';
 
         $orderBy = "ORDER BY    nome ASC";
-        if (isset($dadosFiltro['orderBy']) and!empty($dadosFiltro['orderBy'])) {
+        if (isset($dadosFiltro['orderBy']) and !empty($dadosFiltro['orderBy'])) {
             $orderBy = " ORDER BY {$dadosFiltro['orderBy']} ";
         }
 
         if (isset($dadosFiltro['withDoctors']) and $dadosFiltro['withDoctors'] == true) {
 
             $sqlFiltro = '';
-            if (isset($dadosFiltro['tipoAtendimento']) and!empty($dadosFiltro['tipoAtendimento'])) {
+            if (isset($dadosFiltro['tipoAtendimento']) and !empty($dadosFiltro['tipoAtendimento'])) {
                 $sqlFiltro .= $this->sqlFilterTipoAtendimento($dadosFiltro['tipoAtendimento'], 'C');
                 $sqlFiltroUnion .= $this->sqlFilterTipoAtendimento($dadosFiltro['tipoAtendimento'], 'A');
             }
-            if (isset($dadosFiltro['valorConsulta']) and!empty($dadosFiltro['valorConsulta'])) {
+            if (isset($dadosFiltro['valorConsulta']) and !empty($dadosFiltro['valorConsulta'])) {
 
                 $tipoAtendimentoF = (isset($dadosFiltro['tipoAtendimento'])) ? $dadosFiltro['tipoAtendimento'] : null;
                 $valorConsultaMax = (isset($dadosFiltro['valorConsultaMax'])) ? $dadosFiltro['valorConsultaMax'] : null;
@@ -48,7 +48,7 @@ class EspecialidadeRepository extends DoutoresRepository {
 ////                 dd( $dadosFiltro['nomeFormacao']);
 //                $sqlFiltro .= $this->sqlFilterNomeFormacao($dadosFiltro['nomeFormacao'], 'C');
 //            }
-            if (isset($dadosFiltro['tags']) and!empty($dadosFiltro['tags'])) {
+            if (isset($dadosFiltro['tags']) and !empty($dadosFiltro['tags'])) {
                 $sqlFiltro .= $this->sqlFilterTagsTratamento($dadosFiltro['tags']);
             }
 
@@ -143,4 +143,35 @@ class EspecialidadeRepository extends DoutoresRepository {
         return $qr;
     }
 
+    public function findByName($idDominio, $nomeEspecialidade) {
+        $qr = $this->connClinicas()->select("SELECT *
+            FROM especialidades AS A
+            WHERE identificador = $idDominio AND nome = '$nomeEspecialidade' AND status = 1");
+        if (count($qr) > 0) {
+            return $qr[0];
+        } else {
+            return false;
+        }
+    }
+
+    public function verificaEspecialidadeDoutor($idDominio, $idDoutor, $IdEspecialidade = null, $outraEspecialidade = null) {
+        $qr = $this->connClinicas()->select("SELECT id FROM doutores_especialidades
+            WHERE identificador = $idDominio AND doutores_id = $idDoutor  AND 
+                (especialidade_id= $IdEspecialidade  OR outro = $outraEspecialidade)");
+        if (count($qr) > 0) {
+            return $qr[0];
+        } else {
+            return false;
+        }
+    }
+
+    public function storeEspecialidadeDoutor($idDominio, $idDoutor, $dados) {
+        $dados['identificador'] = $idDominio;
+        $dados['doutores_id'] = $idDoutor;
+        return $qr = $this->insertDB('doutores_especialidades', $dados, null, 'clinicas');
+    }
+
+    public function updateEspecialidadeDoutorByIdDoutoresEspecialidade($idDominio, $idDoutoresEspecialidades, $dados) {
+        return $qr = $this->updateDB('doutores_especialidades', $dados, " identificador = $idDominio AND id = $idDoutoresEspecialidades LIMIT 1", null, 'clinicas');
+    }
 }
